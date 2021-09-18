@@ -3,6 +3,8 @@
     :class="{ active: value }"
     :style="{ transform: 'translate(' + x + 'px, ' + y + 'px)' }"
     @click="$emit('input', !value)"
+    @keypress="$emit('input', !value)"
+    tabindex="0"
   >
     <rect width="32" height="32" />
     <text x="16" y="16" height="32" width="32">
@@ -53,6 +55,14 @@ g.active {
   }
   & > text {
     fill: var(--active-text-color);
+  }
+}
+
+g:focus-visible {
+  outline: 0;
+
+  rect {
+    outline: 4px solid #fff;
   }
 }
 </style>
