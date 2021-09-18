@@ -35,7 +35,7 @@
         PC
       </tspan>
     </text>
-    <word :x="712" :y="688" v-model="wordValue" />
+    <word :x="712" :y="688" v-model="value" />
     <path
       id="pc_indicator_inc"
       inkscape:transform-center-y="-0.61"
@@ -50,14 +50,55 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from '@vue/composition-api';
+import { defineComponent, ref, watch } from '@vue/composition-api';
 import word from 'components/Word.vue';
 
 export default defineComponent({
   name: 'ProgramCounter',
   components: { word },
-  setup() {
-    return { wordValue: 0 };
+  props: {
+    nextValue: {
+      type: Number,
+      required: true,
+    },
+    addressBus: {
+      type: Number,
+      required: true,
+    },
+    jumpToNext: {
+      type: Boolean,
+      required: true,
+    },
+    jumpToAddr: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  setup(props, { emit }) {
+    const value = ref(0);
+
+    function pcWrite() {
+      emit('pc-write', value.value & 0xf);
+    }
+    function pcUpdate(newValue: boolean) {
+      if (!newValue) return;
+      let addr = 0;
+      if (props.jumpToNext) {
+        addr = addr | props.nextValue;
+      }
+      if (props.jumpToAddr) {
+        addr = addr | props.nextValue;
+      }
+      value.value = addr & 0xf;
+    }
+
+    watch(value, (newValue) => emit('pc-write', value.value & 0xf));
+    watch(() => props.jumpToNext, pcUpdate);
+    watch(() => props.jumpToAddr, pcUpdate);
+
+    pcWrite();
+
+    return { value };
   },
 });
 </script>

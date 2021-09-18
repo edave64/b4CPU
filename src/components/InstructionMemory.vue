@@ -35,15 +35,19 @@
         Instruct.
       </tspan>
     </text>
-    <path
-      id="program_indicator"
-      inkscape:flatsided="true"
-      inkscape:rounded="0"
-      inkscape:randomized="0"
-      transform="matrix(0,1.9517638,-1.951764,0,131.89999,183.47756)"
-      inkscape:transform-center-x="-0.61"
-      d="m 4.370366,55.28166 4.0963003,-7.095 4.0962997,7.095 z"
-    />
+    <g
+      :style="
+        'transform: translate(0px, ' +
+        (40 * (programCounter % 4) + 168 * Math.floor(programCounter / 4)) +
+        'px)'
+      "
+    >
+      <path
+        id="program_indicator"
+        transform="matrix(0,1.9517638,-1.951764,0,131.89999,183.47756)"
+        d="m 4.370366,55.28166 4.0963003,-7.095 4.0962997,7.095 z"
+      />
+    </g>
     <g v-for="cluster in [0, 1, 2, 3]" :key="cluster">
       <g v-for="i in [0, 1, 2, 3]" :key="cluster + '_' + i">
         <word
@@ -81,6 +85,10 @@ export default defineComponent({
   props: {
     initialState: {
       type: Object,
+      required: true,
+    },
+    programCounter: {
+      type: Number,
       required: true,
     },
   },
@@ -144,7 +152,7 @@ export default defineComponent({
       initialaddressState['15'].value,
     ]);
     watch(
-      () => dataBus.value[0],
+      () => dataBus.value[props.programCounter],
       (newVal, oldVal) => {
         if (newVal !== oldVal) {
           emit('data-write', newVal);
@@ -152,15 +160,15 @@ export default defineComponent({
       }
     );
     watch(
-      () => addressBus.value[0],
+      () => addressBus.value[props.programCounter],
       (newVal, oldVal) => {
         if (newVal !== oldVal) {
           emit('address-write', newVal);
         }
       }
     );
-    emit('data-write', dataBus.value[0]);
-    emit('address-write', addressBus.value[0]);
+    emit('data-write', dataBus.value[props.programCounter]);
+    emit('address-write', addressBus.value[props.programCounter]);
     return { instructions, dataBus, addressBus };
   },
 });

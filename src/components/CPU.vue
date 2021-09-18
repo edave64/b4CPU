@@ -318,6 +318,7 @@
 
       <instruction-memory
         :initialState="excerciseState.instructionMemoryState"
+        :program-counter="pcBus"
         @data-write="databusInInstructionMemory = $event"
         @address-write="addressbusInInstructionMemory = $event"
       />
@@ -328,7 +329,13 @@
       <alu :and="false" :xor="false" :add="false" :sub="false" />
       <jump-manager />
       <control-unit />
-      <program-counter />
+      <program-counter
+        :jump-to-addr="false"
+        :jump-to-next="false"
+        :next-value="pcBus + 1"
+        :address-bus="addressBus"
+        @pc-write="pcBus = $event"
+      />
       <incrementor />
     </g>
     <g
