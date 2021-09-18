@@ -1,49 +1,16 @@
 <template>
-  <g id="register_C">
-    <rect
-      style="fill: #b0b0b0; stroke-width: 0.840168"
-      id="rect2669"
-      width="168"
-      height="96"
-      x="1088"
-      y="632"
-    />
+  <g>
+    <rect class="component-bg" width="168" height="96" x="1088" y="632" />
     <word :x="1096" :y="688" v-model="wordValue" />
+    <text class="component-label" x="1095.8885" y="671.88336"> C </text>
     <text
       xml:space="preserve"
       style="
-        font-style: normal;
-        font-weight: normal;
-        font-size: 40px;
-        line-height: 1.25;
-        font-family: sans-serif;
-        letter-spacing: 0px;
-        word-spacing: 0px;
-        fill-opacity: 1;
-        stroke-width: 1;
-      "
-      x="1095.8885"
-      y="671.88336"
-      id="text2681"
-    >
-      <tspan id="tspan2679" x="1095.8885" y="671.88336" style="stroke-width: 1">
-        C
-      </tspan>
-    </text>
-    <text
-      xml:space="preserve"
-      style="
-        font-style: normal;
-        font-weight: normal;
         font-size: 14.3456px;
         line-height: 1.25;
         font-family: sans-serif;
         text-align: end;
-        letter-spacing: 0px;
-        word-spacing: 0px;
         text-anchor: end;
-        fill-opacity: 1;
-        stroke-width: 0.35864;
       "
       x="1248"
       y="654"

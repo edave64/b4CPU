@@ -1,0 +1,26 @@
+// app global css in Sass form
+
+html {
+  --object-color: #b0b0b0;
+  --object-text-color: #000;
+  --inactive-color: #000;
+  --active-color: #c00;
+  --inactive-text-color: #fff;
+  --active-text-color: #fff;
+}
+
+.component-bg {
+  fill: var(--object-color);
+}
+
+.component-label {
+  font-size: 36px;
+  line-height: 1.25;
+  font-family: sans-serif;
+  fill: var(--object-text-color);
+  user-select: none;
+}
+
+.component-port-label {
+  fill: var(--object-color);
+}

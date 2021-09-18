@@ -1,41 +1,8 @@
 <template>
-  <g id="register_A">
-    <rect
-      style="fill: #b0b0b0"
-      id="rect2603"
-      width="168"
-      height="96"
-      x="984"
-      y="264"
-    />
+  <g>
+    <rect class="component-bg" width="168" height="96" x="984" y="264" />
     <word :x="992" :y="320" v-model="wordValue" />
-    <text
-      xml:space="preserve"
-      style="
-        font-style: normal;
-        font-weight: normal;
-        font-size: 40px;
-        line-height: 1.25;
-        font-family: sans-serif;
-        letter-spacing: 0px;
-        word-spacing: 0px;
-        fill-opacity: 1;
-        stroke-width: 1;
-      "
-      x="992"
-      y="304"
-      id="text2627"
-    >
-      <tspan
-        sodipodi:role="line"
-        id="tspan2625"
-        x="992"
-        y="304"
-        style="stroke-width: 1"
-      >
-        A
-      </tspan>
-    </text>
+    <text class="component-label" x="992" y="304"> A </text>
     <text
       xml:space="preserve"
       style="

@@ -1,32 +1,9 @@
 <template>
-  <g id="register_B">
-    <rect
-      style="fill: #b0b0b0"
-      id="rect2647"
-      width="168"
-      height="96"
-      x="1192"
-      y="264"
-    />
+  <g>
+    <rect class="component-bg" width="168" height="96" x="1192" y="264" />
     <word v-model="x" :x="1200" :y="320" />
-    <text
-      xml:space="preserve"
-      style="
-        font-style: normal;
-        font-weight: normal;
-        font-size: 40px;
-        line-height: 1.25;
-        font-family: sans-serif;
-        letter-spacing: 0px;
-        word-spacing: 0px;
-        fill-opacity: 1;
-        stroke-width: 1;
-      "
-      x="1200"
-      y="304"
-      id="text2659"
-    >
-      <tspan id="tspan2657" x="1200" y="304" style="stroke-width: 1"> B </tspan>
+    <text xml:space="preserve" class="component-label" x="1200" y="304">
+      B
     </text>
     <text
       xml:space="preserve"

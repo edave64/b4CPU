@@ -1,40 +1,7 @@
 <template>
   <g id="programm">
-    <rect
-      style="fill: #b0b0b0"
-      id="program_bg"
-      width="536"
-      height="720"
-      x="16"
-      y="136"
-    />
-    <text
-      xml:space="preserve"
-      style="
-        font-style: normal;
-        font-weight: normal;
-        font-size: 32.2036px;
-        line-height: 1.25;
-        font-family: sans-serif;
-        letter-spacing: 0px;
-        word-spacing: 0px;
-        fill-opacity: 1;
-        stroke-width: 0.805091;
-      "
-      x="47.799999"
-      y="175.95418"
-      id="program_header"
-    >
-      <tspan
-        sodipodi:role="line"
-        id="tspan1163"
-        x="47.799999"
-        y="175.95418"
-        style="stroke-width: 0.805091"
-      >
-        Instruct.
-      </tspan>
-    </text>
+    <rect class="component-bg" width="536" height="720" x="16" y="136" />
+    <text class="component-label" x="47.799999" y="175.95418"> Instruct. </text>
     <g
       :style="
         'transform: translate(0px, ' +
@@ -43,7 +10,6 @@
       "
     >
       <path
-        id="program_indicator"
         transform="matrix(0,1.9517638,-1.951764,0,131.89999,183.47756)"
         d="m 4.370366,55.28166 4.0963003,-7.095 4.0962997,7.095 z"
       />

@@ -1,32 +1,7 @@
 <template>
   <g id="pc_incrementor">
-    <rect
-      style="fill: #b0b0b0"
-      id="rect2345"
-      width="72"
-      height="48"
-      x="568"
-      y="720"
-    />
-    <text
-      xml:space="preserve"
-      style="
-        font-style: normal;
-        font-weight: normal;
-        font-size: 40px;
-        line-height: 1.25;
-        font-family: sans-serif;
-        letter-spacing: 0px;
-        word-spacing: 0px;
-        fill-opacity: 1;
-        stroke-width: 1;
-      "
-      x="574"
-      y="758"
-      id="text2593"
-    >
-      <tspan id="tspan2591" x="574" y="758" style="stroke-width: 1"> +1 </tspan>
-    </text>
+    <rect class="component-bg" width="72" height="48" x="568" y="720" />
+    <text class="component-label" x="574" y="758"> +1 </text>
   </g>
 </template>
 

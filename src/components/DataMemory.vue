@@ -1,36 +1,10 @@
 <template>
   <g id="ram">
     <path
-      id="ram_bg"
-      style="fill: #b0b0b0"
+      class="component-bg"
       d="m 1704,136 v 720 40 h 120 v -40 h 80 V 136 Z"
     />
-    <text
-      xml:space="preserve"
-      style="
-        font-style: normal;
-        font-weight: normal;
-        font-size: 32.2036px;
-        line-height: 1.25;
-        font-family: sans-serif;
-        letter-spacing: 0px;
-        word-spacing: 0px;
-        fill-opacity: 1;
-        stroke-width: 0.805091;
-      "
-      x="1733.068"
-      y="170.24263"
-      id="ram_label"
-    >
-      <tspan
-        id="tspan1553"
-        x="1733.068"
-        y="170.24263"
-        style="stroke-width: 0.805091"
-      >
-        RAM
-      </tspan>
-    </text>
+    <text class="component-label" x="1733.068" y="170.24263"> RAM </text>
     <g v-for="cluster in [0, 1, 2, 3]" :key="'data_' + cluster">
       <g v-for="i in [0, 1, 2, 3]" :key="'data_' + cluster + '_' + i">
         <word
@@ -43,20 +17,13 @@
     </g>
     <path
       id="ram_indicator_write"
-      inkscape:transform-center-y="-0.61"
       d="m 1752.0215,856 -12,13.86719 h 8 v 16 h 8 v -16 h 8 z"
     />
     <path
       id="ram_indicator_read"
-      inkscape:transform-center-x="2.0228286e-06"
-      inkscape:transform-center-y="0.61"
       d="m 1788.0234,856 v 16.01172 h -8.0019 l 12.0019,13.85547 12,-13.85547 h -8 V 856 Z"
     />
-    <path
-      id="ram_indicator_address"
-      d="m 1712,208 v -16 l 14,8 z"
-      sodipodi:nodetypes="cccc"
-    />
+    <path id="ram_indicator_address" d="m 1712,208 v -16 l 14,8 z" />
   </g>
 </template>
 
