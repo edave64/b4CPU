@@ -58,6 +58,14 @@ g.active {
   }
 }
 
+g:focus {
+  outline: 0;
+
+  rect {
+    outline: 1px solid #fff;
+  }
+}
+
 g:focus-visible {
   outline: 0;
 
