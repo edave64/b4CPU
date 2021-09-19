@@ -9,7 +9,7 @@
 import { defineComponent, ref } from '@vue/composition-api';
 
 export default defineComponent({
-  name: 'Bit',
+  name: 'CounterArrow',
   components: {},
   props: {
     x: {

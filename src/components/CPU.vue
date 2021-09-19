@@ -254,7 +254,10 @@
         @data-write="databusInInstructionMemory = $event"
         @address-write="addressbusInInstructionMemory = $event"
       />
-      <data-memory :initialState="excerciseState.dataMemoryState" />
+      <data-memory
+        :initialState="excerciseState.dataMemoryState"
+        :address="addressBus"
+      />
 
       <register
         name="A"
@@ -286,7 +289,6 @@
         @input="regC = $event"
         @write="databusInRegC = $event"
       />
-      <alu :and="false" :xor="false" :add="false" :sub="false" />
 
       <alu
         :inputA="regA"
@@ -550,7 +552,7 @@ import alu from './ALU.vue';
 import Bus from './Bus.vue';
 import ControlUnit from './ControlUnit.vue';
 import DataMemory from './DataMemory.vue';
-import Incrementor from './incrementor.vue';
+import Incrementor from './Incrementor.vue';
 import InstructionMemory from './InstructionMemory.vue';
 import JumpManager from './JumpManager.vue';
 import Lane from './Lane.vue';

@@ -1,26 +1,21 @@
 <template>
-  <g id="pc">
-    <rect class="component-bg" width="168" height="136" x="704" y="632" />
-    <text class="component-label" x="708.08459" y="672"> PC </text>
-    <word :x="712" :y="688" v-model="value" />
-    <path
-      id="pc_indicator_inc"
-      d="M 740,730.15234 728,744 h 8 v 16 h 8 v -16 h 8 z"
-    />
-    <path
-      id="pc_indicator_address"
-      d="M 836,730.15234 824,744 h 8 v 16 h 8 v -16 h 8 z"
-    />
+  <g id="pc" style="transform: translate(704px, 632px)">
+    <rect class="component-bg" width="168" height="136" x="0" y="0" />
+    <text class="component-label" x="4" y="40"> PC </text>
+    <word :x="8" :y="56" v-model="value" />
+    <direction-arrow dir="up" :value="false" :x="24" :y="98" />
+    <direction-arrow dir="up" :value="false" :x="120" :y="98" />
   </g>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, watch } from '@vue/composition-api';
 import word from 'components/Word.vue';
+import DirectionArrow from './DirectionArrow.vue';
 
 export default defineComponent({
   name: 'ProgramCounter',
-  components: { word },
+  components: { word, DirectionArrow },
   props: {
     nextValue: {
       type: Number,

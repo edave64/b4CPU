@@ -1,29 +1,23 @@
 <template>
-  <g id="ram">
-    <path
-      class="component-bg"
-      d="m 1704,136 v 720 40 h 120 v -40 h 80 V 136 Z"
+  <g id="ram" style="transform: translate(1704px, 136px)">
+    <path class="component-bg" d="m 0,0 v 720 40 h 120 v -40 h 80 V 0 Z" />
+    <text class="component-label" x="30" y="34"> RAM </text>
+    <counter-arrow
+      :x="8"
+      :y="56 + 40 * (address % 4) + 168 * Math.floor(address / 4)"
     />
-    <text class="component-label" x="1733.068" y="170.24263"> RAM </text>
     <g v-for="cluster in [0, 1, 2, 3]" :key="'data_' + cluster">
       <g v-for="i in [0, 1, 2, 3]" :key="'data_' + cluster + '_' + i">
         <word
-          :x="1736"
-          :y="184 + 40 * i + 168 * cluster"
+          :x="32"
+          :y="48 + 40 * i + 168 * cluster"
           v-model="wordValues[i + cluster * 4]"
           :blocked="initialState[i + cluster * 4].blocked"
         />
       </g>
     </g>
-    <path
-      id="ram_indicator_write"
-      d="m 1752.0215,856 -12,13.86719 h 8 v 16 h 8 v -16 h 8 z"
-    />
-    <path
-      id="ram_indicator_read"
-      d="m 1788.0234,856 v 16.01172 h -8.0019 l 12.0019,13.85547 12,-13.85547 h -8 V 856 Z"
-    />
-    <path id="ram_indicator_address" d="m 1712,208 v -16 l 14,8 z" />
+    <direction-arrow dir="up" :x="40" :y="720" :value="false" />
+    <direction-arrow dir="down" :x="72" :y="720" :value="false" />
   </g>
 </template>
 
@@ -31,13 +25,19 @@
 import { defineComponent, ref, onMounted } from '@vue/composition-api';
 import word from 'components/Word.vue';
 import { IMemoryState } from '../interfaces/excercises';
+import CounterArrow from './CounterArrow.vue';
+import DirectionArrow from './DirectionArrow.vue';
 
 export default defineComponent({
   name: 'DataMemory',
-  components: { word },
+  components: { word, CounterArrow, DirectionArrow },
   props: {
     initialState: {
       type: Object,
+      required: true,
+    },
+    address: {
+      type: Number,
       required: true,
     },
   },
