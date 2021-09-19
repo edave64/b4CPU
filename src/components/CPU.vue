@@ -59,15 +59,6 @@
       />
 
       <bus
-        id="incrementor_out"
-        :x="576"
-        :y="768"
-        :value="pcBus + 1"
-        dir="vertical"
-        :length="64"
-        :taperedEnd="true"
-      />
-      <bus
         id="incrementor_bus"
         :x="576"
         :y="776"
@@ -75,6 +66,15 @@
         dir="horizontal"
         :length="192"
         :taperedStart="true"
+        :taperedEnd="true"
+      />
+      <bus
+        id="incrementor_out"
+        :x="576"
+        :y="768"
+        :value="pcBus + 1"
+        dir="vertical"
+        :length="64"
         :taperedEnd="true"
       />
       <bus
@@ -115,24 +115,6 @@
         :taperedEnd="true"
       />
       <bus
-        id="register_A_in"
-        :x="1040"
-        :y="200"
-        :value="dataBus"
-        dir="vertical"
-        :length="64"
-        :taperedStart="true"
-      />
-      <bus
-        id="register_B_in"
-        :x="1248"
-        :y="200"
-        :value="dataBus"
-        dir="vertical"
-        :length="64"
-        :taperedStart="true"
-      />
-      <bus
         id="databus_registers_ext"
         :x="1568"
         :y="200"
@@ -151,6 +133,24 @@
         :length="582"
         :taperedStart="true"
         :taperedEnd="true"
+      />
+      <bus
+        id="register_A_in"
+        :x="1040"
+        :y="200"
+        :value="dataBus"
+        dir="vertical"
+        :length="64"
+        :taperedStart="true"
+      />
+      <bus
+        id="register_B_in"
+        :x="1248"
+        :y="200"
+        :value="dataBus"
+        dir="vertical"
+        :length="64"
+        :taperedStart="true"
       />
       <rect id="alu_zero" width="16" height="8" x="968" y="448" />
       <rect id="alu_overflow" width="16" height="8" x="968" y="464" />
