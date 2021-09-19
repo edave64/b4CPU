@@ -171,46 +171,127 @@
       <rect id="command_negateJump" width="8" height="328" x="920" y="104" />
       <rect id="command_jump_z" width="8" height="328" x="936" y="104" />
       <rect id="command_jump_o" width="8" height="328" x="952" y="104" />
-      <g id="register_A_read">
-        <rect id="rect2881" width="16" height="8" x="1152" y="272" />
-        <rect id="rect2883" width="8" height="176" x="1160" y="104" />
-      </g>
-      <g id="register_A_write">
-        <rect id="rect2885" width="32" height="8" x="1152" y="288" />
-        <rect id="rect2887" width="8" height="192" x="1176" y="104" />
-      </g>
-      <g id="register_B_read">
-        <rect id="rect2889" width="16" height="8" x="1360" y="272" />
-        <rect id="rect2891" width="8" height="176" x="1368" y="104" />
-      </g>
-      <g id="register_B_write">
-        <rect id="rect2893" width="32" height="8" x="1360" y="288" />
-        <rect id="rect2895" width="8" height="192" x="1384" y="104" />
-      </g>
-      <g id="command_register_c_read">
-        <rect id="rect2899" width="264" height="8" x="1256" y="656" />
-        <rect id="rect2" width="8" height="560" x="1512" y="104" />
-      </g>
-      <g id="command_register_c_write">
-        <rect id="rect2903" width="248" height="8" x="1256" y="640" />
-        <rect id="rect2905" width="8" height="544" x="1496" y="104" />
-      </g>
 
-      <g id="command_ram_write">
-        <rect id="rect2961" width="32" height="8" x="1672" y="856" />
-        <rect id="rect2979" width="8" height="760" x="1672" y="104" />
-      </g>
-      <g id="command_ram_read">
-        <rect
-          id="rect2959"
-          fill="#f00"
-          width="48"
-          height="8"
-          x="1656"
-          y="872"
-        />
-        <rect id="rect2981" width="8" height="776" x="1656" y="104" />
-      </g>
+      <lane
+        dir="horizontal"
+        :value="regAWriteCommand"
+        :length="16"
+        :x="1152"
+        :y="272"
+      />
+      <lane
+        dir="vertical"
+        :value="regAWriteCommand"
+        :length="176"
+        :x="1160"
+        :y="104"
+      />
+
+      <lane
+        dir="horizontal"
+        :value="regAReadCommand"
+        :length="32"
+        :x="1152"
+        :y="288"
+      />
+      <lane
+        dir="vertical"
+        :value="regAReadCommand"
+        :length="192"
+        :x="1176"
+        :y="104"
+      />
+
+      <lane
+        dir="horizontal"
+        :value="regBReadCommand"
+        :length="16"
+        :x="1360"
+        :y="272"
+      />
+      <lane
+        dir="vertical"
+        :value="regBReadCommand"
+        :length="176"
+        :x="1368"
+        :y="104"
+      />
+
+      <lane
+        dir="horizontal"
+        :value="regBWriteCommand"
+        :length="32"
+        :x="1360"
+        :y="288"
+      />
+      <lane
+        dir="vertical"
+        :value="regBWriteCommand"
+        :length="192"
+        :x="1384"
+        :y="104"
+      />
+
+      <lane
+        dir="horizontal"
+        :value="regCReadCommand"
+        :length="264"
+        :x="1256"
+        :y="656"
+      />
+      <lane
+        dir="vertical"
+        :value="regCReadCommand"
+        :length="560"
+        :x="1512"
+        :y="104"
+      />
+
+      <lane
+        dir="horizontal"
+        :value="regCWriteCommand"
+        :length="248"
+        :x="1256"
+        :y="640"
+      />
+      <lane
+        dir="vertical"
+        :value="regCWriteCommand"
+        :length="544"
+        :x="1496"
+        :y="104"
+      />
+
+      <lane
+        dir="horizontal"
+        :value="ramWriteCommand"
+        :length="32"
+        :x="1672"
+        :y="856"
+      />
+      <lane
+        dir="vertical"
+        :value="ramWriteCommand"
+        :length="760"
+        :x="1672"
+        :y="104"
+      />
+
+      <lane
+        dir="horizontal"
+        :value="ramReadCommand"
+        :length="48"
+        :x="1656"
+        :y="872"
+      />
+      <lane
+        dir="vertical"
+        :value="ramReadCommand"
+        :length="776"
+        :x="1656"
+        :y="104"
+      />
+
       <bus
         dir="vertical"
         :length="32"
@@ -219,10 +300,34 @@
         :y="104"
       />
 
-      <rect id="rect3121" width="56" height="8" x="1360" y="416" />
-      <rect id="rect3143" width="8" height="320" x="1408" y="104" />
-      <rect id="rect3123" width="72" height="8" x="1360" y="432" />
-      <rect id="rect3145" width="8" height="336" x="1424" y="104" />
+      <lane
+        dir="horizontal"
+        :value="aluCommand1"
+        :length="56"
+        :x="1360"
+        :y="416"
+      />
+      <lane
+        dir="vertical"
+        :value="aluCommand1"
+        :length="320"
+        :x="1408"
+        :y="104"
+      />
+      <lane
+        dir="horizontal"
+        :value="aluCommand2"
+        :length="72"
+        :x="1360"
+        :y="432"
+      />
+      <lane
+        dir="vertical"
+        :value="aluCommand2"
+        :length="336"
+        :x="1424"
+        :y="104"
+      />
 
       <bus
         id="ram_in_address"
@@ -243,13 +348,6 @@
         :length="176"
         :taperedEnd="true"
       />
-      <rect
-        id="command_fetchInstuction"
-        width="8"
-        height="32"
-        x="448"
-        y="104"
-      />
 
       <instruction-memory
         :initialState="excerciseState.instructionMemoryState"
@@ -261,14 +359,16 @@
       <data-memory
         :initialState="excerciseState.dataMemoryState"
         :address="addressBus"
+        :readCommand="ramReadCommand"
+        :writeCommand="ramWriteCommand"
       />
 
       <register
         name="A"
         :x="984"
         :y="264"
-        :commandRead="false"
-        :commandWrite="false"
+        :commandRead="regAReadCommand"
+        :commandWrite="regAWriteCommand"
         :readFrom="dataBus"
         @input="regA = $event"
         @write="databusInRegA = $event"
@@ -297,8 +397,8 @@
       <alu
         :inputA="regA"
         :inputB="regB"
-        :select1="false"
-        :select2="false"
+        :select1="aluCommand1"
+        :select2="aluCommand2"
         @zero-write="aluZero = $event"
         @overflow-write="aluOverflow = $event"
         @input="aluOut = $event"
@@ -394,12 +494,24 @@ export default defineComponent({
     const databusInRegC = ref(0);
 
     const regA = ref(0);
+    const regAReadCommand = ref(false);
+    const regAWriteCommand = ref(false);
     const regB = ref(0);
+    const regBReadCommand = ref(false);
+    const regBWriteCommand = ref(false);
     const regC = ref(0);
+    const regCReadCommand = ref(false);
+    const regCWriteCommand = ref(false);
 
     const aluOut = ref(0);
     const aluZero = ref(false);
     const aluOverflow = ref(false);
+
+    const aluCommand1 = ref(false);
+    const aluCommand2 = ref(false);
+
+    const ramReadCommand = ref(false);
+    const ramWriteCommand = ref(false);
 
     const addressbusInInstructionMemory = ref(0);
     const addressBus = computed(() => {
@@ -410,10 +522,10 @@ export default defineComponent({
 
     const dataBus = computed(() => {
       return (
-        databusInInstructionMemory.value ||
-        databusInRam.value ||
-        databusInRegA.value ||
-        databusInRegB.value ||
+        databusInInstructionMemory.value |
+        databusInRam.value |
+        databusInRegA.value |
+        databusInRegB.value |
         databusInRegC.value
       );
     });
@@ -435,11 +547,21 @@ export default defineComponent({
       addressbusInInstructionMemory,
       instructionBus,
       regA,
+      regAReadCommand,
+      regAWriteCommand,
       regB,
+      regBReadCommand,
+      regBWriteCommand,
       regC,
+      regCReadCommand,
+      regCWriteCommand,
       aluOut,
       aluZero,
       aluOverflow,
+      aluCommand1,
+      aluCommand2,
+      ramWriteCommand,
+      ramReadCommand,
     };
   },
 });
