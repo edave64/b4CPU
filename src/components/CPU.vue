@@ -6,32 +6,10 @@
     xmlns:svg="http://www.w3.org/2000/svg"
     xmlns="http://www.w3.org/2000/svg"
     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-    width="1920"
-    height="1080"
     viewBox="0 0 1920 1080"
     version="1.1"
-    id="svg8"
-    inkscape:version="1.0.2 (e86c870879, 2021-01-15, custom)"
   >
-    <defs id="defs2">
-      <inkscape:perspective
-        inkscape:vp_x="0 : 540 : 1"
-        inkscape:vp_y="0 : 3779.5279 : 0"
-        inkscape:vp_z="1920 : 540 : 1"
-        inkscape:persp3d-origin="960 : 360 : 1"
-        id="perspective2841"
-      />
-    </defs>
-    <metadata id="metadata5">
-      <rdf:RDF>
-        <cc:Work rdf:about="">
-          <dc:format>image/svg+xml</dc:format>
-          <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-          <dc:title></dc:title>
-        </cc:Work>
-      </rdf:RDF>
-    </metadata>
-    <g inkscape:label="Basis" inkscape:groupmode="layer" id="layer1">
+    <g>
       <text
         xml:space="preserve"
         style="
@@ -634,3 +612,9 @@ export default defineComponent({
   },
 });
 </script>
+
+<style lang="scss" scoped>
+svg {
+  max-height: calc(100vh - 50px);
+}
+</style>
