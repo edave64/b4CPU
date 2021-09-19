@@ -261,9 +261,37 @@
         @address-write="addressbusInInstructionMemory = $event"
       />
       <data-memory :initialState="excerciseState.dataMemoryState" />
-      <register-a />
-      <register-b />
-      <register-c />
+
+      <register
+        name="A"
+        :x="984"
+        :y="264"
+        :commandRead="false"
+        :commandWrite="false"
+        :readFrom="dataBus"
+        @input="regA = $event"
+        @write="databusInRegA = $event"
+      />
+      <register
+        name="B"
+        :x="1192"
+        :y="264"
+        :commandRead="false"
+        :commandWrite="false"
+        :readFrom="dataBus"
+        @input="regB = $event"
+        @write="databusInRegB = $event"
+      />
+      <register
+        name="C"
+        :x="1088"
+        :y="632"
+        :commandRead="false"
+        :commandWrite="false"
+        :readFrom="aluOut"
+        @input="regC = $event"
+        @write="databusInRegC = $event"
+      />
       <alu :and="false" :xor="false" :add="false" :sub="false" />
       <jump-manager />
       <control-unit />
@@ -497,24 +525,20 @@ import Incrementor from './incrementor.vue';
 import InstructionMemory from './InstructionMemory.vue';
 import JumpManager from './JumpManager.vue';
 import ProgramCounter from './ProgramCounter.vue';
-import RegisterA from './RegisterA.vue';
-import RegisterB from './RegisterB.vue';
-import RegisterC from './RegisterC.vue';
+import Register from './Register.vue';
 
 export default defineComponent({
   name: 'cpu',
   components: {
     DataMemory,
     InstructionMemory,
-    RegisterA,
-    RegisterB,
-    RegisterC,
     alu,
     JumpManager,
     ControlUnit,
     ProgramCounter,
     Incrementor,
     Bus,
+    Register,
   },
   props: {
     excerciseState: {
@@ -537,6 +561,10 @@ export default defineComponent({
     const databusInRegA = ref(0);
     const databusInRegB = ref(0);
     const databusInRegC = ref(0);
+
+    const regA = ref(0);
+    const regB = ref(0);
+    const regC = ref(0);
 
     const addressbusInInstructionMemory = ref(0);
     const addressBus = computed(() => {
@@ -568,6 +596,9 @@ export default defineComponent({
       databusInRegB,
       databusInRegC,
       addressbusInInstructionMemory,
+      regA,
+      regB,
+      regC,
     };
   },
 });
