@@ -57,60 +57,21 @@ export default defineComponent({
       .instructions as IMemoryState;
     const initialaddressState = props.initialState.addresses as IMemoryState;
     const initialdataState = props.initialState.data as IMemoryState;
-    const instructions = ref([
-      initialInstructionsState['0'].value,
-      initialInstructionsState['1'].value,
-      initialInstructionsState['2'].value,
-      initialInstructionsState['3'].value,
-      initialInstructionsState['4'].value,
-      initialInstructionsState['5'].value,
-      initialInstructionsState['6'].value,
-      initialInstructionsState['7'].value,
-      initialInstructionsState['8'].value,
-      initialInstructionsState['9'].value,
-      initialInstructionsState['10'].value,
-      initialInstructionsState['11'].value,
-      initialInstructionsState['12'].value,
-      initialInstructionsState['13'].value,
-      initialInstructionsState['14'].value,
-      initialInstructionsState['15'].value,
-    ]);
-    const dataBus = ref([
-      initialdataState['0'].value,
-      initialdataState['1'].value,
-      initialdataState['2'].value,
-      initialdataState['3'].value,
-      initialdataState['4'].value,
-      initialdataState['5'].value,
-      initialdataState['6'].value,
-      initialdataState['7'].value,
-      initialdataState['8'].value,
-      initialdataState['9'].value,
-      initialdataState['10'].value,
-      initialdataState['11'].value,
-      initialdataState['12'].value,
-      initialdataState['13'].value,
-      initialdataState['14'].value,
-      initialdataState['15'].value,
-    ]);
-    const addressBus = ref([
-      initialaddressState['0'].value,
-      initialaddressState['1'].value,
-      initialaddressState['2'].value,
-      initialaddressState['3'].value,
-      initialaddressState['4'].value,
-      initialaddressState['5'].value,
-      initialaddressState['6'].value,
-      initialaddressState['7'].value,
-      initialaddressState['8'].value,
-      initialaddressState['9'].value,
-      initialaddressState['10'].value,
-      initialaddressState['11'].value,
-      initialaddressState['12'].value,
-      initialaddressState['13'].value,
-      initialaddressState['14'].value,
-      initialaddressState['15'].value,
-    ]);
+    const instructions = ref(
+      Array(16)
+        .fill(0)
+        .map((_, i) => initialInstructionsState[i as 15].value)
+    );
+    const dataBus = ref(
+      Array(16)
+        .fill(0)
+        .map((_, i) => initialdataState[i as 15].value)
+    );
+    const addressBus = ref(
+      Array(16)
+        .fill(0)
+        .map((_, i) => initialaddressState[i as 15].value)
+    );
     watch(
       () => dataBus.value[props.programCounter],
       (newVal, oldVal) => {

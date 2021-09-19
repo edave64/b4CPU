@@ -43,24 +43,11 @@ export default defineComponent({
   },
   setup(props) {
     const initialState = props.initialState as IMemoryState;
-    const wordValues = ref([
-      initialState['0'].value,
-      initialState['1'].value,
-      initialState['2'].value,
-      initialState['3'].value,
-      initialState['4'].value,
-      initialState['5'].value,
-      initialState['6'].value,
-      initialState['7'].value,
-      initialState['8'].value,
-      initialState['9'].value,
-      initialState['10'].value,
-      initialState['11'].value,
-      initialState['12'].value,
-      initialState['13'].value,
-      initialState['14'].value,
-      initialState['15'].value,
-    ]);
+    const wordValues = ref(
+      Array(16)
+        .fill(0)
+        .map((_, i) => initialState[i as 15].value)
+    );
 
     onMounted(() => {});
 
