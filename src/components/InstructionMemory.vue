@@ -1,36 +1,29 @@
 <template>
-  <g id="programm">
-    <rect class="component-bg" width="536" height="720" x="16" y="136" />
-    <text class="component-label" x="47.799999" y="175.95418"> Instruct. </text>
-    <g
-      :style="
-        'transform: translate(0px, ' +
-        (40 * (programCounter % 4) + 168 * Math.floor(programCounter / 4)) +
-        'px)'
-      "
-    >
-      <path
-        transform="matrix(0,1.9517638,-1.951764,0,131.89999,183.47756)"
-        d="m 4.370366,55.28166 4.0963003,-7.095 4.0962997,7.095 z"
-      />
-    </g>
+  <g id="programm" style="transform: translate(16px, 136px)">
+    <rect class="component-bg" width="536" height="720" x="0" y="0" />
+    <text class="component-label" x="32" y="40"> Instruct. </text>
+
+    <counter-arrow
+      :x="8"
+      :y="56 + 40 * (programCounter % 4) + 168 * Math.floor(programCounter / 4)"
+    />
     <g v-for="cluster in [0, 1, 2, 3]" :key="cluster">
       <g v-for="i in [0, 1, 2, 3]" :key="cluster + '_' + i">
         <word
-          :x="48"
-          :y="184 + 40 * i + 168 * cluster"
+          :x="32"
+          :y="48 + 40 * i + 168 * cluster"
           v-model="instructions[i + cluster * 4]"
           :blocked="initialState.instructions[i + cluster * 4].blocked"
         />
         <word
-          :x="216"
-          :y="184 + 40 * i + 168 * cluster"
+          :x="200"
+          :y="48 + 40 * i + 168 * cluster"
           v-model="addressBus[i + cluster * 4]"
           :blocked="initialState.data[i + cluster * 4].blocked"
         />
         <word
-          :x="384"
-          :y="184 + 40 * i + 168 * cluster"
+          :x="368"
+          :y="48 + 40 * i + 168 * cluster"
           v-model="dataBus[i + cluster * 4]"
           :blocked="initialState.addresses[i + cluster * 4].blocked"
         />
@@ -44,10 +37,11 @@ import { defineComponent, ref, watch } from '@vue/composition-api';
 import Word from './Word.vue';
 import { IMemoryState } from '../interfaces/excercises';
 import { emit } from 'process';
+import CounterArrow from './CounterArrow.vue';
 
 export default defineComponent({
   name: 'InstructionMemory',
-  components: { Word },
+  components: { Word, CounterArrow },
   props: {
     initialState: {
       type: Object,
