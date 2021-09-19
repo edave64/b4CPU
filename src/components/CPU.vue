@@ -10,27 +10,7 @@
     version="1.1"
   >
     <g>
-      <text
-        xml:space="preserve"
-        style="
-          font-style: normal;
-          font-weight: normal;
-          font-size: 32.2036px;
-          line-height: 1.25;
-          font-family: sans-serif;
-          letter-spacing: 0px;
-          word-spacing: 0px;
-          fill-opacity: 1;
-          stroke-width: 0.805091;
-        "
-        x="4"
-        y="1008"
-        id="databus_label"
-      >
-        <tspan id="tspan889" x="4" y="1008" style="stroke-width: 0.805091">
-          Data
-        </tspan>
-      </text>
+      <text x="4" y="1008" id="databus_label">Data</text>
       <bus
         id="main_data_bus"
         :x="0"
@@ -39,27 +19,7 @@
         dir="horizontal"
         :length="1920"
       />
-      <text
-        xml:space="preserve"
-        style="
-          font-style: normal;
-          font-weight: normal;
-          font-size: 32.2036px;
-          line-height: 1.25;
-          font-family: sans-serif;
-          letter-spacing: 0px;
-          word-spacing: 0px;
-          fill-opacity: 1;
-          stroke-width: 0.805091;
-        "
-        x="8"
-        y="904"
-        id="addressbus_label"
-      >
-        <tspan id="tspan" x="8" y="904" style="stroke-width: 0.805091">
-          Address
-        </tspan>
-      </text>
+      <text x="8" y="904" id="addressbus_label">Address</text>
       <bus
         id="main_address_bus"
         :x="0"
@@ -616,5 +576,10 @@ export default defineComponent({
 <style lang="scss" scoped>
 svg {
   max-height: calc(100vh - 50px);
+}
+
+text {
+  font-size: 32px;
+  font-family: sans-serif;
 }
 </style>
