@@ -1,7 +1,7 @@
 <template>
   <g id="programm" style="transform: translate(16px, 136px)">
     <rect class="component-bg" width="536" height="720" x="0" y="0" />
-    <text class="component-label" x="32" y="40"> Instruct. </text>
+    <text class="component-label" x="30" y="40"> Instruct. </text>
 
     <counter-arrow
       :x="8"

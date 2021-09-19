@@ -1,7 +1,7 @@
 <template>
   <g id="ram" style="transform: translate(1704px, 136px)">
     <path class="component-bg" d="m 0,0 v 720 40 h 120 v -40 h 80 V 0 Z" />
-    <text class="component-label" x="30" y="34"> RAM </text>
+    <text class="component-label" x="30" y="40"> RAM </text>
     <counter-arrow
       :x="8"
       :y="56 + 40 * (address % 4) + 168 * Math.floor(address / 4)"
