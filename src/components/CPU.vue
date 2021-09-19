@@ -211,10 +211,13 @@
         />
         <rect id="rect2981" width="8" height="776" x="1656" y="104" />
       </g>
-      <rect id="instruction_8" width="8" height="32" x="96" y="104" />
-      <rect id="instruction_4" width="8" height="32" x="112" y="104" />
-      <rect id="instruction_2" width="8" height="32" x="128" y="104" />
-      <rect id="instruction_1" width="8" height="32" x="144" y="104" />
+      <bus
+        dir="vertical"
+        :length="32"
+        :value="instructionBus"
+        :x="96"
+        :y="104"
+      />
 
       <rect id="rect3121" width="56" height="8" x="1360" y="416" />
       <rect id="rect3143" width="8" height="320" x="1408" y="104" />
@@ -253,6 +256,7 @@
         :program-counter="pcBus"
         @data-write="databusInInstructionMemory = $event"
         @address-write="addressbusInInstructionMemory = $event"
+        @instruction-write="instructionBus = $event"
       />
       <data-memory
         :initialState="excerciseState.dataMemoryState"
@@ -604,6 +608,8 @@ export default defineComponent({
       return addressbusInInstructionMemory.value;
     });
 
+    const instructionBus = ref(0);
+
     const dataBus = computed(() => {
       return (
         databusInInstructionMemory.value ||
@@ -629,6 +635,7 @@ export default defineComponent({
       databusInRegB,
       databusInRegC,
       addressbusInInstructionMemory,
+      instructionBus,
       regA,
       regB,
       regC,

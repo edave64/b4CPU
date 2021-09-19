@@ -88,8 +88,17 @@ export default defineComponent({
         }
       }
     );
+    watch(
+      () => instructions.value[props.programCounter],
+      (newVal, oldVal) => {
+        if (newVal !== oldVal) {
+          emit('instruction-write', newVal);
+        }
+      }
+    );
     emit('data-write', dataBus.value[props.programCounter]);
     emit('address-write', addressBus.value[props.programCounter]);
+    emit('instruction-write', instructions.value[props.programCounter]);
     return { instructions, dataBus, addressBus };
   },
 });
