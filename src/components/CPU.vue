@@ -152,8 +152,14 @@
         :length="64"
         :taperedStart="true"
       />
-      <rect id="alu_zero" width="16" height="8" x="968" y="448" />
-      <rect id="alu_overflow" width="16" height="8" x="968" y="464" />
+      <lane :dir="horizontal" :length="16" :value="aluZero" :x="968" :y="448" />
+      <lane
+        :dir="horizontal"
+        :length="16"
+        :value="aluOverflow"
+        :x="968"
+        :y="464"
+      />
       <g id="jump_to_address">
         <rect id="jump_condition_met" width="8" height="264" x="936" y="488" />
         <rect id="bus_jmpFromAddress" width="72" height="8" x="872" y="744" />
@@ -189,19 +195,7 @@
         <rect id="rect2903" width="248" height="8" x="1256" y="640" />
         <rect id="rect2905" width="8" height="544" x="1496" y="104" />
       </g>
-      <rect id="alu_in_A_4" width="8" height="40" x="1056" y="360" />
-      <rect id="alu_in_A_8" width="8" height="40" x="1040" y="360" />
-      <rect id="alu_in_A_2" width="8" height="40" x="1072" y="360" />
-      <rect id="alu_in_A_1" width="8" height="40" x="1088" y="360" />
-      <rect id="alu_in_B_8" width="8" height="40" x="1248" y="360" />
-      <rect id="alu_in_B_4" width="8" height="40" x="1264" y="360" />
-      <rect id="alu_in_B_2" width="8" height="40" x="1280" y="360" />
-      <rect id="alu_in_B_1" width="8" height="40" x="1296" y="360" />
 
-      <rect id="alu_out_8" width="8" height="40" x="1144" y="592" />
-      <rect id="alu_out_4" width="8" height="40" x="1160" y="592" />
-      <rect id="alu_out_2" width="8" height="40" x="1176" y="592" />
-      <rect id="alu_out_1" width="8" height="40" x="1192" y="592" />
       <g id="command_ram_write">
         <rect id="rect2961" width="32" height="8" x="1672" y="856" />
         <rect id="rect2979" width="8" height="760" x="1672" y="104" />
@@ -293,6 +287,41 @@
         @write="databusInRegC = $event"
       />
       <alu :and="false" :xor="false" :add="false" :sub="false" />
+
+      <alu
+        :inputA="regA"
+        :inputB="regB"
+        :select1="false"
+        :select2="false"
+        @zero-write="aluZero = $event"
+        @overflow-write="aluOverflow = $event"
+        @input="aluOut = $event"
+      />
+      <bus
+        id="alu_in_A"
+        dir="vertical"
+        :length="40"
+        :x="1040"
+        :y="360"
+        :value="regA"
+      />
+      <bus
+        id="alu_in_B"
+        dir="vertical"
+        :length="40"
+        :x="1248"
+        :y="360"
+        :value="regB"
+      />
+      <bus
+        id="alu_out"
+        dir="vertical"
+        :length="40"
+        :x="1144"
+        :y="592"
+        :value="aluOut"
+      />
+
       <jump-manager />
       <control-unit />
       <program-counter
@@ -524,6 +553,7 @@ import DataMemory from './DataMemory.vue';
 import Incrementor from './incrementor.vue';
 import InstructionMemory from './InstructionMemory.vue';
 import JumpManager from './JumpManager.vue';
+import Lane from './Lane.vue';
 import ProgramCounter from './ProgramCounter.vue';
 import Register from './Register.vue';
 
@@ -538,6 +568,7 @@ export default defineComponent({
     ProgramCounter,
     Incrementor,
     Bus,
+    Lane,
     Register,
   },
   props: {
@@ -546,11 +577,7 @@ export default defineComponent({
       required: true,
     },
   },
-  methods: {
-    dbg: function () {
-      debugger;
-    },
-  },
+  methods: {},
   setup(props) {
     const instruction = ref(0);
     // const addressBus = ref(0);
@@ -565,6 +592,10 @@ export default defineComponent({
     const regA = ref(0);
     const regB = ref(0);
     const regC = ref(0);
+
+    const aluOut = ref(0);
+    const aluZero = ref(false);
+    const aluOverflow = ref(false);
 
     const addressbusInInstructionMemory = ref(0);
     const addressBus = computed(() => {
@@ -599,6 +630,9 @@ export default defineComponent({
       regA,
       regB,
       regC,
+      aluOut,
+      aluZero,
+      aluOverflow,
     };
   },
 });

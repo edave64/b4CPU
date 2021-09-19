@@ -1,57 +1,89 @@
 <template>
-  <g id="alu">
+  <g id="alu" style="transform: translate(984px, 400px)">
     <path
       class="component-bg"
-      d="m 984.01238,400 h 376.00472 v 104 l -88,88 h -200.0036 l -88.00112,-88 z"
-      id="path2803"
+      d="m 0,0 h 376 v 104 l -88,88 h -200 l -88,-88 z"
     />
     <g :class="{ 'alu-btn': true, active: zero }">
-      <rect width="32" height="32" x="992" y="424" />
-      <text x="1008" y="440"> Z </text>
+      <rect width="32" height="32" x="8" y="24" fill="#000" />
+      <text x="24" y="40"> Z </text>
     </g>
     <g :class="{ 'alu-btn': true, active: overflow }">
-      <rect width="32" height="32" x="992" y="464" />
-      <text x="1008" y="480"> O </text>
+      <rect width="32" height="32" x="8" y="64" />
+      <text x="24" y="80"> O </text>
     </g>
-    <text class="component-label" x="1135.1296" y="441.76642"> ALU </text>
+    <text class="component-label" x="151" y="41"> ALU </text>
+    <g :class="{ 'alu-btn': true, active: and }">
+      <rect width="64" height="32" x="88" y="64" />
+      <text x="120" y="80"> AND </text>
+    </g>
     <g :class="{ 'alu-btn': true, active: add }">
-      <rect width="56" height="32" x="1176" y="464" />
-      <text x="1204" y="480"> ADD </text>
+      <rect width="64" height="32" x="160" y="64" />
+      <text x="192" y="80"> ADD </text>
     </g>
     <g :class="{ 'alu-btn': true, active: sub }">
-      <rect width="56" height="32" x="1240" y="464" />
-      <text x="1268" y="480"> SUB </text>
-    </g>
-    <g :class="{ 'alu-btn': true, active: and }">
-      <rect width="56" height="32" x="1048" y="464" />
-      <text x="1076" y="480"> AND </text>
-    </g>
-    <g :class="{ 'alu-btn': true, active: xor }" transform="translate(-64,0)">
-      <rect width="56" height="32" x="1176" y="464" />
-      <text x="1204" y="480"> XOR </text>
+      <rect width="64" height="32" x="232" y="64" />
+      <text x="264" y="80"> SUB </text>
     </g>
   </g>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from '@vue/composition-api';
+import { computed, defineComponent, ref, watch } from '@vue/composition-api';
+
+const SelectNop = 0;
+const SelectAnd = 1;
+const SelectAdd = 2;
+const SelectSub = 3;
 
 export default defineComponent({
   name: 'ALU',
   components: {},
   props: {
-    and: { type: Boolean, required: true },
-    xor: { type: Boolean, required: true },
-    add: { type: Boolean, required: true },
-    sub: { type: Boolean, required: true },
+    select1: { type: Boolean, required: true },
+    select2: { type: Boolean, required: true },
+    inputA: { type: Number, required: true },
+    inputB: { type: Number, required: true },
   },
-  setup() {
+  setup(props, { emit }) {
+    const select = computed(
+      () => (props.select2 ? 2 : 0) + (props.select1 ? 1 : 0)
+    );
+    const and = computed(() => select.value === SelectAnd);
+    const add = computed(() => select.value === SelectAdd);
+    const sub = computed(() => select.value === SelectSub);
     const zero = ref(false);
     const overflow = ref(false);
-    return {
-      zero,
-      overflow,
-    };
+
+    watch(zero, (z) => emit('zero-write', z));
+    watch(overflow, (o) => emit('overflow-write', o));
+
+    function doCalc() {
+      let val = 0;
+      switch (select.value) {
+        case SelectNop:
+          return;
+        case SelectAnd:
+          val = props.inputA & props.inputB;
+          break;
+        case SelectAdd:
+          val = props.inputA + props.inputB;
+          break;
+        case SelectSub:
+          val = props.inputA - props.inputB;
+          break;
+      }
+      overflow.value = val > 0xf || val < 0;
+      zero.value = val === 0;
+      emit('input', val & 0xf);
+    }
+
+    watch(
+      () => [select.value, props.inputA, props.inputB],
+      () => doCalc()
+    );
+    doCalc();
+    return { add, and, sub, overflow, zero };
   },
 });
 </script>
