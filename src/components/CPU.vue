@@ -152,25 +152,42 @@
         :length="64"
         :taperedStart="true"
       />
-      <lane :dir="horizontal" :length="16" :value="aluZero" :x="968" :y="448" />
+      <lane dir="horizontal" :length="16" :value="aluZero" :x="968" :y="448" />
       <lane
-        :dir="horizontal"
+        dir="horizontal"
         :length="16"
         :value="aluOverflow"
         :x="968"
         :y="464"
       />
-      <g id="jump_to_address">
-        <rect id="jump_condition_met" width="8" height="264" x="936" y="488" />
-        <rect id="bus_jmpFromAddress" width="72" height="8" x="872" y="744" />
-      </g>
-      <g id="jump_to_inc">
-        <rect id="rect2867" width="16" height="8" x="872" y="728" />
-        <rect id="rect2869" width="8" height="632" x="880" y="104" />
-      </g>
-      <rect id="command_negateJump" width="8" height="328" x="920" y="104" />
-      <rect id="command_jump_z" width="8" height="328" x="936" y="104" />
-      <rect id="command_jump_o" width="8" height="328" x="952" y="104" />
+      <lane :length="264" :x="944" :y="488" dir="vertical" :value="jmpAddr" />
+      <lane :length="80" :x="872" :y="744" dir="horizontal" :value="jmpAddr" />
+
+      <lane :length="248" :x="928" :y="488" dir="vertical" :value="jmpNext" />
+      <lane :length="64" :x="872" :y="728" dir="horizontal" :value="jmpNext" />
+      <lane :length="632" :x="880" :y="104" dir="vertical" :value="jmpNext" />
+
+      <lane
+        :length="328"
+        :x="920"
+        :y="104"
+        dir="vertical"
+        :value="jmpNotCommand"
+      />
+      <lane
+        :length="328"
+        :x="936"
+        :y="104"
+        dir="vertical"
+        :value="jmpZeroCommand"
+      />
+      <lane
+        :length="328"
+        :x="952"
+        :y="104"
+        dir="vertical"
+        :value="jmpOverflowCommand"
+      />
 
       <lane
         dir="horizontal"
@@ -361,6 +378,8 @@
         :address="addressBus"
         :readCommand="ramReadCommand"
         :writeCommand="ramWriteCommand"
+        :readFrom="dataBus"
+        @data-write="databusInRam = $event"
       />
 
       <register
@@ -377,8 +396,8 @@
         name="B"
         :x="1192"
         :y="264"
-        :commandRead="false"
-        :commandWrite="false"
+        :commandRead="regBReadCommand"
+        :commandWrite="regBWriteCommand"
         :readFrom="dataBus"
         @input="regB = $event"
         @write="databusInRegB = $event"
@@ -387,8 +406,8 @@
         name="C"
         :x="1088"
         :y="632"
-        :commandRead="false"
-        :commandWrite="false"
+        :commandRead="regCReadCommand"
+        :commandWrite="regCWriteCommand"
         :readFrom="aluOut"
         @input="regC = $event"
         @write="databusInRegC = $event"
@@ -429,10 +448,27 @@
       />
 
       <jump-manager />
-      <control-unit />
+      <control-unit
+        :decoderState="decoderState"
+        :instruction="instructionBus"
+        @write-next="jmpNextDecoderIn = $event"
+        @write-jmp-not="jmpNotCommand = $event"
+        @write-jmp-overflow="jmpOverflowCommand = $event"
+        @write-jmp-zero="jmpZeroCommand = $event"
+        @write-reg-a-read="regAReadCommand = $event"
+        @write-reg-a-write="regAWriteCommand = $event"
+        @write-reg-b-read="regBReadCommand = $event"
+        @write-reg-b-write="regBWriteCommand = $event"
+        @write-reg-c-read="regCReadCommand = $event"
+        @write-reg-c-write="regCWriteCommand = $event"
+        @write-alu1="aluCommand1 = $event"
+        @write-alu2="aluCommand2 = $event"
+        @write-ram-read="ramReadCommand = $event"
+        @write-ram-write="ramWriteCommand = $event"
+      />
       <program-counter
-        :jump-to-addr="false"
-        :jump-to-next="false"
+        :jump-to-addr="jmpAddr"
+        :jump-to-next="jmpNext"
         :next-value="pcBus + 1"
         :address-bus="addressBus"
         @pc-write="pcBus = $event"
@@ -447,9 +483,11 @@ import {
   computed,
   defineComponent,
   onMounted,
-  Ref,
+  PropType,
   ref,
 } from '@vue/composition-api';
+import { IDecoderState } from 'src/interfaces/decoder';
+import { IExcerciseState } from 'src/interfaces/excercises';
 import alu from './ALU.vue';
 import Bus from './Bus.vue';
 import ControlUnit from './ControlUnit.vue';
@@ -460,6 +498,7 @@ import JumpManager from './JumpManager.vue';
 import Lane from './Lane.vue';
 import ProgramCounter from './ProgramCounter.vue';
 import Register from './Register.vue';
+import StepIndicator from './StepIndicator.vue';
 
 export default defineComponent({
   name: 'cpu',
@@ -474,10 +513,15 @@ export default defineComponent({
     Bus,
     Lane,
     Register,
+    StepIndicator,
   },
   props: {
     excerciseState: {
-      type: Object,
+      type: Object as PropType<IExcerciseState>,
+      required: true,
+    },
+    decoderState: {
+      type: Object as PropType<IDecoderState>,
       required: true,
     },
   },
@@ -492,6 +536,10 @@ export default defineComponent({
     const databusInRegA = ref(0);
     const databusInRegB = ref(0);
     const databusInRegC = ref(0);
+
+    const jmpNotCommand = ref(false);
+    const jmpZeroCommand = ref(false);
+    const jmpOverflowCommand = ref(false);
 
     const regA = ref(0);
     const regAReadCommand = ref(false);
@@ -512,6 +560,37 @@ export default defineComponent({
 
     const ramReadCommand = ref(false);
     const ramWriteCommand = ref(false);
+
+    function jmpCommand(): { next: boolean; addr: boolean } {
+      if (!jmpZeroCommand.value && !jmpOverflowCommand.value) {
+        // Unconditional jump
+        return {
+          next: false,
+          addr: jmpNotCommand.value,
+        };
+      }
+      let jump = true;
+      if (jmpZeroCommand.value && !aluZero.value) jump = false;
+      if (jmpOverflowCommand.value && !aluOverflow.value) jump = false;
+      if (jump === !jmpNotCommand.value) {
+        return {
+          next: false,
+          addr: true,
+        };
+      } else {
+        return {
+          next: true,
+          addr: false,
+        };
+      }
+    }
+
+    const jmpNextDecoderIn = ref(false);
+    const jmpNextMngIn = computed(() => jmpCommand().next);
+    const jmpAddr = computed(() => jmpCommand().addr);
+    const jmpNext = computed(
+      () => jmpNextMngIn.value || jmpNextDecoderIn.value
+    );
 
     const addressbusInInstructionMemory = ref(0);
     const addressBus = computed(() => {
@@ -562,6 +641,13 @@ export default defineComponent({
       aluCommand2,
       ramWriteCommand,
       ramReadCommand,
+      jmpNextDecoderIn,
+      jmpNextMngIn,
+      jmpNext,
+      jmpAddr,
+      jmpNotCommand,
+      jmpZeroCommand,
+      jmpOverflowCommand,
     };
   },
 });

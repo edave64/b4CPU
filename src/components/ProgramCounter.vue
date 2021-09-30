@@ -47,12 +47,12 @@ export default defineComponent({
         addr = addr | props.nextValue;
       }
       if (props.jumpToAddr) {
-        addr = addr | props.nextValue;
+        addr = addr | props.addressBus;
       }
       value.value = addr & 0xf;
     }
 
-    watch(value, (newValue) => emit('pc-write', value.value & 0xf));
+    watch(value, (newValue) => emit('pc-write', newValue & 0xf));
     watch(() => props.jumpToNext, pcUpdate);
     watch(() => props.jumpToAddr, pcUpdate);
 

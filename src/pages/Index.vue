@@ -1,6 +1,6 @@
 <template>
   <q-page class="row items-center justify-evenly">
-    <cpu :excerciseState="demoExcercise" />
+    <cpu :excerciseState="demoExcercise" :decoderState="decoderState" />
   </q-page>
 </template>
 
@@ -13,7 +13,9 @@ import {
 } from '@vue/composition-api';
 import cpu from 'components/CPU.vue';
 import excercise from '../config/demoExcercise.json';
+import initialDecoderState from '../config/initialDecoder.json';
 import { IExcerciseState } from '../interfaces/excercises';
+import { Gates, IDecoderState } from '../interfaces/decoder';
 
 export default defineComponent({
   name: 'PageIndex',
@@ -25,7 +27,19 @@ export default defineComponent({
         instructionMemoryState: excercise.instructionMemoryState,
       };
     });
-    return { demoExcercise };
+    const decoderState: IDecoderState = {
+      instructions: initialDecoderState.instructions.map((i) => ({
+        name: i.name,
+        gates: new Set(i.gates as Gates[]),
+      })),
+      timingMasks: {
+        fetch: new Set(initialDecoderState.timingMasks.fetch as Gates[]),
+        read: new Set(initialDecoderState.timingMasks.read as Gates[]),
+        exec: new Set(initialDecoderState.timingMasks.exec as Gates[]),
+        write: new Set(initialDecoderState.timingMasks.write as Gates[]),
+      }
+    }
+    return { demoExcercise, decoderState };
   },
 });
 </script>

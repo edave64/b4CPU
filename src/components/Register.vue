@@ -7,7 +7,7 @@
       class="component-port-label"
       :class="{ active: commandRead }"
       x="154"
-      y="12"
+      y="28"
     >
       R
     </text>
@@ -15,7 +15,7 @@
       class="component-port-label"
       :class="{ active: commandWrite }"
       x="154"
-      y="28"
+      y="12"
     >
       W
     </text>
@@ -59,16 +59,16 @@ export default defineComponent({
     const value = ref(0);
     watch(value, () => emit('input', value.value));
     watch(
-      () => props.commandRead,
-      (read) => {
-        if (read) {
+      () => props.commandWrite,
+      (write) => {
+        if (write) {
           value.value = props.readFrom;
         }
       }
     );
     watch(
-      () => props.commandWrite,
-      (write) => emit('write', write ? value.value : 0)
+      () => props.commandRead,
+      (read) => emit('write', read ? value.value : 0)
     );
     emit('input', value.value);
     return { value };
