@@ -478,178 +478,110 @@
   </svg>
 </template>
 
-<script lang="ts">
-import {
-  computed,
-  defineComponent,
-  onMounted,
-  PropType,
-  ref,
-} from '@vue/composition-api';
+<script lang="ts" setup>
 import { IDecoderState } from 'src/interfaces/decoder';
 import { IExcerciseState } from 'src/interfaces/excercises';
+import { PropType, ref, computed } from 'vue';
 import alu from './ALU.vue';
-import Bus from './Bus.vue';
+import bus from './Bus.vue';
 import ControlUnit from './ControlUnit.vue';
 import DataMemory from './DataMemory.vue';
 import Incrementor from './Incrementor.vue';
 import InstructionMemory from './InstructionMemory.vue';
 import JumpManager from './JumpManager.vue';
-import Lane from './Lane.vue';
+import lane from './Lane.vue';
 import ProgramCounter from './ProgramCounter.vue';
 import Register from './Register.vue';
 import StepIndicator from './StepIndicator.vue';
 
-export default defineComponent({
-  name: 'cpu',
-  components: {
-    DataMemory,
-    InstructionMemory,
-    alu,
-    JumpManager,
-    ControlUnit,
-    ProgramCounter,
-    Incrementor,
-    Bus,
-    Lane,
-    Register,
-    StepIndicator,
+const props = defineProps({
+  excerciseState: {
+    type: Object as PropType<IExcerciseState>,
+    required: true,
   },
-  props: {
-    excerciseState: {
-      type: Object as PropType<IExcerciseState>,
-      required: true,
-    },
-    decoderState: {
-      type: Object as PropType<IDecoderState>,
-      required: true,
-    },
+  decoderState: {
+    type: Object as PropType<IDecoderState>,
+    required: true,
   },
-  methods: {},
-  setup(props) {
-    const instruction = ref(0);
-    // const addressBus = ref(0);
-    const pcBus = ref(0);
+});
+const instruction = ref(0);
+// const addressBus = ref(0);
+const pcBus = ref(0);
 
-    const databusInInstructionMemory = ref(0);
-    const databusInRam = ref(0);
-    const databusInRegA = ref(0);
-    const databusInRegB = ref(0);
-    const databusInRegC = ref(0);
+const databusInInstructionMemory = ref(0);
+const databusInRam = ref(0);
+const databusInRegA = ref(0);
+const databusInRegB = ref(0);
+const databusInRegC = ref(0);
 
-    const jmpNotCommand = ref(false);
-    const jmpZeroCommand = ref(false);
-    const jmpOverflowCommand = ref(false);
+const jmpNotCommand = ref(false);
+const jmpZeroCommand = ref(false);
+const jmpOverflowCommand = ref(false);
 
-    const regA = ref(0);
-    const regAReadCommand = ref(false);
-    const regAWriteCommand = ref(false);
-    const regB = ref(0);
-    const regBReadCommand = ref(false);
-    const regBWriteCommand = ref(false);
-    const regC = ref(0);
-    const regCReadCommand = ref(false);
-    const regCWriteCommand = ref(false);
+const regA = ref(0);
+const regAReadCommand = ref(false);
+const regAWriteCommand = ref(false);
+const regB = ref(0);
+const regBReadCommand = ref(false);
+const regBWriteCommand = ref(false);
+const regC = ref(0);
+const regCReadCommand = ref(false);
+const regCWriteCommand = ref(false);
 
-    const aluOut = ref(0);
-    const aluZero = ref(false);
-    const aluOverflow = ref(false);
+const aluOut = ref(0);
+const aluZero = ref(false);
+const aluOverflow = ref(false);
 
-    const aluCommand1 = ref(false);
-    const aluCommand2 = ref(false);
+const aluCommand1 = ref(false);
+const aluCommand2 = ref(false);
 
-    const ramReadCommand = ref(false);
-    const ramWriteCommand = ref(false);
+const ramReadCommand = ref(false);
+const ramWriteCommand = ref(false);
 
-    function jmpCommand(): { next: boolean; addr: boolean } {
-      if (!jmpZeroCommand.value && !jmpOverflowCommand.value) {
-        // Unconditional jump
-        return {
-          next: false,
-          addr: jmpNotCommand.value,
-        };
-      }
-      let jump = true;
-      if (jmpZeroCommand.value && !aluZero.value) jump = false;
-      if (jmpOverflowCommand.value && !aluOverflow.value) jump = false;
-      if (jump === !jmpNotCommand.value) {
-        return {
-          next: false,
-          addr: true,
-        };
-      } else {
-        return {
-          next: true,
-          addr: false,
-        };
-      }
-    }
-
-    const jmpNextDecoderIn = ref(false);
-    const jmpNextMngIn = computed(() => jmpCommand().next);
-    const jmpAddr = computed(() => jmpCommand().addr);
-    const jmpNext = computed(
-      () => jmpNextMngIn.value || jmpNextDecoderIn.value
-    );
-
-    const addressbusInInstructionMemory = ref(0);
-    const addressBus = computed(() => {
-      return addressbusInInstructionMemory.value;
-    });
-
-    const instructionBus = ref(0);
-
-    const dataBus = computed(() => {
-      return (
-        databusInInstructionMemory.value |
-        databusInRam.value |
-        databusInRegA.value |
-        databusInRegB.value |
-        databusInRegC.value
-      );
-    });
-
-    onMounted(() => {
-      // console.log(JSON.stringify(props.excerciseState));
-    });
-
+function jmpCommand(): { next: boolean; addr: boolean } {
+  if (!jmpZeroCommand.value && !jmpOverflowCommand.value) {
+    // Unconditional jump
     return {
-      instruction,
-      addressBus,
-      dataBus,
-      pcBus,
-      databusInInstructionMemory,
-      databusInRam,
-      databusInRegA,
-      databusInRegB,
-      databusInRegC,
-      addressbusInInstructionMemory,
-      instructionBus,
-      regA,
-      regAReadCommand,
-      regAWriteCommand,
-      regB,
-      regBReadCommand,
-      regBWriteCommand,
-      regC,
-      regCReadCommand,
-      regCWriteCommand,
-      aluOut,
-      aluZero,
-      aluOverflow,
-      aluCommand1,
-      aluCommand2,
-      ramWriteCommand,
-      ramReadCommand,
-      jmpNextDecoderIn,
-      jmpNextMngIn,
-      jmpNext,
-      jmpAddr,
-      jmpNotCommand,
-      jmpZeroCommand,
-      jmpOverflowCommand,
+      next: false,
+      addr: jmpNotCommand.value,
     };
-  },
+  }
+  let jump = true;
+  if (jmpZeroCommand.value && !aluZero.value) jump = false;
+  if (jmpOverflowCommand.value && !aluOverflow.value) jump = false;
+  if (jump === !jmpNotCommand.value) {
+    return {
+      next: false,
+      addr: true,
+    };
+  } else {
+    return {
+      next: true,
+      addr: false,
+    };
+  }
+}
+
+const jmpNextDecoderIn = ref(false);
+const jmpNextMngIn = computed(() => jmpCommand().next);
+const jmpAddr = computed(() => jmpCommand().addr);
+const jmpNext = computed(() => jmpNextMngIn.value || jmpNextDecoderIn.value);
+
+const addressbusInInstructionMemory = ref(0);
+const addressBus = computed(() => {
+  return addressbusInInstructionMemory.value;
+});
+
+const instructionBus = ref(0);
+
+const dataBus = computed(() => {
+  return (
+    databusInInstructionMemory.value |
+    databusInRam.value |
+    databusInRegA.value |
+    databusInRegB.value |
+    databusInRegC.value
+  );
 });
 </script>
 

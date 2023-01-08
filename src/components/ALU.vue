@@ -28,64 +28,60 @@
   </g>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, ref, watch } from '@vue/composition-api';
+<script lang="ts" setup>
+import { computed, ref, watch } from 'vue';
 
 const SelectNop = 0;
 const SelectAnd = 1;
 const SelectAdd = 2;
 const SelectSub = 3;
 
-export default defineComponent({
-  name: 'ALU',
-  components: {},
-  props: {
-    select1: { type: Boolean, required: true },
-    select2: { type: Boolean, required: true },
-    inputA: { type: Number, required: true },
-    inputB: { type: Number, required: true },
-  },
-  setup(props, { emit }) {
-    const select = computed(
-      () => (props.select2 ? 2 : 0) + (props.select1 ? 1 : 0)
-    );
-    const and = computed(() => select.value === SelectAnd);
-    const add = computed(() => select.value === SelectAdd);
-    const sub = computed(() => select.value === SelectSub);
-    const zero = ref(false);
-    const overflow = ref(false);
-
-    watch(zero, (z) => emit('zero-write', z));
-    watch(overflow, (o) => emit('overflow-write', o));
-
-    function doCalc() {
-      let val = 0;
-      switch (select.value) {
-        case SelectNop:
-          return;
-        case SelectAnd:
-          val = props.inputA & props.inputB;
-          break;
-        case SelectAdd:
-          val = props.inputA + props.inputB;
-          break;
-        case SelectSub:
-          val = props.inputA - props.inputB;
-          break;
-      }
-      overflow.value = val > 0xf || val < 0;
-      zero.value = val === 0;
-      emit('input', val & 0xf);
-    }
-
-    watch(
-      () => [select.value, props.inputA, props.inputB],
-      () => doCalc()
-    );
-    doCalc();
-    return { add, and, sub, overflow, zero };
-  },
+const props = defineProps({
+  select1: { type: Boolean, required: true },
+  select2: { type: Boolean, required: true },
+  inputA: { type: Number, required: true },
+  inputB: { type: Number, required: true },
 });
+
+const emit = defineEmits(['input', 'zero-write', 'overflow-write']);
+
+const select = computed(
+  () => (props.select2 ? 2 : 0) + (props.select1 ? 1 : 0)
+);
+const and = computed(() => select.value === SelectAnd);
+const add = computed(() => select.value === SelectAdd);
+const sub = computed(() => select.value === SelectSub);
+const zero = ref(false);
+const overflow = ref(false);
+
+watch(zero, (z) => emit('zero-write', z));
+watch(overflow, (o) => emit('overflow-write', o));
+
+function doCalc() {
+  let val = 0;
+  switch (select.value) {
+    case SelectNop:
+      return;
+    case SelectAnd:
+      val = props.inputA & props.inputB;
+      break;
+    case SelectAdd:
+      val = props.inputA + props.inputB;
+      break;
+    case SelectSub:
+      val = props.inputA - props.inputB;
+      break;
+  }
+  overflow.value = val > 0xf || val < 0;
+  zero.value = val === 0;
+  emit('input', val & 0xf);
+}
+
+watch(
+  () => [select.value, props.inputA, props.inputB],
+  () => doCalc()
+);
+doCalc();
 </script>
 
 <style lang="scss" scoped>

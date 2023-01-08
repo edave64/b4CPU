@@ -1,33 +1,25 @@
 <template>
   <g
-    :class="{ active: value }"
+    :class="{ active: modelValue }"
     :style="{ transform: 'translate(' + x + 'px, ' + y + 'px)' }"
-    @click="$emit('input', !value)"
-    @keypress="$emit('input', !value)"
+    @click="emit('update:modelValue', !modelValue)"
+    @keypress="emit('update:modelValue', !modelValue)"
     tabindex="0"
   >
     <rect width="32" height="32" />
     <text x="16" y="16" height="32" width="32">
-      {{ value ? '1' : '0' }}
+      {{ modelValue ? '1' : '0' }}
     </text>
   </g>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from '@vue/composition-api';
-
-export default defineComponent({
-  name: 'Bit',
-  components: {},
-  props: {
-    x: Number,
-    y: Number,
-    value: Boolean,
-  },
-  setup() {
-    return {};
-  },
+<script lang="ts" setup>
+const props = defineProps({
+  x: Number,
+  y: Number,
+  modelValue: Boolean,
 });
+const emit = defineEmits(['update:modelValue']);
 </script>
 
 <style lang="scss" scoped>

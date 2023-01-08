@@ -13,37 +13,29 @@
   />
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, PropType } from '@vue/composition-api';
+<script lang="ts" setup>
+import { PropType, computed } from 'vue';
 
-export default defineComponent({
-  name: 'DirectionArrow',
-  components: {},
-  props: {
-    x: {
-      required: true,
-      type: Number,
-    },
-    y: {
-      required: true,
-      type: Number,
-    },
-    dir: {
-      required: true,
-      type: String as PropType<'up' | 'down'>,
-    },
-    value: {
-      required: true,
-      type: Boolean,
-    },
+const props = defineProps({
+  x: {
+    required: true,
+    type: Number,
   },
-  setup(props) {
-    return {
-      up: computed(() => props.dir === 'up'),
-      style: computed(() => `transform: translate(${props.x}px,${props.y}px)`),
-    };
+  y: {
+    required: true,
+    type: Number,
+  },
+  dir: {
+    required: true,
+    type: String as PropType<'up' | 'down'>,
+  },
+  value: {
+    required: true,
+    type: Boolean,
   },
 });
+const up = computed(() => props.dir === 'up');
+const style = computed(() => `transform: translate(${props.x}px,${props.y}px)`);
 </script>
 
 <style lang="scss" scoped>

@@ -21,69 +21,55 @@
   </g>
 </template>
 
-<script lang="ts">
-import {
-  defineComponent,
-  onMounted,
-  watch,
-  reactive,
-} from '@vue/composition-api';
+<script lang="ts" setup>
 import word from 'components/Word.vue';
+import { reactive, watch } from 'vue';
 import { IMemoryState } from '../interfaces/excercises';
 import CounterArrow from './CounterArrow.vue';
 import DirectionArrow from './DirectionArrow.vue';
 
-export default defineComponent({
-  name: 'DataMemory',
-  components: { word, CounterArrow, DirectionArrow },
-  props: {
-    initialState: {
-      type: Object,
-      required: true,
-    },
-    address: {
-      type: Number,
-      required: true,
-    },
-    readFrom: {
-      type: Number,
-      required: true,
-    },
-    readCommand: {
-      type: Boolean,
-      required: true,
-    },
-    writeCommand: {
-      type: Boolean,
-      required: true,
-    },
+const props = defineProps({
+  initialState: {
+    type: Object,
+    required: true,
   },
-  setup(props, { emit }) {
-    const initialState = props.initialState as IMemoryState;
-    const wordValues = reactive(
-      Array(16)
-        .fill(0)
-        .map((_, i) => initialState[i as 15].value)
-    );
-    watch(
-      () => props.readCommand,
-      (read) => {
-        emit('data-write', read ? wordValues[props.address] : 0);
-      }
-    );
-
-    watch(
-      () => props.writeCommand,
-      (write) => {
-        if (write) {
-          wordValues[props.address] = props.readFrom;
-        }
-      }
-    );
-
-    onMounted(() => {});
-
-    return { wordValues };
+  address: {
+    type: Number,
+    required: true,
+  },
+  readFrom: {
+    type: Number,
+    required: true,
+  },
+  readCommand: {
+    type: Boolean,
+    required: true,
+  },
+  writeCommand: {
+    type: Boolean,
+    required: true,
   },
 });
+const emit = defineEmits(['data-write']);
+const initialState = props.initialState as IMemoryState;
+const wordValues = reactive(
+  Array(16)
+    .fill(0)
+    .map((_, i) => initialState[i as 15].value)
+);
+watch(
+  () => props.readCommand,
+  (read) => {
+    emit('data-write', read ? wordValues[props.address] : 0);
+  }
+);
+
+watch(
+  () => props.writeCommand,
+  (write) => {
+    if (write) {
+      wordValues[props.address] = props.readFrom;
+    }
+  }
+);
 </script>

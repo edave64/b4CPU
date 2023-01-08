@@ -13,10 +13,6 @@
   </g>
 </template>
 
-<script lang="ts">
-import { defineComponent } from '@vue/composition-api';
-
-export default defineComponent({
-  name: 'JumpManager',
-});
+<script lang="ts" setup>
+import { translate } from '../style-helper';
 </script>

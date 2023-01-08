@@ -8,10 +8,10 @@
           round
           icon="menu"
           aria-label="Menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"
+          @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title> b4CPU </q-toolbar-title>
+        <q-toolbar-title> Quasar App </q-toolbar-title>
 
         <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
@@ -29,16 +29,12 @@
   </q-layout>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from '@vue/composition-api';
+<script setup lang="ts">
+import { ref } from 'vue';
 
-export default defineComponent({
-  name: 'MainLayout',
-  components: {},
-  setup() {
-    const leftDrawerOpen = ref(false);
+const leftDrawerOpen = ref(false);
 
-    return { leftDrawerOpen };
-  },
-});
+function toggleLeftDrawer() {
+  leftDrawerOpen.value = !leftDrawerOpen.value;
+}
 </script>

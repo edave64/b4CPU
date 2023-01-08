@@ -10,29 +10,23 @@
   </g>
 </template>
 
-<script lang="ts">
-import { defineComponent } from '@vue/composition-api';
-
-export default defineComponent({
-  name: 'StepIndicator',
-  components: {},
-  props: {
-    x: {
-      type: Number,
-      required: true,
-    },
-    y: {
-      type: Number,
-      required: true,
-    },
-    label: {
-      type: String,
-      required: true,
-    },
-    active: {
-      type: Boolean,
-      required: true,
-    },
+<script lang="ts" setup>
+const props = defineProps({
+  x: {
+    type: Number,
+    required: true,
+  },
+  y: {
+    type: Number,
+    required: true,
+  },
+  label: {
+    type: String,
+    required: true,
+  },
+  active: {
+    type: Boolean,
+    required: true,
   },
 });
 </script>

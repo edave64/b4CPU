@@ -8,57 +8,50 @@
   </g>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, watch } from '@vue/composition-api';
+<script lang="ts" setup>
+import { ref, watch } from 'vue';
 import word from 'components/Word.vue';
 import DirectionArrow from './DirectionArrow.vue';
 
-export default defineComponent({
-  name: 'ProgramCounter',
-  components: { word, DirectionArrow },
-  props: {
-    nextValue: {
-      type: Number,
-      required: true,
-    },
-    addressBus: {
-      type: Number,
-      required: true,
-    },
-    jumpToNext: {
-      type: Boolean,
-      required: true,
-    },
-    jumpToAddr: {
-      type: Boolean,
-      required: true,
-    },
+const props = defineProps({
+  nextValue: {
+    type: Number,
+    required: true,
   },
-  setup(props, { emit }) {
-    const value = ref(0);
-
-    function pcWrite() {
-      emit('pc-write', value.value & 0xf);
-    }
-    function pcUpdate(newValue: boolean) {
-      if (!newValue) return;
-      let addr = 0;
-      if (props.jumpToNext) {
-        addr = addr | props.nextValue;
-      }
-      if (props.jumpToAddr) {
-        addr = addr | props.addressBus;
-      }
-      value.value = addr & 0xf;
-    }
-
-    watch(value, (newValue) => emit('pc-write', newValue & 0xf));
-    watch(() => props.jumpToNext, pcUpdate);
-    watch(() => props.jumpToAddr, pcUpdate);
-
-    pcWrite();
-
-    return { value };
+  addressBus: {
+    type: Number,
+    required: true,
+  },
+  jumpToNext: {
+    type: Boolean,
+    required: true,
+  },
+  jumpToAddr: {
+    type: Boolean,
+    required: true,
   },
 });
+const emit = defineEmits(['pc-write']);
+const value = ref(0);
+
+function pcWrite() {
+  emit('pc-write', value.value & 0xf);
+}
+function pcUpdate(newValue: boolean) {
+  if (!newValue) return;
+  let addr = 0;
+  if (props.jumpToNext) {
+    addr = addr | props.nextValue;
+  }
+  if (props.jumpToAddr) {
+    addr = addr | props.addressBus;
+  }
+  value.value = addr & 0xf;
+}
+
+watch(value, (newValue) => emit('pc-write', newValue & 0xf));
+watch(() => props.jumpToNext, pcUpdate);
+watch(() => props.jumpToAddr, pcUpdate);
+
+pcWrite();
 </script>

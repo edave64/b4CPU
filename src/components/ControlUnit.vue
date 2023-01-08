@@ -52,10 +52,11 @@
   </g>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType, ref, watch } from '@vue/composition-api';
+<script lang="ts" setup>
+import { PropType, ref, watch, nextTick } from 'vue';
 import { Gates, IDecoderState } from 'src/interfaces/decoder';
 import StepIndicator from './StepIndicator.vue';
+import {} from 'process';
 
 enum Stage {
   Fetch,
@@ -64,113 +65,117 @@ enum Stage {
   Execute,
   Write,
 }
+const stage = ref(Stage.Fetch);
+const inCycle = ref(false);
+const lastDecoded = {
+  fetch: new Set<Gates>(),
+  read: new Set<Gates>(),
+  exec: new Set<Gates>(),
+  write: new Set<Gates>(),
+};
 
-export default defineComponent({
-  name: 'ControlUnit',
-  components: { StepIndicator },
-  props: {
-    decoderState: {
-      type: Object as PropType<IDecoderState>,
-      required: true,
-    },
-    instruction: {
-      type: Number,
-      required: true,
-    },
+const props = defineProps({
+  decoderState: {
+    type: Object as PropType<IDecoderState>,
+    required: true,
   },
-  methods: {
-    step() {
-      if (this.stage === Stage.Write) this.stage = Stage.Fetch;
-      else {
-        this.stage++;
-      }
-    },
-    cycle() {
-      if (this.inCycle) return;
-      this.inCycle = true;
-      const runner = () => {
-        this.step();
-        if (this.stage !== 0) {
-          this.$nextTick(runner);
-        } else {
-          this.inCycle = false;
-        }
-      };
-      runner();
-    },
-  },
-  setup(props, { emit }) {
-    const stage = ref(Stage.Fetch);
-    const inCycle = ref(false);
-    const lastDecoded = {
-      fetch: new Set<Gates>(),
-      read: new Set<Gates>(),
-      exec: new Set<Gates>(),
-      write: new Set<Gates>(),
-    };
-    function update() {
-      switch (stage.value) {
-        case Stage.Decode:
-          const instruction =
-            props.decoderState.instructions[props.instruction].gates;
-          lastDecoded.fetch = new Set(
-            [...props.decoderState.timingMasks.fetch].filter((x) =>
-              instruction.has(x)
-            )
-          );
-          lastDecoded.read = new Set(
-            [...props.decoderState.timingMasks.read].filter((x) =>
-              instruction.has(x)
-            )
-          );
-          lastDecoded.exec = new Set(
-            [...props.decoderState.timingMasks.exec].filter((x) =>
-              instruction.has(x)
-            )
-          );
-          lastDecoded.write = new Set(
-            [...props.decoderState.timingMasks.write].filter((x) =>
-              instruction.has(x)
-            )
-          );
-          writeState(new Set());
-          break;
-        case Stage.Fetch:
-          writeState(lastDecoded.fetch);
-          break;
-        case Stage.Read:
-          writeState(lastDecoded.read);
-          break;
-        case Stage.Execute:
-          writeState(lastDecoded.exec);
-          break;
-        case Stage.Write:
-          writeState(lastDecoded.write);
-          break;
-      }
-    }
-    function writeState(set: Set<Gates>) {
-      emit('write-alu1', set.has('ALU1'));
-      emit('write-alu2', set.has('ALU2'));
-      emit('write-next', set.has('N'));
-      emit('write-jmp-not', set.has('JN'));
-      emit('write-jmp-overflow', set.has('JO'));
-      emit('write-jmp-zero', set.has('JZ'));
-      emit('write-reg-a-read', set.has('AR'));
-      emit('write-reg-b-read', set.has('BR'));
-      emit('write-reg-c-read', set.has('CR'));
-      emit('write-ram-read', set.has('RR'));
-      emit('write-reg-a-write', set.has('AW'));
-      emit('write-reg-b-write', set.has('BW'));
-      emit('write-reg-c-write', set.has('CW'));
-      emit('write-ram-write', set.has('RW'));
-    }
-    watch(() => [props.decoderState, props.instruction, stage.value], update);
-    update();
-    return {
-      stage,
-      inCycle,
-    };
+  instruction: {
+    type: Number,
+    required: true,
   },
 });
+function step() {
+  if (stage.value === Stage.Write) stage.value = Stage.Fetch;
+  else {
+    stage.value++;
+  }
+}
+function cycle() {
+  if (inCycle.value) return;
+  inCycle.value = true;
+  const runner = () => {
+    step();
+    if (stage.value !== 0) {
+      nextTick(runner);
+    } else {
+      inCycle.value = false;
+    }
+  };
+  runner();
+}
+function update() {
+  switch (stage.value) {
+    case Stage.Decode:
+      const instruction =
+        props.decoderState.instructions[props.instruction].gates;
+      lastDecoded.fetch = new Set(
+        [...props.decoderState.timingMasks.fetch].filter((x) =>
+          instruction.has(x)
+        )
+      );
+      lastDecoded.read = new Set(
+        [...props.decoderState.timingMasks.read].filter((x) =>
+          instruction.has(x)
+        )
+      );
+      lastDecoded.exec = new Set(
+        [...props.decoderState.timingMasks.exec].filter((x) =>
+          instruction.has(x)
+        )
+      );
+      lastDecoded.write = new Set(
+        [...props.decoderState.timingMasks.write].filter((x) =>
+          instruction.has(x)
+        )
+      );
+      writeState(new Set());
+      break;
+    case Stage.Fetch:
+      writeState(lastDecoded.fetch);
+      break;
+    case Stage.Read:
+      writeState(lastDecoded.read);
+      break;
+    case Stage.Execute:
+      writeState(lastDecoded.exec);
+      break;
+    case Stage.Write:
+      writeState(lastDecoded.write);
+      break;
+  }
+}
+const emit = defineEmits([
+  'write-alu1',
+  'write-alu2',
+  'write-next',
+  'write-jmp-not',
+  'write-jmp-overflow',
+  'write-jmp-zero',
+  'write-reg-a-read',
+  'write-reg-b-read',
+  'write-reg-c-read',
+  'write-ram-read',
+  'write-reg-a-write',
+  'write-reg-b-write',
+  'write-reg-c-write',
+  'write-ram-write',
+]);
+function writeState(set: Set<Gates>) {
+  emit('write-alu1', set.has('ALU1'));
+  emit('write-alu2', set.has('ALU2'));
+  emit('write-next', set.has('N'));
+  emit('write-jmp-not', set.has('JN'));
+  emit('write-jmp-overflow', set.has('JO'));
+  emit('write-jmp-zero', set.has('JZ'));
+  emit('write-reg-a-read', set.has('AR'));
+  emit('write-reg-b-read', set.has('BR'));
+  emit('write-reg-c-read', set.has('CR'));
+  emit('write-ram-read', set.has('RR'));
+  emit('write-reg-a-write', set.has('AW'));
+  emit('write-reg-b-write', set.has('BW'));
+  emit('write-reg-c-write', set.has('CW'));
+  emit('write-ram-write', set.has('RW'));
+}
+watch(() => [props.decoderState, props.instruction, stage.value], update);
+update();
 </script>

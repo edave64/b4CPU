@@ -32,43 +32,36 @@
   </g>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, ref } from '@vue/composition-api';
-import Bit from './Bit.vue';
+<script lang="ts" setup>
+import { computed } from 'vue';
+import bit from './Bit.vue';
 
-export default defineComponent({
-  name: 'Word',
-  components: { Bit },
-  props: {
-    x: Number,
-    y: Number,
-    value: {
-      type: Number,
-      required: true,
-    },
-    blocked: {
-      type: Boolean,
-      default: false,
-    },
+const props = defineProps({
+  x: Number,
+  y: Number,
+  modelValue: {
+    type: Number,
+    required: true,
   },
-  setup(props, { emit }) {
-    function bit(mask: number) {
-      return computed({
-        get(): boolean {
-          return !!(props.value & mask);
-        },
-        set(val: boolean) {
-          if (!props.blocked) emit('input', props.value ^ mask);
-        },
-      });
-    }
-
-    const bit0 = bit(0b0001);
-    const bit1 = bit(0b0010);
-    const bit2 = bit(0b0100);
-    const bit3 = bit(0b1000);
-
-    return { bit0, bit1, bit2, bit3 };
+  blocked: {
+    type: Boolean,
+    default: false,
   },
 });
+const emit = defineEmits(['update:modelValue']);
+function makeBit(mask: number) {
+  return computed({
+    get(): boolean {
+      return !!(props.modelValue & mask);
+    },
+    set() {
+      if (!props.blocked) emit('update:modelValue', props.modelValue ^ mask);
+    },
+  });
+}
+
+const bit0 = makeBit(0b0001);
+const bit1 = makeBit(0b0010);
+const bit2 = makeBit(0b0100);
+const bit3 = makeBit(0b1000);
 </script>

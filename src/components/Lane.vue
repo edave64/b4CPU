@@ -8,33 +8,23 @@
   />
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, PropType, ref } from '@vue/composition-api';
+<script lang="ts" setup>
+import { computed, PropType } from 'vue';
 
-export default defineComponent({
-  name: 'Lane',
-  components: {},
-  props: {
-    x: Number,
-    y: Number,
-    dir: {
-      required: true,
-      type: String as PropType<'horizontal' | 'vertical'>,
-    },
-    length: {
-      required: true,
-      type: Number,
-    },
-    value: Boolean,
+const props = defineProps({
+  x: Number,
+  y: Number,
+  dir: {
+    required: true,
+    type: String as PropType<'horizontal' | 'vertical'>,
   },
-  setup(props) {
-    const vertical = computed(() => props.dir === 'vertical');
-
-    return {
-      vertical,
-    };
+  length: {
+    required: true,
+    type: Number,
   },
+  value: Boolean,
 });
+const vertical = computed(() => props.dir === 'vertical');
 </script>
 
 <style lang="scss" scoped>

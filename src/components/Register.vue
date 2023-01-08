@@ -22,56 +22,52 @@
   </g>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, watch } from '@vue/composition-api';
+<script setup lang="ts">
 import word from 'components/Word.vue';
+import { ref, watch } from 'vue';
 
-export default defineComponent({
-  name: 'Register',
-  components: { word },
-  props: {
-    x: {
-      type: Number,
-      required: true,
-    },
-    y: {
-      type: Number,
-      required: true,
-    },
-    name: {
-      type: String,
-      required: true,
-    },
-    readFrom: {
-      type: Number,
-      required: true,
-    },
-    commandRead: {
-      type: Boolean,
-      required: true,
-    },
-    commandWrite: {
-      type: Boolean,
-      required: true,
-    },
+const props = defineProps({
+  x: {
+    type: Number,
+    required: true,
   },
-  setup(props, { emit }) {
-    const value = ref(0);
-    watch(value, () => emit('input', value.value));
-    watch(
-      () => props.commandWrite,
-      (write) => {
-        if (write) {
-          value.value = props.readFrom;
-        }
-      }
-    );
-    watch(
-      () => props.commandRead,
-      (read) => emit('write', read ? value.value : 0)
-    );
-    emit('input', value.value);
-    return { value };
+  y: {
+    type: Number,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  readFrom: {
+    type: Number,
+    required: true,
+  },
+  commandRead: {
+    type: Boolean,
+    required: true,
+  },
+  commandWrite: {
+    type: Boolean,
+    required: true,
   },
 });
+
+const emit = defineEmits(['input', 'write']);
+
+const value = ref(0);
+watch(value, () => emit('input', value.value));
+watch(
+  () => props.commandWrite,
+  (write) => {
+    if (write) {
+      value.value = props.readFrom;
+    }
+  }
+);
+watch(
+  () => props.commandRead,
+  (read) => emit('write', read ? value.value : 0)
+);
+emit('input', value.value);
 </script>

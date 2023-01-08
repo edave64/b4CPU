@@ -5,24 +5,15 @@
   />
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from '@vue/composition-api';
-
-export default defineComponent({
-  name: 'CounterArrow',
-  components: {},
-  props: {
-    x: {
-      required: true,
-      type: Number,
-    },
-    y: {
-      required: true,
-      type: Number,
-    },
+<script lang="ts" setup>
+const props = defineProps({
+  x: {
+    required: true,
+    type: Number,
   },
-  setup() {
-    return {};
+  y: {
+    required: true,
+    type: Number,
   },
 });
 </script>
