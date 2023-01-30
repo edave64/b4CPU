@@ -28,10 +28,10 @@ const props = defineProps({
     type: Number,
   },
   taperedStart: {
-    default: false,
+    type: Boolean,
   },
   taperedEnd: {
-    default: false,
+    type: Boolean,
   },
   value: {
     required: true,

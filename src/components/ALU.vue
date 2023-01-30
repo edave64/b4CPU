@@ -4,11 +4,17 @@
       class="component-bg"
       d="m 0,0 h 376 v 104 l -88,88 h -200 l -88,-88 z"
     />
-    <g :class="{ 'alu-btn': true, active: zero }">
+    <g
+      :class="{ 'alu-btn': true, active: flagZ }"
+      @click="emit('update:flagZ', !flagZ)"
+    >
       <rect width="32" height="32" x="8" y="24" fill="#000" />
       <text x="24" y="40"> Z </text>
     </g>
-    <g :class="{ 'alu-btn': true, active: overflow }">
+    <g
+      :class="{ 'alu-btn': true, active: flagO }"
+      @click="emit('update:flagO', !flagO)"
+    >
       <rect width="32" height="32" x="8" y="64" />
       <text x="24" y="80"> O </text>
     </g>
@@ -29,7 +35,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from 'vue';
+import { computed } from 'vue';
 
 const SelectNop = 0;
 const SelectAnd = 1;
@@ -37,51 +43,16 @@ const SelectAdd = 2;
 const SelectSub = 3;
 
 const props = defineProps({
-  select1: { type: Boolean, required: true },
-  select2: { type: Boolean, required: true },
-  inputA: { type: Number, required: true },
-  inputB: { type: Number, required: true },
+  select: { type: Number, required: true },
+  flagZ: { type: Boolean, required: true },
+  flagO: { type: Boolean, required: true },
 });
 
-const emit = defineEmits(['input', 'zero-write', 'overflow-write']);
+const emit = defineEmits(['update:flagZ', 'update:flagO']);
 
-const select = computed(
-  () => (props.select2 ? 2 : 0) + (props.select1 ? 1 : 0)
-);
-const and = computed(() => select.value === SelectAnd);
-const add = computed(() => select.value === SelectAdd);
-const sub = computed(() => select.value === SelectSub);
-const zero = ref(false);
-const overflow = ref(false);
-
-watch(zero, (z) => emit('zero-write', z));
-watch(overflow, (o) => emit('overflow-write', o));
-
-function doCalc() {
-  let val = 0;
-  switch (select.value) {
-    case SelectNop:
-      return;
-    case SelectAnd:
-      val = props.inputA & props.inputB;
-      break;
-    case SelectAdd:
-      val = props.inputA + props.inputB;
-      break;
-    case SelectSub:
-      val = props.inputA - props.inputB;
-      break;
-  }
-  overflow.value = val > 0xf || val < 0;
-  zero.value = val === 0;
-  emit('input', val & 0xf);
-}
-
-watch(
-  () => [select.value, props.inputA, props.inputB],
-  () => doCalc()
-);
-doCalc();
+const and = computed(() => props.select === SelectAnd);
+const add = computed(() => props.select === SelectAdd);
+const sub = computed(() => props.select === SelectSub);
 </script>
 
 <style lang="scss" scoped>

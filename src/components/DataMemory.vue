@@ -4,72 +4,39 @@
     <text class="component-label" x="30" y="40"> RAM </text>
     <counter-arrow
       :x="8"
-      :y="56 + 40 * (address % 4) + 168 * Math.floor(address / 4)"
+      :y="
+        56 +
+        40 * (cpu.address.value % 4) +
+        168 * Math.floor(cpu.address.value / 4)
+      "
     />
     <g v-for="cluster in [0, 1, 2, 3]" :key="'data_' + cluster">
       <g v-for="i in [0, 1, 2, 3]" :key="'data_' + cluster + '_' + i">
         <word
           :x="32"
           :y="48 + 40 * i + 168 * cluster"
-          v-model="wordValues[i + cluster * 4]"
-          :blocked="initialState[i + cluster * 4].blocked"
+          v-model="ram[i + cluster * 4]"
         />
       </g>
     </g>
-    <direction-arrow dir="up" :x="40" :y="720" :value="writeCommand" />
-    <direction-arrow dir="down" :x="72" :y="720" :value="readCommand" />
+    <direction-arrow dir="up" :x="40" :y="720" :value="cpu.ramWrite" />
+    <direction-arrow dir="down" :x="72" :y="720" :value="cpu.ramRead" />
   </g>
 </template>
 
 <script lang="ts" setup>
 import word from 'components/Word.vue';
-import { reactive, watch } from 'vue';
-import { IMemoryState } from '../interfaces/excercises';
+import { Cpu } from 'src/engine/cpu';
 import CounterArrow from './CounterArrow.vue';
 import DirectionArrow from './DirectionArrow.vue';
 
 const props = defineProps({
-  initialState: {
-    type: Object,
-    required: true,
-  },
-  address: {
-    type: Number,
-    required: true,
-  },
-  readFrom: {
-    type: Number,
-    required: true,
-  },
-  readCommand: {
-    type: Boolean,
-    required: true,
-  },
-  writeCommand: {
-    type: Boolean,
+  cpu: {
+    type: Cpu,
     required: true,
   },
 });
-const emit = defineEmits(['data-write']);
-const initialState = props.initialState as IMemoryState;
-const wordValues = reactive(
-  Array(16)
-    .fill(0)
-    .map((_, i) => initialState[i as 15].value)
-);
-watch(
-  () => props.readCommand,
-  (read) => {
-    emit('data-write', read ? wordValues[props.address] : 0);
-  }
-);
 
-watch(
-  () => props.writeCommand,
-  (write) => {
-    if (write) {
-      wordValues[props.address] = props.readFrom;
-    }
-  }
-);
+// eslint-disable-next-line vue/no-setup-props-destructure
+const ram = props.cpu.ram;
 </script>

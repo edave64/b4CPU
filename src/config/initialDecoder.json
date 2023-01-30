@@ -2,51 +2,47 @@
   "instructions": [
     {
       "name": "NOP",
-      "gates": ["N"]
+      "gates": ["N", "PA"]
     },
     {
       "name": "LD A",
-      "gates": ["N", "AW"]
+      "gates": ["N", "AW", "PA"]
     },
     {
       "name": "LR A",
-      "gates": ["N", "AW", "RR"]
+      "gates": ["N", "AW", "RR", "PA"]
     },
     {
       "name": "LD B",
-      "gates": ["N", "BW"]
+      "gates": ["N", "BW", "PA"]
     },
     {
       "name": "LR B",
-      "gates": ["N", "BW", "RR"]
+      "gates": ["N", "BW", "RR", "PA"]
     },
     {
       "name": "LD B C",
-      "gates": ["N", "BW", "CR"]
+      "gates": ["N", "BW", "CR", "PA"]
     },
     {
       "name": "ST A",
-      "gates": ["N", "AR", "RW"]
+      "gates": ["N", "AR", "RW", "PA"]
     },
     {
       "name": "ST B",
-      "gates": ["N", "BR", "RW"]
-    },
-    {
-      "name": "ST C",
-      "gates": ["N", "CR", "RW"]
+      "gates": ["N", "BR", "RW", "PA"]
     },
     {
       "name": "AND",
-      "gates": ["N", "CW", "ALU1"]
+      "gates": ["N", "CW", "ALU1", "PA"]
     },
     {
       "name": "ADD",
-      "gates": ["N", "CW", "ALU2"]
+      "gates": ["N", "CW", "ALU2", "PA"]
     },
     {
       "name": "SUB",
-      "gates": ["N", "CW", "ALU1", "ALU2"]
+      "gates": ["N", "CW", "ALU1", "ALU2", "PA"]
     },
     {
       "name": "JMP",

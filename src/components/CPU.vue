@@ -15,7 +15,7 @@
         id="main_data_bus"
         :x="0"
         :y="1016"
-        :value="dataBus"
+        :value="cpu.data.value"
         dir="horizontal"
         :length="1920"
       />
@@ -24,7 +24,7 @@
         id="main_address_bus"
         :x="0"
         :y="912"
-        :value="addressBus"
+        :value="cpu.address.value"
         dir="horizontal"
         :length="1920"
       />
@@ -32,65 +32,65 @@
         id="program_out_address"
         :x="264"
         :y="856"
-        :value="addressBus"
+        :value="cpu.address.value"
         dir="vertical"
         :length="112"
-        :taperedEnd="true"
+        taperedEnd
       />
 
       <bus
         id="program_out_data"
         :x="432"
         :y="856"
-        :value="dataBus"
+        :value="cpu.data.value"
         dir="vertical"
         :length="216"
-        :taperedEnd="true"
+        taperedEnd
       />
 
       <bus
         id="pc_in_address"
         :x="808"
         :y="768"
-        :value="addressBus"
+        :value="cpu.address.value"
         dir="vertical"
         :length="200"
-        :taperedEnd="true"
+        taperedEnd
       />
 
       <bus
         id="incrementor_bus"
         :x="576"
         :y="776"
-        :value="pcBus + 1"
+        :value="cpu.pc.value + 1"
         dir="horizontal"
         :length="192"
-        :taperedStart="true"
-        :taperedEnd="true"
+        taperedStart
+        taperedEnd
       />
       <bus
         id="incrementor_out"
         :x="576"
         :y="768"
-        :value="pcBus + 1"
+        :value="cpu.pc.value + 1"
         dir="vertical"
         :length="64"
-        :taperedEnd="true"
+        taperedEnd
       />
       <bus
         id="pc_incrementor_in"
         :x="712"
         :y="768"
-        :value="pcBus + 1"
+        :value="cpu.pc.value + 1"
         dir="vertical"
         :length="64"
-        :taperedEnd="true"
+        taperedEnd
       />
       <bus
         id="pc_bus"
         :x="552"
         :y="640"
-        :value="pcBus"
+        :value="cpu.pc.value"
         dir="horizontal"
         :length="152"
       />
@@ -99,106 +99,135 @@
         id="incrementor_in"
         :x="576"
         :y="640"
-        :value="pcBus"
+        :value="cpu.pc.value"
         dir="vertical"
         :length="80"
-        :taperedStart="true"
+        taperedStart
       />
 
       <bus
         id="register_C_out"
         :x="1144"
         :y="728"
-        :value="dataBus"
+        :value="cpu.data.value"
         dir="vertical"
         :length="344"
-        :taperedEnd="true"
+        taperedEnd
       />
       <bus
         id="databus_registers_ext"
         :x="1568"
         :y="200"
-        :value="dataBus"
+        :value="cpu.data.value"
         dir="vertical"
         :length="872"
-        :taperedStart="true"
-        :taperedEnd="true"
+        taperedStart
+        taperedEnd
       />
       <bus
         id="databus_registers"
         :x="1040"
         :y="200"
-        :value="dataBus"
-        dir="horizonal"
+        :value="cpu.data.value"
+        dir="horizontal"
         :length="582"
-        :taperedStart="true"
-        :taperedEnd="true"
+        taperedStart
+        taperedEnd
       />
       <bus
         id="register_A_in"
         :x="1040"
         :y="200"
-        :value="dataBus"
+        :value="cpu.data.value"
         dir="vertical"
         :length="64"
-        :taperedStart="true"
+        taperedStart
       />
       <bus
         id="register_B_in"
         :x="1248"
         :y="200"
-        :value="dataBus"
+        :value="cpu.data.value"
         dir="vertical"
         :length="64"
-        :taperedStart="true"
+        taperedStart
       />
-      <lane dir="horizontal" :length="16" :value="aluZero" :x="968" :y="448" />
       <lane
         dir="horizontal"
         :length="16"
-        :value="aluOverflow"
+        :value="cpu.flagZ.value"
+        :x="968"
+        :y="448"
+      />
+      <lane
+        dir="horizontal"
+        :length="16"
+        :value="cpu.flagO.value"
         :x="968"
         :y="464"
       />
-      <lane :length="264" :x="944" :y="488" dir="vertical" :value="jmpAddr" />
-      <lane :length="80" :x="872" :y="744" dir="horizontal" :value="jmpAddr" />
+      <lane
+        :length="264"
+        :x="936"
+        :y="488"
+        dir="vertical"
+        :value="cpu.pcJump"
+      />
+      <lane
+        :length="72"
+        :x="872"
+        :y="744"
+        dir="horizontal"
+        :value="cpu.pcJump"
+      />
 
-      <lane :length="248" :x="928" :y="488" dir="vertical" :value="jmpNext" />
-      <lane :length="64" :x="872" :y="728" dir="horizontal" :value="jmpNext" />
-      <lane :length="632" :x="880" :y="104" dir="vertical" :value="jmpNext" />
+      <lane
+        :length="632"
+        :x="880"
+        :y="104"
+        dir="vertical"
+        :value="cpu.pcAdvance"
+      />
+      <lane
+        :length="14"
+        :x="872"
+        :y="728"
+        dir="horizontal"
+        :value="cpu.pcAdvance"
+      />
 
       <lane
         :length="328"
         :x="920"
         :y="104"
         dir="vertical"
-        :value="jmpNotCommand"
+        :value="cpu.jmpNot"
       />
       <lane
         :length="328"
         :x="936"
         :y="104"
         dir="vertical"
-        :value="jmpZeroCommand"
+        :value="cpu.jmpZero"
       />
       <lane
         :length="328"
         :x="952"
         :y="104"
         dir="vertical"
-        :value="jmpOverflowCommand"
+        :value="cpu.jmpOverflow"
       />
 
       <lane
         dir="horizontal"
-        :value="regAWriteCommand"
+        :value="cpu.regAWrite"
         :length="16"
         :x="1152"
         :y="272"
       />
       <lane
         dir="vertical"
-        :value="regAWriteCommand"
+        :value="cpu.regAWrite"
         :length="176"
         :x="1160"
         :y="104"
@@ -206,14 +235,14 @@
 
       <lane
         dir="horizontal"
-        :value="regAReadCommand"
+        :value="cpu.regARead"
         :length="32"
         :x="1152"
         :y="288"
       />
       <lane
         dir="vertical"
-        :value="regAReadCommand"
+        :value="cpu.regARead"
         :length="192"
         :x="1176"
         :y="104"
@@ -221,14 +250,14 @@
 
       <lane
         dir="horizontal"
-        :value="regBReadCommand"
+        :value="cpu.regBRead"
         :length="16"
         :x="1360"
         :y="272"
       />
       <lane
         dir="vertical"
-        :value="regBReadCommand"
+        :value="cpu.regBRead"
         :length="176"
         :x="1368"
         :y="104"
@@ -236,14 +265,14 @@
 
       <lane
         dir="horizontal"
-        :value="regBWriteCommand"
+        :value="cpu.regBWrite"
         :length="32"
         :x="1360"
         :y="288"
       />
       <lane
         dir="vertical"
-        :value="regBWriteCommand"
+        :value="cpu.regBWrite"
         :length="192"
         :x="1384"
         :y="104"
@@ -251,14 +280,14 @@
 
       <lane
         dir="horizontal"
-        :value="regCReadCommand"
+        :value="cpu.regCRead"
         :length="264"
         :x="1256"
         :y="656"
       />
       <lane
         dir="vertical"
-        :value="regCReadCommand"
+        :value="cpu.regCRead"
         :length="560"
         :x="1512"
         :y="104"
@@ -266,14 +295,14 @@
 
       <lane
         dir="horizontal"
-        :value="regCWriteCommand"
+        :value="cpu.regCWrite"
         :length="248"
         :x="1256"
         :y="640"
       />
       <lane
         dir="vertical"
-        :value="regCWriteCommand"
+        :value="cpu.regCWrite"
         :length="544"
         :x="1496"
         :y="104"
@@ -281,14 +310,14 @@
 
       <lane
         dir="horizontal"
-        :value="ramWriteCommand"
+        :value="cpu.ramWrite"
         :length="32"
         :x="1672"
         :y="856"
       />
       <lane
         dir="vertical"
-        :value="ramWriteCommand"
+        :value="cpu.ramWrite"
         :length="760"
         :x="1672"
         :y="104"
@@ -296,14 +325,14 @@
 
       <lane
         dir="horizontal"
-        :value="ramReadCommand"
+        :value="cpu.ramRead"
         :length="48"
         :x="1656"
         :y="872"
       />
       <lane
         dir="vertical"
-        :value="ramReadCommand"
+        :value="cpu.ramRead"
         :length="776"
         :x="1656"
         :y="104"
@@ -312,35 +341,35 @@
       <bus
         dir="vertical"
         :length="32"
-        :value="instructionBus"
+        :value="cpu.instructionsOp[cpu.pc.value]"
         :x="96"
         :y="104"
       />
 
       <lane
         dir="horizontal"
-        :value="aluCommand1"
+        :value="!!(cpu.aluOp & 0b01)"
         :length="56"
         :x="1360"
         :y="416"
       />
       <lane
         dir="vertical"
-        :value="aluCommand1"
+        :value="!!(cpu.aluOp & 0b01)"
         :length="320"
         :x="1408"
         :y="104"
       />
       <lane
         dir="horizontal"
-        :value="aluCommand2"
+        :value="!!(cpu.aluOp & 0b10)"
         :length="72"
         :x="1360"
         :y="432"
       />
       <lane
         dir="vertical"
-        :value="aluCommand2"
+        :value="!!(cpu.aluOp & 0b10)"
         :length="336"
         :x="1424"
         :y="104"
@@ -350,77 +379,54 @@
         id="ram_in_address"
         :x="1840"
         :y="856"
-        :value="addressBus"
+        :value="cpu.address.value"
         dir="vertical"
         :length="112"
-        :taperedEnd="true"
+        taperedEnd
       />
 
       <bus
         id="databus_ram"
         :x="1744"
         :y="896"
-        :value="dataBus"
+        :value="cpu.data.value"
         dir="vertical"
         :length="176"
-        :taperedEnd="true"
+        taperedEnd
       />
 
-      <instruction-memory
-        :initialState="excerciseState.instructionMemoryState"
-        :program-counter="pcBus"
-        @data-write="databusInInstructionMemory = $event"
-        @address-write="addressbusInInstructionMemory = $event"
-        @instruction-write="instructionBus = $event"
-      />
-      <data-memory
-        :initialState="excerciseState.dataMemoryState"
-        :address="addressBus"
-        :readCommand="ramReadCommand"
-        :writeCommand="ramWriteCommand"
-        :readFrom="dataBus"
-        @data-write="databusInRam = $event"
-      />
+      <instruction-memory :cpu="cpu" />
+      <data-memory :cpu="cpu" />
 
       <register
         name="A"
         :x="984"
         :y="264"
-        :commandRead="regAReadCommand"
-        :commandWrite="regAWriteCommand"
-        :readFrom="dataBus"
-        @input="regA = $event"
-        @write="databusInRegA = $event"
+        v-model="cpu.regA.value"
+        :command-read="cpu.regARead"
+        :command-write="cpu.regAWrite"
       />
       <register
         name="B"
         :x="1192"
         :y="264"
-        :commandRead="regBReadCommand"
-        :commandWrite="regBWriteCommand"
-        :readFrom="dataBus"
-        @input="regB = $event"
-        @write="databusInRegB = $event"
+        v-model="cpu.regB.value"
+        :command-read="cpu.regBRead"
+        :command-write="cpu.regBWrite"
       />
       <register
         name="C"
         :x="1088"
         :y="632"
-        :commandRead="regCReadCommand"
-        :commandWrite="regCWriteCommand"
-        :readFrom="aluOut"
-        @input="regC = $event"
-        @write="databusInRegC = $event"
+        v-model="cpu.regC.value"
+        :command-read="cpu.regCRead"
+        :command-write="cpu.regCWrite"
       />
 
       <alu
-        :inputA="regA"
-        :inputB="regB"
-        :select1="aluCommand1"
-        :select2="aluCommand2"
-        @zero-write="aluZero = $event"
-        @overflow-write="aluOverflow = $event"
-        @input="aluOut = $event"
+        :select="cpu.aluOp"
+        v-model:flag-z="cpu.flagZ.value"
+        v-model:flag-o="cpu.flagO.value"
       />
       <bus
         id="alu_in_A"
@@ -428,7 +434,7 @@
         :length="40"
         :x="1040"
         :y="360"
-        :value="regA"
+        :value="cpu.regA.value"
       />
       <bus
         id="alu_in_B"
@@ -436,7 +442,7 @@
         :length="40"
         :x="1248"
         :y="360"
-        :value="regB"
+        :value="cpu.regB.value"
       />
       <bus
         id="alu_out"
@@ -444,34 +450,15 @@
         :length="40"
         :x="1144"
         :y="592"
-        :value="aluOut"
+        :value="cpu.aluOut.value"
       />
 
       <jump-manager />
-      <control-unit
-        :decoderState="decoderState"
-        :instruction="instructionBus"
-        @write-next="jmpNextDecoderIn = $event"
-        @write-jmp-not="jmpNotCommand = $event"
-        @write-jmp-overflow="jmpOverflowCommand = $event"
-        @write-jmp-zero="jmpZeroCommand = $event"
-        @write-reg-a-read="regAReadCommand = $event"
-        @write-reg-a-write="regAWriteCommand = $event"
-        @write-reg-b-read="regBReadCommand = $event"
-        @write-reg-b-write="regBWriteCommand = $event"
-        @write-reg-c-read="regCReadCommand = $event"
-        @write-reg-c-write="regCWriteCommand = $event"
-        @write-alu1="aluCommand1 = $event"
-        @write-alu2="aluCommand2 = $event"
-        @write-ram-read="ramReadCommand = $event"
-        @write-ram-write="ramWriteCommand = $event"
-      />
+      <control-unit :cpu="cpu" />
       <program-counter
-        :jump-to-addr="jmpAddr"
-        :jump-to-next="jmpNext"
-        :next-value="pcBus + 1"
-        :address-bus="addressBus"
-        @pc-write="pcBus = $event"
+        v-model="cpu.pc.value"
+        :jump-to-addr="cpu.pcJump"
+        :jump-to-next="cpu.pcAdvance"
       />
       <incrementor />
     </g>
@@ -479,9 +466,10 @@
 </template>
 
 <script lang="ts" setup>
+import { Cpu } from 'src/engine/cpu';
 import { IDecoderState } from 'src/interfaces/decoder';
 import { IExcerciseState } from 'src/interfaces/excercises';
-import { PropType, ref, computed } from 'vue';
+import { PropType, markRaw } from 'vue';
 import alu from './ALU.vue';
 import bus from './Bus.vue';
 import ControlUnit from './ControlUnit.vue';
@@ -492,7 +480,6 @@ import JumpManager from './JumpManager.vue';
 import lane from './Lane.vue';
 import ProgramCounter from './ProgramCounter.vue';
 import Register from './Register.vue';
-import StepIndicator from './StepIndicator.vue';
 
 const props = defineProps({
   excerciseState: {
@@ -504,85 +491,8 @@ const props = defineProps({
     required: true,
   },
 });
-const instruction = ref(0);
-// const addressBus = ref(0);
-const pcBus = ref(0);
 
-const databusInInstructionMemory = ref(0);
-const databusInRam = ref(0);
-const databusInRegA = ref(0);
-const databusInRegB = ref(0);
-const databusInRegC = ref(0);
-
-const jmpNotCommand = ref(false);
-const jmpZeroCommand = ref(false);
-const jmpOverflowCommand = ref(false);
-
-const regA = ref(0);
-const regAReadCommand = ref(false);
-const regAWriteCommand = ref(false);
-const regB = ref(0);
-const regBReadCommand = ref(false);
-const regBWriteCommand = ref(false);
-const regC = ref(0);
-const regCReadCommand = ref(false);
-const regCWriteCommand = ref(false);
-
-const aluOut = ref(0);
-const aluZero = ref(false);
-const aluOverflow = ref(false);
-
-const aluCommand1 = ref(false);
-const aluCommand2 = ref(false);
-
-const ramReadCommand = ref(false);
-const ramWriteCommand = ref(false);
-
-function jmpCommand(): { next: boolean; addr: boolean } {
-  if (!jmpZeroCommand.value && !jmpOverflowCommand.value) {
-    // Unconditional jump
-    return {
-      next: false,
-      addr: jmpNotCommand.value,
-    };
-  }
-  let jump = true;
-  if (jmpZeroCommand.value && !aluZero.value) jump = false;
-  if (jmpOverflowCommand.value && !aluOverflow.value) jump = false;
-  if (jump === !jmpNotCommand.value) {
-    return {
-      next: false,
-      addr: true,
-    };
-  } else {
-    return {
-      next: true,
-      addr: false,
-    };
-  }
-}
-
-const jmpNextDecoderIn = ref(false);
-const jmpNextMngIn = computed(() => jmpCommand().next);
-const jmpAddr = computed(() => jmpCommand().addr);
-const jmpNext = computed(() => jmpNextMngIn.value || jmpNextDecoderIn.value);
-
-const addressbusInInstructionMemory = ref(0);
-const addressBus = computed(() => {
-  return addressbusInInstructionMemory.value;
-});
-
-const instructionBus = ref(0);
-
-const dataBus = computed(() => {
-  return (
-    databusInInstructionMemory.value |
-    databusInRam.value |
-    databusInRegA.value |
-    databusInRegB.value |
-    databusInRegC.value
-  );
-});
+const cpu = markRaw(new Cpu(props.decoderState));
 </script>
 
 <style lang="scss" scoped>
