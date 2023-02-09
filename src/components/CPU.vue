@@ -1,13 +1,11 @@
 <template>
   <svg
-    xmlns:dc="http://purl.org/dc/elements/1.1/"
-    xmlns:cc="http://creativecommons.org/ns#"
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:svg="http://www.w3.org/2000/svg"
     xmlns="http://www.w3.org/2000/svg"
-    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
     viewBox="0 0 1920 1080"
     version="1.1"
+    height="100%"
+    width="100%"
   >
     <g>
       <text x="4" y="1008" id="databus_label">Data</text>
