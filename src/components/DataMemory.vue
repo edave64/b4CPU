@@ -15,6 +15,7 @@
         <word
           :x="32"
           :y="48 + 40 * i + 168 * cluster"
+          ref="dataComp"
           v-model="ram[i + cluster * 4]"
         />
       </g>
@@ -27,6 +28,7 @@
 <script lang="ts" setup>
 import word from 'components/Word.vue';
 import { Cpu } from 'src/engine/cpu';
+import { ref } from 'vue';
 import CounterArrow from './CounterArrow.vue';
 import DirectionArrow from './DirectionArrow.vue';
 
@@ -34,6 +36,14 @@ const props = defineProps({
   cpu: {
     type: Cpu,
     required: true,
+  },
+});
+
+const dataComp = ref([] as (typeof word | null)[]);
+
+defineExpose({
+  doFocus() {
+    dataComp.value[0]?.doFocus(3);
   },
 });
 

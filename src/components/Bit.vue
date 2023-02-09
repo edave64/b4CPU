@@ -5,6 +5,7 @@
     @click="emit('update:modelValue', !modelValue)"
     @keypress="emit('update:modelValue', !modelValue)"
     tabindex="0"
+    ref="focusTarget"
   >
     <rect width="32" height="32" />
     <text x="16" y="16" height="32" width="32">
@@ -14,11 +15,25 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue';
+
 const props = defineProps({
   x: Number,
   y: Number,
   modelValue: Boolean,
 });
+
+const focusTarget = ref(null as HTMLElement | null);
+
+defineExpose({
+  doFocus() {
+    const target = focusTarget.value;
+    if (target) {
+      target.focus();
+    }
+  },
+});
+
 const emit = defineEmits(['update:modelValue']);
 </script>
 

@@ -395,38 +395,59 @@
         taperedEnd
       />
 
-      <instruction-memory :cpu="cpu" />
-      <data-memory :cpu="cpu" />
+      <control-unit
+        ref="controlComp"
+        :cpu="cpu"
+        @keydown="navKey(controlComp, $event)"
+      />
+      <instruction-memory
+        ref="romComp"
+        :cpu="cpu"
+        @keydown="navKey(romComp, $event)"
+      />
+      <data-memory
+        ref="dataComp"
+        :cpu="cpu"
+        @keydown="navKey(dataComp, $event)"
+      />
 
       <register
         name="A"
         :x="984"
         :y="264"
+        ref="regAComp"
         v-model="cpu.regA.value"
         :command-read="cpu.regARead"
         :command-write="cpu.regAWrite"
+        @keydown="navKey(regAComp, $event)"
       />
       <register
         name="B"
         :x="1192"
         :y="264"
+        ref="regBComp"
         v-model="cpu.regB.value"
         :command-read="cpu.regBRead"
         :command-write="cpu.regBWrite"
+        @keydown="navKey(regBComp, $event)"
       />
       <register
         name="C"
         :x="1088"
         :y="632"
+        ref="regCComp"
         v-model="cpu.regC.value"
         :command-read="cpu.regCRead"
         :command-write="cpu.regCWrite"
+        @keydown="navKey(regCComp, $event)"
       />
 
       <alu
+        ref="aluComp"
         :select="cpu.aluOp"
         v-model:flag-z="cpu.flagZ.value"
         v-model:flag-o="cpu.flagO.value"
+        @keydown="navKey(aluComp, $event)"
       />
       <bus
         id="alu_in_A"
@@ -454,11 +475,12 @@
       />
 
       <jump-manager />
-      <control-unit :cpu="cpu" />
       <program-counter
+        ref="pcComp"
         v-model="cpu.pc.value"
         :jump-to-addr="cpu.pcJump"
         :jump-to-next="cpu.pcAdvance"
+        @keydown="navKey(pcComp, $event)"
       />
       <incrementor />
     </g>
@@ -469,7 +491,7 @@
 import { Cpu } from 'src/engine/cpu';
 import { IDecoderState } from 'src/interfaces/decoder';
 import { IExcerciseState } from 'src/interfaces/excercises';
-import { PropType, markRaw } from 'vue';
+import { PropType, markRaw, ref, Ref } from 'vue';
 import alu from './ALU.vue';
 import bus from './Bus.vue';
 import ControlUnit from './ControlUnit.vue';
@@ -491,6 +513,36 @@ const props = defineProps({
     required: true,
   },
 });
+
+const romComp = ref(null as typeof InstructionMemory | null);
+const dataComp = ref(null as typeof DataMemory | null);
+const regAComp = ref(null as typeof Register | null);
+const regBComp = ref(null as typeof Register | null);
+const regCComp = ref(null as typeof Register | null);
+const aluComp = ref(null as typeof alu | null);
+const controlComp = ref(null as typeof ControlUnit | null);
+const pcComp = ref(null as typeof ProgramCounter | null);
+const compOrder = [
+  controlComp,
+  romComp,
+  dataComp,
+  regAComp,
+  regBComp,
+  regCComp,
+  aluComp,
+  pcComp,
+];
+
+function navKey(sender: any, e: KeyboardEvent) {
+  if (e.key === 'PageUp' || e.key === 'PageDown') {
+    const delta = e.key === 'PageUp' ? compOrder.length - 1 : 1;
+    const idx = compOrder.findIndex((x) => x.value === sender);
+    if (idx === -1) return;
+    compOrder[(idx + delta) % compOrder.length].value?.doFocus();
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}
 
 const cpu = markRaw(new Cpu(props.decoderState));
 </script>
