@@ -1,11 +1,11 @@
 <template>
   <g :style="{ transform: 'translate(' + x + 'px, ' + y + 'px)' }">
-    <lane
+    <Lane
       v-for="lane in lanes"
       :key="lane.key"
       :value="lane.value"
       :dir="dir"
-      :length="lane.length"
+      :length="lane.length!"
       :x="lane.x"
       :y="lane.y"
     />
@@ -15,7 +15,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue';
 import { computed } from 'vue';
-import lane from './BusLane.vue';
+import Lane from './BusLane.vue';
 
 const props = defineProps({
   x: Number,
