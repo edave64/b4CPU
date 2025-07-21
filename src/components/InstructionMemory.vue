@@ -14,30 +14,30 @@
           :y="48 + 40 * i + 168 * cluster"
           ref="ref_inst"
           v-model="ops[i + cluster * 4]"
-          @keydown.right.stop="ref_addr[i + cluster * 4].doFocus(3)"
-          @keydown.left.stop="ref_data[(i + cluster * 4 + 15) % 16].doFocus()"
-          @up="ref_inst[(i + cluster * 4 + 15) % 16].doFocus($event)"
-          @down="ref_inst[(i + cluster * 4 + 1) % 16].doFocus($event)"
+          @keydown.right.stop="ref_addr[i + cluster * 4]!.doFocus(3)"
+          @keydown.left.stop="ref_data[(i + cluster * 4 + 15) % 16]!.doFocus()"
+          @up="ref_inst[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
+          @down="ref_inst[(i + cluster * 4 + 1) % 16]!.doFocus($event)"
         />
         <word
           :x="200"
           :y="48 + 40 * i + 168 * cluster"
           ref="ref_addr"
           v-model="addr[i + cluster * 4]"
-          @keydown.right.stop="ref_data[i + cluster * 4].doFocus(3)"
-          @keydown.left.stop="ref_inst[i + cluster * 4].doFocus()"
-          @up="ref_addr[(i + cluster * 4 + 15) % 16].doFocus($event)"
-          @down="ref_addr[(i + cluster * 4 + 1) % 16].doFocus($event)"
+          @keydown.right.stop="ref_data[i + cluster * 4]!.doFocus(3)"
+          @keydown.left.stop="ref_inst[i + cluster * 4]!.doFocus()"
+          @up="ref_addr[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
+          @down="ref_addr[(i + cluster * 4 + 1) % 16]!.doFocus($event)"
         />
         <word
           :x="368"
           :y="48 + 40 * i + 168 * cluster"
           ref="ref_data"
           v-model="data[i + cluster * 4]"
-          @keydown.right.stop="ref_inst[(i + cluster * 4 + 1) % 16].doFocus(3)"
-          @keydown.left.stop="ref_addr[i + cluster * 4].doFocus()"
-          @up="ref_data[(i + cluster * 4 + 15) % 16].doFocus($event)"
-          @down="ref_data[(i + cluster * 4 + 1) % 16].doFocus($event)"
+          @keydown.right.stop="ref_inst[(i + cluster * 4 + 1) % 16]!.doFocus(3)"
+          @keydown.left.stop="ref_addr[i + cluster * 4]!.doFocus()"
+          @up="ref_data[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
+          @down="ref_data[(i + cluster * 4 + 1) % 16]!.doFocus($event)"
         />
       </g>
     </g>
@@ -45,10 +45,11 @@
 </template>
 
 <script lang="ts" setup>
-import Word from './Word.vue';
+import Word from './WordBits.vue';
 import CounterArrow from './CounterArrow.vue';
-import { Cpu } from 'src/engine/cpu';
-import { ref, Ref } from 'vue';
+import { Cpu } from '../engine/cpu';
+import type { Ref } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps({
   cpu: {
@@ -61,15 +62,9 @@ const ref_inst: Ref<(typeof Word)[]> = ref([]);
 const ref_addr: Ref<(typeof Word)[]> = ref([]);
 const ref_data: Ref<(typeof Word)[]> = ref([]);
 
-function event(e: KeyboardEvent) {
-  ref_addr.value[0].console.log(ref_inst, ref_addr, ref_data);
-  debugger;
-}
-
-// eslint-disable-next-line vue/no-setup-props-destructure
 const ops = props.cpu.instructionsOp;
-// eslint-disable-next-line vue/no-setup-props-destructure
+
 const addr = props.cpu.instructionsAddr;
-// eslint-disable-next-line vue/no-setup-props-destructure
+
 const data = props.cpu.instructionsData;
 </script>

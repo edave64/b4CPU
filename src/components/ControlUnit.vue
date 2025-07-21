@@ -58,18 +58,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
 import StepIndicator from './StepIndicator.vue';
-import { Cpu, CpuStage } from 'src/engine/cpu';
+import { Cpu, CpuStage } from '../engine/cpu';
 
-enum Stage {
-  Fetch,
-  Decode,
-  Read,
-  Execute,
-  Write,
-}
-const stage = ref(Stage.Fetch);
 const props = defineProps({
   cpu: {
     type: Cpu,

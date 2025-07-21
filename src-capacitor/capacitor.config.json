@@ -1,7 +1,5 @@
 {
   "appId": "org.xcvbnm.b4cpu",
   "appName": "b4CPU",
-  "bundledWebRuntime": false,
-  "npmClient": "npm",
   "webDir": "www"
 }

@@ -6,12 +6,13 @@
 
 <script setup lang="ts">
 import { QPage } from 'quasar';
-import { ComputedRef, computed } from 'vue';
+import type { ComputedRef } from 'vue';
+import { computed } from 'vue';
 import cpu from 'components/CPU.vue';
 import excercise from '../config/demoExcercise.json';
 import initialDecoderState from '../config/initialDecoder.json';
-import { IExcerciseState } from '../interfaces/excercises';
-import { Gates, IDecoderState } from '../interfaces/decoder';
+import type { IExcerciseState } from '../interfaces/excercises';
+import type { Gates, IDecoderState } from '../interfaces/decoder';
 
 const demoExcercise: ComputedRef<IExcerciseState> = computed(() => {
   return {

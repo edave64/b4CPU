@@ -486,20 +486,21 @@
 </template>
 
 <script lang="ts" setup>
-import { Cpu } from 'src/engine/cpu';
-import { IDecoderState } from 'src/interfaces/decoder';
-import { IExcerciseState } from 'src/interfaces/excercises';
-import { PropType, markRaw, ref, Ref } from 'vue';
+import { Cpu } from '../engine/cpu';
+import type { IDecoderState } from '../interfaces/decoder';
+import type { IExcerciseState } from '../interfaces/excercises';
+import type { PropType } from 'vue';
+import { markRaw, ref } from 'vue';
 import alu from './ALU.vue';
-import bus from './Bus.vue';
+import bus from './BusLanes.vue';
 import ControlUnit from './ControlUnit.vue';
 import DataMemory from './DataMemory.vue';
-import Incrementor from './Incrementor.vue';
+import Incrementor from './IncrementorUnit.vue';
 import InstructionMemory from './InstructionMemory.vue';
 import JumpManager from './JumpManager.vue';
-import lane from './Lane.vue';
+import lane from './BusLane.vue';
 import ProgramCounter from './ProgramCounter.vue';
-import Register from './Register.vue';
+import Register from './DataRegister.vue';
 
 const props = defineProps({
   excerciseState: {
@@ -531,12 +532,12 @@ const compOrder = [
   pcComp,
 ];
 
-function navKey(sender: any, e: KeyboardEvent) {
+function navKey(sender: unknown, e: KeyboardEvent) {
   if (e.key === 'PageUp' || e.key === 'PageDown') {
     const delta = e.key === 'PageUp' ? compOrder.length - 1 : 1;
     const idx = compOrder.findIndex((x) => x.value === sender);
     if (idx === -1) return;
-    compOrder[(idx + delta) % compOrder.length].value?.doFocus();
+    compOrder[(idx + delta) % compOrder.length]?.value?.doFocus();
     e.preventDefault();
     e.stopPropagation();
   }

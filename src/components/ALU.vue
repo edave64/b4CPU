@@ -37,7 +37,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 
-const SelectNop = 0;
+// const SelectNop = 0;
 const SelectAnd = 1;
 const SelectAdd = 2;
 const SelectSub = 3;

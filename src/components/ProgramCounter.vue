@@ -14,11 +14,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
-import word from 'components/Word.vue';
+import word from 'components/WordBits.vue';
 import DirectionArrow from './DirectionArrow.vue';
 
-const props = defineProps({
+defineProps({
   jumpToNext: {
     type: Boolean,
     required: true,
@@ -33,5 +32,5 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:modelValue']);
+defineEmits(['update:modelValue']);
 </script>

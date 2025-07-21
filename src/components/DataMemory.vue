@@ -26,8 +26,8 @@
 </template>
 
 <script lang="ts" setup>
-import word from 'components/Word.vue';
-import { Cpu } from 'src/engine/cpu';
+import word from 'components/WordBits.vue';
+import { Cpu } from '../engine/cpu';
 import { ref } from 'vue';
 import CounterArrow from './CounterArrow.vue';
 import DirectionArrow from './DirectionArrow.vue';
@@ -47,6 +47,5 @@ defineExpose({
   },
 });
 
-// eslint-disable-next-line vue/no-setup-props-destructure
 const ram = props.cpu.ram;
 </script>

@@ -5,8 +5,8 @@
   "author": "edave64 <github5815@xcvbnm.org>",
   "private": true,
   "dependencies": {
-    "@capacitor/android": "^2.5.0",
-    "@capacitor/cli": "^2.0.0",
-    "@capacitor/core": "^2.0.0"
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/core": "^7.0.0"
   }
 }

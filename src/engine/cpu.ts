@@ -1,4 +1,4 @@
-import { Gates, IDecoderState } from 'src/interfaces/decoder';
+import type { Gates, IDecoderState } from '../interfaces/decoder';
 import { computed, reactive, ref, watch } from 'vue';
 import { UnreachableCaseError } from 'ts-essentials';
 
@@ -22,7 +22,7 @@ export class Cpu {
   private readonly _stage = ref(CpuStage.Decode);
   public readonly pc = ref(0);
   public readonly address = computed(
-    () => this.instructionsAddr[this.pc.value]
+    () => this.instructionsAddr[this.pc.value],
   );
   public readonly data = computed(
     () =>
@@ -33,7 +33,7 @@ export class Cpu {
       (this.ramRead &&
       (this.stage === CpuStage.Read || this.stage === CpuStage.Execute)
         ? this.ram[this.address.value]
-        : 0)
+        : 0),
   );
   public readonly regA = ref(0);
   public readonly regB = ref(0);
@@ -156,18 +156,19 @@ export class Cpu {
   });
 
   public constructor(private readonly decoderState: IDecoderState) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).cpu = this;
 
     watch(
       () => this.instructionsOp[this.pc.value],
-      () => this.decodeStage()
+      () => this.decodeStage(),
     );
     this.decodeStage();
   }
 
   public nextStage() {
     const stage = this.stage;
-    const nextStage = Cpu.NextStage[stage];
+    const nextStage = Cpu.NextStage[stage]!;
     // Setting stage to fetch handles pc update
     this.stage = nextStage;
   }
@@ -204,6 +205,10 @@ export class Cpu {
     const pc = this.pc.value;
     const op = this.instructionsOp[pc];
 
+    if (!this.decoderState.instructions[op]) {
+      console.error(`Unregistered op ${op}`);
+      return;
+    }
     this.writeState(this.decoderState.instructions[op].gates);
   }
 
@@ -242,6 +247,7 @@ export class Cpu {
     this._regCRead.value = gates.has('CR');
     this._regCWrite.value = gates.has('CW');
     this._aluOp.value = +gates.has('ALU1') | (+gates.has('ALU2') << 1);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).gates = gates;
   }
 }
