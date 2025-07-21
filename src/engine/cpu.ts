@@ -46,7 +46,6 @@ export class Cpu {
     const jmpNot = this._jmpNot.value;
     const jmpOverflow = this._jmpOverflow.value;
     const jmpZero = this._jmpZero.value;
-    debugger;
 
     if (!jmpOverflow && !jmpZero) {
       return jmpNot;
