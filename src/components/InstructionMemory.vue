@@ -7,8 +7,31 @@
       :x="8"
       :y="56 + 40 * (cpu.pc.value % 4) + 168 * Math.floor(cpu.pc.value / 4)"
     />
+    <ToggleBtn
+      :x="370"
+      :y="8"
+      :width="150"
+      :label="showCode ? 'Ins' : 'Binary'"
+      v-model="showCode"
+    />
     <g v-for="cluster in [0, 1, 2, 3]" :key="cluster">
       <g v-for="i in [0, 1, 2, 3]" :key="cluster + '_' + i">
+        <foreignObject
+          x="32"
+          :y="48 + 40 * i + 168 * cluster"
+          :width="152"
+          :height="32"
+          v-if="showCode"
+        >
+          <select
+            style="height: 100%; width: 100%"
+            v-model="ops[i + cluster * 4]"
+          >
+            <option v-for="(op, i) in instructions" :key="op.name" :value="i">
+              {{ op.name }}
+            </option>
+          </select>
+        </foreignObject>
         <word
           :x="32"
           :y="48 + 40 * i + 168 * cluster"
@@ -18,6 +41,7 @@
           @keydown.left.stop="ref_data[(i + cluster * 4 + 15) % 16]!.doFocus()"
           @up="ref_inst[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
           @down="ref_inst[(i + cluster * 4 + 1) % 16]!.doFocus($event)"
+          v-else
         />
         <word
           :x="200"
@@ -49,7 +73,8 @@ import Word from './WordBits.vue';
 import CounterArrow from './CounterArrow.vue';
 import { Cpu } from '../engine/cpu';
 import type { Ref } from 'vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import ToggleBtn from './ToggleBtn.vue';
 
 const props = defineProps({
   cpu: {
@@ -67,4 +92,20 @@ const ops = props.cpu.instructionsOp;
 const addr = props.cpu.instructionsAddr;
 
 const data = props.cpu.instructionsData;
+
+const showCode = ref(false);
+
+const instructions = computed(() => {
+  return props.cpu.decoderState.instructions;
+});
 </script>
+
+<style lang="scss" scoped>
+select {
+  background: #000;
+  color: #fff;
+  font-size: 24px;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bolder;
+}
+</style>

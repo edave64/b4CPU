@@ -154,7 +154,7 @@ export class Cpu {
     return 0;
   });
 
-  public constructor(private readonly decoderState: IDecoderState) {
+  public constructor(public readonly decoderState: IDecoderState) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).cpu = this;
 
