@@ -8,8 +8,8 @@
       :model-value="modelValue"
       @update:model-value="$emit('update:modelValue', $event)"
     />
-    <direction-arrow dir="up" :value="jumpToNext" :x="24" :y="98" />
-    <direction-arrow dir="up" :value="jumpToAddr" :x="120" :y="98" />
+    <direction-arrow dir="up" :value="!jump" :x="24" :y="98" />
+    <direction-arrow dir="up" :value="jump" :x="120" :y="98" />
   </g>
 </template>
 
@@ -18,11 +18,7 @@ import word from 'components/WordBits.vue';
 import DirectionArrow from './DirectionArrow.vue';
 
 defineProps({
-  jumpToNext: {
-    type: Boolean,
-    required: true,
-  },
-  jumpToAddr: {
+  jump: {
     type: Boolean,
     required: true,
   },

@@ -180,21 +180,6 @@
       />
 
       <lane
-        :length="632"
-        :x="880"
-        :y="104"
-        dir="vertical"
-        :value="cpu.pcAdvance"
-      />
-      <lane
-        :length="14"
-        :x="872"
-        :y="728"
-        dir="horizontal"
-        :value="cpu.pcAdvance"
-      />
-
-      <lane
         :length="328"
         :x="920"
         :y="104"
@@ -476,8 +461,7 @@
       <program-counter
         ref="pcComp"
         v-model="cpu.pc.value"
-        :jump-to-addr="cpu.pcJump"
-        :jump-to-next="cpu.pcAdvance"
+        :jump="cpu.pcJump"
         @keydown="navKey(pcComp, $event)"
       />
       <incrementor />

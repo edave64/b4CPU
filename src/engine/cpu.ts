@@ -41,7 +41,6 @@ export class Cpu {
   public readonly flagZ = ref(false);
   public readonly flagO = ref(false);
 
-  private readonly _pcAdvance = ref(false);
   private readonly _pcJump = computed(() => {
     const jmpNot = this._jmpNot.value;
     const jmpOverflow = this._jmpOverflow.value;
@@ -69,9 +68,6 @@ export class Cpu {
   private readonly _ramRead = ref(false);
   private readonly _aluOp = ref(0);
 
-  public get pcAdvance() {
-    return this._pcAdvance.value;
-  }
   public get pcJump() {
     return this._pcJump.value;
   }
@@ -84,9 +80,9 @@ export class Cpu {
     if (newStage === this._stage.value) return;
     if (newStage === CpuStage.Fetch) {
       // process jumps
-      const targetAddr =
-        (this.pcAdvance ? (this.pc.value + 1) & 0b1111 : 0) |
-        (this.pcJump ? this.address.value : 0);
+      const targetAddr = this.pcJump
+        ? this.address.value
+        : (this.pc.value + 1) & 0b1111;
       this._stage.value = CpuStage.Fetch;
       this.pc.value = targetAddr;
     } else {
@@ -233,7 +229,6 @@ export class Cpu {
   }
 
   private writeState(gates: Set<Gates>) {
-    this._pcAdvance.value = gates.has('PA');
     this._jmpNot.value = gates.has('JN');
     this._jmpOverflow.value = gates.has('JO');
     this._jmpZero.value = gates.has('JZ');
