@@ -8,7 +8,7 @@
     ref="focusTarget"
   >
     <rect :width="width!" :height="32" />
-    <text x="64" y="16" height="32" :width="width!" text-anchor="start">
+    <text x="4" y="16" height="32" :width="width!" style="text-anchor: start">
       {{ label }}
     </text>
   </g>
