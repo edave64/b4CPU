@@ -218,7 +218,12 @@ export class Cpu {
 
   private executeStage() {
     if (this._regCWrite) {
-      this.regC.value = this.aluOut.value;
+      this.regC.value = this.aluOut.value & 0b1111;
+    }
+    if (this._aluOp.value > 0) {
+      const val = this.aluOut.value;
+      this.flagO.value = val < 0 || val > 0b1111;
+      this.flagZ.value = (val & 0b1111) === 0;
     }
   }
 
