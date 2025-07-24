@@ -233,14 +233,14 @@
 
       <lane
         dir="horizontal"
-        :value="cpu.regBRead"
+        :value="cpu.regBWrite"
         :length="16"
         :x="1360"
         :y="272"
       />
       <lane
         dir="vertical"
-        :value="cpu.regBRead"
+        :value="cpu.regBWrite"
         :length="176"
         :x="1368"
         :y="104"
@@ -248,14 +248,14 @@
 
       <lane
         dir="horizontal"
-        :value="cpu.regBWrite"
+        :value="cpu.regBRead"
         :length="32"
         :x="1360"
         :y="288"
       />
       <lane
         dir="vertical"
-        :value="cpu.regBWrite"
+        :value="cpu.regBRead"
         :length="192"
         :x="1384"
         :y="104"
