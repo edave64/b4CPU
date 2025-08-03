@@ -13,6 +13,7 @@ import excercise from '../config/demoExcercise.json';
 import initialDecoderState from '../config/initialDecoder.json';
 import type { IExcerciseState } from '../interfaces/excercises';
 import type { Gates, IDecoderState } from '../interfaces/decoder';
+import { CpuStage } from '../engine/cpu';
 
 const demoExcercise: ComputedRef<IExcerciseState> = computed(() => {
   return {
@@ -26,10 +27,15 @@ const decoderState: IDecoderState = {
     gates: new Set(i.gates as Gates[]),
   })),
   timingMasks: {
-    fetch: new Set(initialDecoderState.timingMasks.fetch as Gates[]),
-    read: new Set(initialDecoderState.timingMasks.read as Gates[]),
-    exec: new Set(initialDecoderState.timingMasks.exec as Gates[]),
-    write: new Set(initialDecoderState.timingMasks.write as Gates[]),
+    [CpuStage.Fetch]: new Set(initialDecoderState.timingMasks.fetch as Gates[]),
+    [CpuStage.Decode]: new Set(
+      initialDecoderState.timingMasks.decode as Gates[],
+    ),
+    [CpuStage.Read]: new Set(initialDecoderState.timingMasks.read as Gates[]),
+    [CpuStage.Execute]: new Set(
+      initialDecoderState.timingMasks.exec as Gates[],
+    ),
+    [CpuStage.Write]: new Set(initialDecoderState.timingMasks.write as Gates[]),
   },
 };
 </script>

@@ -63,8 +63,9 @@
   ],
   "timingMasks": {
     "fetch": ["JN", "JZ", "JO"],
-    "read": ["AR", "AW", "BR", "CR", "RR"],
-    "exec": ["AR", "AW", "BR", "BW", "CR", "ALU1", "ALU2"],
-    "write": ["AR", "AW", "BR", "BW", "CR", "CW", "RW"]
+    "decode": [],
+    "read": ["AR", "BR", "RR"],
+    "exec": ["AR", "BR", "RR", "ALU1", "ALU2"],
+    "write": ["AR", "BR", "RR", "ALU1", "ALU2", "AW", "BW", "RW"]
   }
 }

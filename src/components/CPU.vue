@@ -263,36 +263,6 @@
 
       <lane
         dir="horizontal"
-        :value="cpu.regCRead"
-        :length="264"
-        :x="1256"
-        :y="656"
-      />
-      <lane
-        dir="vertical"
-        :value="cpu.regCRead"
-        :length="560"
-        :x="1512"
-        :y="104"
-      />
-
-      <lane
-        dir="horizontal"
-        :value="cpu.regCWrite"
-        :length="248"
-        :x="1256"
-        :y="640"
-      />
-      <lane
-        dir="vertical"
-        :value="cpu.regCWrite"
-        :length="544"
-        :x="1496"
-        :y="104"
-      />
-
-      <lane
-        dir="horizontal"
         :value="cpu.ramWrite"
         :length="32"
         :x="1672"
@@ -413,16 +383,6 @@
         :command-read="cpu.regBRead"
         :command-write="cpu.regBWrite"
         @keydown="navKey(regBComp, $event)"
-      />
-      <register
-        name="C"
-        :x="1088"
-        :y="632"
-        ref="regCComp"
-        v-model="cpu.regC.value"
-        :command-read="cpu.regCRead"
-        :command-write="cpu.regCWrite"
-        @keydown="navKey(regCComp, $event)"
       />
 
       <alu
