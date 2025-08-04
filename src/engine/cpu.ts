@@ -19,20 +19,10 @@ export class Cpu {
     [CpuStage.Write]: CpuStage.Fetch,
   } as { [key: number]: CpuStage };
 
-  private readonly _stage = ref(CpuStage.Decode);
+  private readonly _stage = ref(CpuStage.Fetch);
   public readonly pc = ref(0);
   public readonly address = computed(
     () => this.instructionsAddr[this.pc.value],
-  );
-  public readonly data = computed(
-    () =>
-      this.instructionsData[this.pc.value] |
-      (this.regARead ? this.regA.value : 0) |
-      (this.regBRead ? this.regB.value : 0) |
-      (this.ramRead &&
-      (this.stage === CpuStage.Read || this.stage === CpuStage.Execute)
-        ? this.ram[this.address.value]
-        : 0),
   );
   public readonly regA = ref(0);
   public readonly regB = ref(0);
@@ -66,12 +56,33 @@ export class Cpu {
   private readonly _aluOp2 = ref(false);
   private readonly _aluOp = ref(0);
 
-  private readonly _regAOut = ref(0);
-  private readonly _regBOut = ref(0);
   private readonly _aluInA = ref(0);
   private readonly _aluInB = ref(0);
+
+  private readonly _regAOut = ref(0);
+  private readonly _regBOut = ref(0);
   private readonly _aluOut = ref(0);
   private readonly _ramOut = ref(0);
+
+  public readonly data = computed(() => {
+    return (
+      (this._regARead.value ? this._regAOut.value : 0) |
+      (this._regBRead.value ? this._regBOut.value : 0) |
+      (this._aluOp ? this._aluOut.value : 0) |
+      (this._ramRead.value ? this._ramOut.value : 0) |
+      this.instructionsData[this.pc.value]
+    );
+  });
+
+  public readonly aluInA = computed(() => {
+    if (this._aluOp.value === 0) return this.regA.value;
+    return this._aluInA.value;
+  });
+
+  public readonly aluInB = computed(() => {
+    if (this._aluOp.value === 0) return this.regB.value;
+    return this._aluInB.value;
+  });
 
   public get pcJump() {
     return this._pcJump.value;
@@ -160,7 +171,7 @@ export class Cpu {
         }
       },
     );
-    this.decodeStages(this.pc.value);
+    this.decodedStages = this.decodeStages(this.pc.value);
   }
 
   public nextStage() {
@@ -178,10 +189,28 @@ export class Cpu {
 
     const gatesActivated = newGates.difference(oldGates);
     this.processGateActivations(gatesActivated);
+
+    if (this.stage === CpuStage.Decode) {
+      this.decodedStages = this.decodeStages(this.pc.value);
+      console.log('decoded stages', this.decodedStages);
+    }
   }
 
   processGateActivations(gatesActivated: Set<Gates>) {
     console.log('gates activated', gatesActivated);
+    if (gatesActivated.has('AR')) {
+      this._regAOut.value = this.regA.value;
+    }
+    if (gatesActivated.has('BR')) {
+      this._regBOut.value = this.regB.value;
+    }
+
+    if (gatesActivated.has('AW')) {
+      this.regA.value = this.data.value;
+    }
+    if (gatesActivated.has('BW')) {
+      this.regB.value = this.data.value;
+    }
   }
 
   public step() {
@@ -190,7 +219,7 @@ export class Cpu {
     } while (this.stage !== CpuStage.Fetch);
   }
 
-  private decodedStages: Record<CpuStage, Set<Gates>> = this.decodeStages(0);
+  private decodedStages: Record<CpuStage, Set<Gates>>;
 
   private decodeStage(op: number, stage: CpuStage): Set<Gates> {
     const gates = this.decoderState.instructions[op]!.gates;
@@ -199,12 +228,17 @@ export class Cpu {
   }
 
   private decodeStages(pc: number): Record<CpuStage, Set<Gates>> {
+    const gates =
+      this.decoderState.instructions[this.instructionsOp[pc]]!.gates;
+    const masks = this.decoderState.timingMasks;
+    console.log('gates', gates);
+    console.log('masks', masks);
     return {
-      [CpuStage.Fetch]: this.decodeStage(pc, CpuStage.Fetch),
-      [CpuStage.Decode]: this.decodeStage(pc, CpuStage.Decode),
-      [CpuStage.Read]: this.decodeStage(pc, CpuStage.Read),
-      [CpuStage.Execute]: this.decodeStage(pc, CpuStage.Execute),
-      [CpuStage.Write]: this.decodeStage(pc, CpuStage.Write),
+      [CpuStage.Fetch]: gates.intersection(masks[CpuStage.Fetch]),
+      [CpuStage.Decode]: gates.intersection(masks[CpuStage.Decode]),
+      [CpuStage.Read]: gates.intersection(masks[CpuStage.Read]),
+      [CpuStage.Execute]: gates.intersection(masks[CpuStage.Execute]),
+      [CpuStage.Write]: gates.intersection(masks[CpuStage.Write]),
     };
   }
 

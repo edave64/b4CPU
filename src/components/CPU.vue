@@ -104,14 +104,15 @@
       />
 
       <bus
-        id="register_C_out"
+        id="alu_out"
         :x="1144"
-        :y="728"
+        :y="592"
         :value="cpu.data.value"
         dir="vertical"
-        :length="344"
+        :length="480"
         taperedEnd
       />
+
       <bus
         id="databus_registers_ext"
         :x="1568"
@@ -408,14 +409,6 @@
         :y="360"
         :value="cpu.regB.value"
       />
-      <bus
-        id="alu_out"
-        dir="vertical"
-        :length="40"
-        :x="1144"
-        :y="592"
-        :value="cpu.aluOut.value"
-      />
 
       <jump-manager />
       <program-counter
@@ -461,7 +454,6 @@ const romComp = ref(null as typeof InstructionMemory | null);
 const dataComp = ref(null as typeof DataMemory | null);
 const regAComp = ref(null as typeof Register | null);
 const regBComp = ref(null as typeof Register | null);
-const regCComp = ref(null as typeof Register | null);
 const aluComp = ref(null as typeof alu | null);
 const controlComp = ref(null as typeof ControlUnit | null);
 const pcComp = ref(null as typeof ProgramCounter | null);
@@ -471,7 +463,6 @@ const compOrder = [
   dataComp,
   regAComp,
   regBComp,
-  regCComp,
   aluComp,
   pcComp,
 ];
