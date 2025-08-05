@@ -21,6 +21,14 @@
       "gates": ["BW", "RR"]
     },
     {
+      "name": "LD B, A",
+      "gates": ["AR", "BW"]
+    },
+    {
+      "name": "LD A, B",
+      "gates": ["AW", "BR"]
+    },
+    {
       "name": "ST A",
       "gates": ["AR", "RW"]
     },
@@ -53,16 +61,8 @@
       "gates": ["JO"]
     },
     {
-      "name": "JNO",
-      "gates": ["JN", "JO"]
-    },
-    {
       "name": "JNZ",
       "gates": ["JN", "JZ"]
-    },
-    {
-      "name": "JNX",
-      "gates": ["JN", "JZ", "JO"]
     }
   ],
   "timingMasks": {
