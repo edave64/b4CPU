@@ -54,7 +54,9 @@ export class Cpu {
   private readonly _ramRead = ref(false);
   private readonly _aluOp1 = ref(false);
   private readonly _aluOp2 = ref(false);
-  private readonly _aluOp = ref(0);
+  private readonly _aluOp = computed(
+    () => (this._aluOp1.value ? 1 : 0) + (this._aluOp2.value ? 2 : 0),
+  );
 
   private readonly _aluInA = ref(0);
   private readonly _aluInB = ref(0);
@@ -68,7 +70,7 @@ export class Cpu {
     return (
       (this._regARead.value ? this._regAOut.value : 0) |
       (this._regBRead.value ? this._regBOut.value : 0) |
-      (this._aluOp ? this._aluOut.value : 0) |
+      (this._aluOp.value ? this._aluOut.value : 0) |
       (this._ramRead.value ? this._ramOut.value : 0) |
       this.instructionsData[this.pc.value]
     );
@@ -94,16 +96,19 @@ export class Cpu {
 
   public set stage(newStage: CpuStage) {
     if (newStage === this._stage.value) return;
-    if (newStage === CpuStage.Fetch) {
-      // process jumps
-      const targetAddr = this.pcJump
-        ? this.address.value
-        : (this.pc.value + 1) & 0b1111;
-      this._stage.value = CpuStage.Fetch;
-      this.pc.value = targetAddr;
-    } else {
-      this._stage.value = newStage;
+    switch (newStage) {
+      case CpuStage.Fetch: {
+        const targetAddr = this.pcJump
+          ? this.address.value
+          : (this.pc.value + 1) & 0b1111;
+        this.pc.value = targetAddr;
+        break;
+      }
+      case CpuStage.Decode:
+        this.decodedStages = this.decodeStages(this.pc.value);
+        break;
     }
+    this._stage.value = newStage;
   }
 
   public get jmpNot() {
@@ -142,12 +147,10 @@ export class Cpu {
   public readonly instructionsAddr = reactive(Array(16).fill(0));
   public readonly instructionsData = reactive(Array(16).fill(0));
 
-  public readonly aluOut = computed(() => {
+  protected execAluOp() {
     const aluOp = this.aluOp;
-    const stage = this.stage;
     const regA = this.regA.value;
     const regB = this.regB.value;
-    if (stage !== CpuStage.Execute) return 0;
     switch (aluOp) {
       case 1:
         return regA & regB;
@@ -157,7 +160,7 @@ export class Cpu {
         return regA - regB;
     }
     return 0;
-  });
+  }
 
   public constructor(public readonly decoderState: IDecoderState) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -177,8 +180,6 @@ export class Cpu {
   public nextStage() {
     const stage = this.stage;
     const nextStage = Cpu.NextStage[stage]!;
-    // Setting stage to fetch handles pc update
-    this.stage = nextStage;
     const oldGates = this.decodedStages[stage];
     const newGates = this.decodedStages[nextStage];
 
@@ -190,19 +191,19 @@ export class Cpu {
     const gatesActivated = newGates.difference(oldGates);
     this.processGateActivations(gatesActivated);
 
-    if (this.stage === CpuStage.Decode) {
-      this.decodedStages = this.decodeStages(this.pc.value);
-      console.log('decoded stages', this.decodedStages);
-    }
+    // Setting stage to fetch handles pc update
+    this.stage = nextStage;
   }
 
   processGateActivations(gatesActivated: Set<Gates>) {
-    console.log('gates activated', gatesActivated);
     if (gatesActivated.has('AR')) {
       this._regAOut.value = this.regA.value;
     }
     if (gatesActivated.has('BR')) {
       this._regBOut.value = this.regB.value;
+    }
+    if (gatesActivated.has('RR')) {
+      this._ramOut.value = this.ram[this.address.value];
     }
 
     if (gatesActivated.has('AW')) {
@@ -210,6 +211,18 @@ export class Cpu {
     }
     if (gatesActivated.has('BW')) {
       this.regB.value = this.data.value;
+    }
+    if (gatesActivated.has('RW')) {
+      this.ram[this.address.value] = this.data.value;
+    }
+
+    if (gatesActivated.has('ALU1') || gatesActivated.has('ALU2')) {
+      const value = this.execAluOp();
+      this._aluInA.value = this.regA.value;
+      this._aluInB.value = this.regB.value;
+      this._aluOut.value = value & 0b1111;
+      this.flagZ.value = value === 0;
+      this.flagO.value = value > 0b1111 || value < 0;
     }
   }
 
@@ -231,8 +244,6 @@ export class Cpu {
     const gates =
       this.decoderState.instructions[this.instructionsOp[pc]]!.gates;
     const masks = this.decoderState.timingMasks;
-    console.log('gates', gates);
-    console.log('masks', masks);
     return {
       [CpuStage.Fetch]: gates.intersection(masks[CpuStage.Fetch]),
       [CpuStage.Decode]: gates.intersection(masks[CpuStage.Decode]),
