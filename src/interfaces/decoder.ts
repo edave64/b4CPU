@@ -1,5 +1,6 @@
+import type { CpuStage } from '../engine/cpu';
+
 export type Gates =
-  | 'N'
   | 'JN'
   | 'JZ'
   | 'JO'
@@ -7,13 +8,10 @@ export type Gates =
   | 'AW'
   | 'BR'
   | 'BW'
-  | 'CR'
-  | 'CW'
   | 'ALU1'
   | 'ALU2'
   | 'RR'
-  | 'RW'
-  | 'PA';
+  | 'RW';
 
 export interface IInstruction {
   name: string;
@@ -22,10 +20,5 @@ export interface IInstruction {
 
 export interface IDecoderState {
   instructions: IInstruction[];
-  timingMasks: {
-    fetch: Set<Gates>;
-    read: Set<Gates>;
-    exec: Set<Gates>;
-    write: Set<Gates>;
-  };
+  timingMasks: Record<CpuStage, Set<Gates>>;
 }

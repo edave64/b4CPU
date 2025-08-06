@@ -12,7 +12,8 @@ import cpu from 'components/CPU.vue';
 import excercise from '../config/demoExcercise.json';
 import initialDecoderState from '../config/initialDecoder.json';
 import type { IExcerciseState } from '../interfaces/excercises';
-import type { Gates, IDecoderState } from '../interfaces/decoder';
+import type { IDecoderState } from '../interfaces/decoder';
+import { readDecoder, verifyDecoder } from '../engine/readDecoder';
 
 const demoExcercise: ComputedRef<IExcerciseState> = computed(() => {
   return {
@@ -20,16 +21,8 @@ const demoExcercise: ComputedRef<IExcerciseState> = computed(() => {
     instructionMemoryState: excercise.instructionMemoryState,
   };
 });
-const decoderState: IDecoderState = {
-  instructions: initialDecoderState.instructions.map((i) => ({
-    name: i.name,
-    gates: new Set(i.gates as Gates[]),
-  })),
-  timingMasks: {
-    fetch: new Set(initialDecoderState.timingMasks.fetch as Gates[]),
-    read: new Set(initialDecoderState.timingMasks.read as Gates[]),
-    exec: new Set(initialDecoderState.timingMasks.exec as Gates[]),
-    write: new Set(initialDecoderState.timingMasks.write as Gates[]),
-  },
-};
+if (!verifyDecoder(initialDecoderState)) {
+  throw new Error('Invalid decoder state');
+}
+const decoderState: IDecoderState = readDecoder(initialDecoderState);
 </script>

@@ -21,8 +21,12 @@
       "gates": ["BW", "RR"]
     },
     {
-      "name": "LD B C",
-      "gates": ["BW", "CR"]
+      "name": "LD B, A",
+      "gates": ["AR", "BW"]
+    },
+    {
+      "name": "LD A, B",
+      "gates": ["AW", "BR"]
     },
     {
       "name": "ST A",
@@ -34,15 +38,15 @@
     },
     {
       "name": "AND",
-      "gates": ["CW", "ALU1"]
+      "gates": ["AW", "ALU1"]
     },
     {
       "name": "ADD",
-      "gates": ["CW", "ALU2"]
+      "gates": ["AW", "ALU2"]
     },
     {
       "name": "SUB",
-      "gates": ["CW", "ALU1", "ALU2"]
+      "gates": ["AW", "ALU1", "ALU2"]
     },
     {
       "name": "JMP",
@@ -57,14 +61,15 @@
       "gates": ["JO"]
     },
     {
-      "name": "JNO",
-      "gates": ["JN", "JO"]
+      "name": "JNZ",
+      "gates": ["JN", "JZ"]
     }
   ],
   "timingMasks": {
     "fetch": ["JN", "JZ", "JO"],
-    "read": ["AR", "AW", "BR", "CR", "RR"],
-    "exec": ["AR", "AW", "BR", "BW", "CR", "ALU1", "ALU2"],
-    "write": ["AR", "AW", "BR", "BW", "CR", "CW", "RW"]
+    "decode": [],
+    "read": ["AR", "BR", "RR"],
+    "exec": ["AR", "BR", "RR", "ALU1", "ALU2"],
+    "write": ["AR", "BR", "RR", "ALU1", "ALU2", "AW", "BW", "RW"]
   }
 }
