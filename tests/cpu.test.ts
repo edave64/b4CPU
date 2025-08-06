@@ -9,35 +9,35 @@ const sharedConfig: IDecoderState = {
       gates: new Set([]),
     },
     {
-      name: 'LD A',
+      name: 'LDA',
       gates: new Set(['AW']),
     },
     {
-      name: 'LR A',
+      name: 'LRA',
       gates: new Set(['AW', 'RR']),
     },
     {
-      name: 'LD B',
+      name: 'LDB',
       gates: new Set(['BW']),
     },
     {
-      name: 'LR B',
+      name: 'LRB',
       gates: new Set(['BW', 'RR']),
     },
     {
-      name: 'LD B, A',
+      name: 'LDB,A',
       gates: new Set(['AR', 'BW']),
     },
     {
-      name: 'LD A, B',
+      name: 'LDA,B',
       gates: new Set(['AW', 'BR']),
     },
     {
-      name: 'ST A',
+      name: 'STA',
       gates: new Set(['AR', 'RW']),
     },
     {
-      name: 'ST B',
+      name: 'STB',
       gates: new Set(['BR', 'RW']),
     },
     {
@@ -414,3 +414,65 @@ test('JNZ Jump', () => {
   cpu.step();
   expect(cpu.pc.value).toBe(10);
 });
+
+test('JNZ Jump', () => {
+  const cpu = new Cpu(sharedConfig);
+
+  cpu.instructionsOp[0] = 15;
+  cpu.instructionsAddr[0] = 10;
+
+  expect(cpu.pc.value).toBe(0);
+  cpu.step();
+  expect(cpu.pc.value).toBe(10);
+});
+
+test('Sorter', () => {
+  const cpu = new Cpu(sharedConfig);
+  parseInstructions(
+    cpu,
+    `
+00 LRA 0
+01 LRB 1
+02 SUB
+03 JMO 07
+04 LRA 0
+05 STB 0
+06 STA 1
+07 LRA 1
+08 LRB 2
+09 SUB
+10 JMO 00
+11 LRA 1
+12 STB 1
+13 STA 2
+    `,
+  );
+
+  cpu.ram[0] = 10;
+  cpu.ram[1] = 5;
+  cpu.ram[2] = 3;
+
+  for (let i = 0; i < 23; i++) {
+    cpu.step();
+  }
+
+  expect(cpu.ram[0]).toBe(3);
+  expect(cpu.ram[1]).toBe(5);
+  expect(cpu.ram[2]).toBe(10);
+});
+
+function parseInstructions(cpu: Cpu, instructions: string): void {
+  const lines = instructions.split('\n');
+  for (const line of lines) {
+    const parts = line.split(' ');
+
+    if (parts.length === 0) continue;
+    const i = parseInt(parts[0] ?? '0', 10);
+    const op = sharedConfig.instructions.findIndex((x) => x.name === parts[1]);
+    const addr = parseInt(parts[2] ?? '0', 10);
+    const data = parseInt(parts[3] ?? '0', 2);
+    cpu.instructionsOp[i] = op;
+    cpu.instructionsAddr[i] = addr;
+    cpu.instructionsData[i] = data;
+  }
+}
