@@ -12,8 +12,8 @@ import cpu from 'components/CPU.vue';
 import excercise from '../config/demoExcercise.json';
 import initialDecoderState from '../config/initialDecoder.json';
 import type { IExcerciseState } from '../interfaces/excercises';
-import type { Gates, IDecoderState } from '../interfaces/decoder';
-import { CpuStage } from '../engine/cpu';
+import type { IDecoderState } from '../interfaces/decoder';
+import { readDecoder, verifyDecoder } from '../engine/readDecoder';
 
 const demoExcercise: ComputedRef<IExcerciseState> = computed(() => {
   return {
@@ -21,21 +21,8 @@ const demoExcercise: ComputedRef<IExcerciseState> = computed(() => {
     instructionMemoryState: excercise.instructionMemoryState,
   };
 });
-const decoderState: IDecoderState = {
-  instructions: initialDecoderState.instructions.map((i) => ({
-    name: i.name,
-    gates: new Set(i.gates as Gates[]),
-  })),
-  timingMasks: {
-    [CpuStage.Fetch]: new Set(initialDecoderState.timingMasks.fetch as Gates[]),
-    [CpuStage.Decode]: new Set(
-      initialDecoderState.timingMasks.decode as Gates[],
-    ),
-    [CpuStage.Read]: new Set(initialDecoderState.timingMasks.read as Gates[]),
-    [CpuStage.Execute]: new Set(
-      initialDecoderState.timingMasks.exec as Gates[],
-    ),
-    [CpuStage.Write]: new Set(initialDecoderState.timingMasks.write as Gates[]),
-  },
-};
+if (!verifyDecoder(initialDecoderState)) {
+  throw new Error('Invalid decoder state');
+}
+const decoderState: IDecoderState = readDecoder(initialDecoderState);
 </script>
