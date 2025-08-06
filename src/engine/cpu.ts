@@ -221,7 +221,7 @@ export class Cpu {
       this._aluInA.value = this.regA.value;
       this._aluInB.value = this.regB.value;
       this._aluOut.value = value & 0b1111;
-      this.flagZ.value = value === 0;
+      this.flagZ.value = this._aluOut.value === 0;
       this.flagO.value = value > 0b1111 || value < 0;
     }
   }
