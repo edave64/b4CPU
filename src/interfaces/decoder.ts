@@ -13,6 +13,20 @@ export type Gates =
   | 'RR'
   | 'RW';
 
+export const AllGates: Set<string> = new Set([
+  'JN',
+  'JZ',
+  'JO',
+  'RR',
+  'RW',
+  'AR',
+  'AW',
+  'BR',
+  'BW',
+  'ALU1',
+  'ALU2',
+]);
+
 export interface IInstruction {
   name: string;
   gates: Set<Gates>;

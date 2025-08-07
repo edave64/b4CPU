@@ -424,10 +424,9 @@
 
 <script lang="ts" setup>
 import { Cpu } from '../engine/cpu';
-import type { IDecoderState } from '../interfaces/decoder';
 import type { IExcerciseState } from '../interfaces/excercises';
 import type { PropType } from 'vue';
-import { markRaw, ref } from 'vue';
+import { computed, markRaw, ref } from 'vue';
 import alu from './ALU.vue';
 import bus from './BusLanes.vue';
 import ControlUnit from './ControlUnit.vue';
@@ -438,14 +437,12 @@ import JumpManager from './JumpManager.vue';
 import lane from './BusLane.vue';
 import ProgramCounter from './ProgramCounter.vue';
 import Register from './DataRegister.vue';
+import { useCpuStore } from '../stores/cpu';
+import { useDecoderStore } from '../stores/decoder';
 
-const props = defineProps({
+defineProps({
   excerciseState: {
     type: Object as PropType<IExcerciseState>,
-    required: true,
-  },
-  decoderState: {
-    type: Object as PropType<IDecoderState>,
     required: true,
   },
 });
@@ -478,7 +475,9 @@ function navKey(sender: unknown, e: KeyboardEvent) {
   }
 }
 
-const cpu = markRaw(new Cpu(props.decoderState));
+useCpuStore().cpu ??= markRaw(new Cpu(useDecoderStore().state));
+
+const cpu = computed(() => useCpuStore().cpu!);
 </script>
 
 <style lang="scss" scoped>
@@ -489,5 +488,6 @@ svg {
 text {
   font-size: 32px;
   font-family: sans-serif;
+  fill: var(--object-text-color);
 }
 </style>

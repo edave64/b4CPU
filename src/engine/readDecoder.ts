@@ -1,4 +1,4 @@
-import type { IDecoderState } from '../interfaces/decoder';
+import { AllGates, type IDecoderState } from '../interfaces/decoder';
 import type { Gates } from '../interfaces/decoder';
 import { CpuStage } from './cpu';
 
@@ -29,20 +29,6 @@ export interface IDecoderJson {
   };
 }
 
-const allGates: Set<string> = new Set([
-  'JN',
-  'JZ',
-  'JO',
-  'RR',
-  'RW',
-  'AR',
-  'AW',
-  'BR',
-  'BW',
-  'ALU1',
-  'ALU2',
-]);
-
 export function verifyDecoder(
   decoderJson: unknown,
 ): decoderJson is IDecoderJson {
@@ -60,7 +46,7 @@ export function verifyDecoder(
       if (!Array.isArray(instruction.gates)) return false;
       if (
         !instruction.gates.every(
-          (gate: unknown) => typeof gate === 'string' && allGates.has(gate),
+          (gate: unknown) => typeof gate === 'string' && AllGates.has(gate),
         )
       )
         return false;
@@ -88,7 +74,7 @@ function verifyMask(mask: unknown): mask is Gates[] {
   if (!Array.isArray(mask)) return false;
   if (
     !mask.every(
-      (gate: unknown) => typeof gate === 'string' && allGates.has(gate),
+      (gate: unknown) => typeof gate === 'string' && AllGates.has(gate),
     )
   )
     return false;
