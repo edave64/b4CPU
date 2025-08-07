@@ -18,6 +18,9 @@
     <q-drawer v-model="leftDrawerOpen" bordered>
       <q-list>
         <q-item-label header class="text-grey-8"> Menu </q-item-label>
+        <q-item clickable v-ripple to="/"> CPU view </q-item>
+        <q-item clickable v-ripple to="/decoder"> Configure decoder </q-item>
+        <!-- <q-item clickable v-ripple to="/excercises"> Excercises </q-item> -->
       </q-list>
     </q-drawer>
 
