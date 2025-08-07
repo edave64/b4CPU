@@ -17,6 +17,10 @@
           :y="48 + 40 * i + 168 * cluster"
           ref="dataComp"
           v-model="ram[i + cluster * 4]"
+          @up="dataComp[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
+          @down="dataComp[(i + cluster * 4 + 1) % 16]!.doFocus($event)"
+          @keydown.right.stop="dataComp[(i + cluster * 4 + 1) % 16]!.doFocus(3)"
+          @keydown.left.stop="dataComp[(i + cluster * 4 + 15) % 16]!.doFocus()"
         />
       </g>
     </g>
