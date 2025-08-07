@@ -102,8 +102,8 @@ const instructions = computed(() => {
 
 <style lang="scss" scoped>
 select {
-  background: #000;
-  color: #fff;
+  background: var(--inactive-color);
+  color: var(--inactive-text-color);
   font-size: 24px;
   font-family: 'Courier New', Courier, monospace;
   font-weight: bolder;

@@ -1,9 +1,6 @@
 <template>
   <g :style="`transform: translate(${x}px, ${y}px)`">
-    <path
-      style="fill: #e6e6e6"
-      d="m 0,0 36,36 -36,36 h 192 l 36,-36 -36,-36 z"
-    />
+    <path d="m 0,0 36,36 -36,36 h 192 l 36,-36 -36,-36 z" />
     <text class="component-label" :class="{ active }" x="116" y="36">
       {{ label }}
     </text>
@@ -41,5 +38,9 @@ text {
   &.active {
     fill: var(--object-text-active-color);
   }
+}
+
+path {
+  fill: var(--step-indicator-color);
 }
 </style>

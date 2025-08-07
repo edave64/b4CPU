@@ -81,10 +81,10 @@ defineExpose({
 
 <style lang="scss" scoped>
 g.btn {
-  fill: #e6e6e6;
+  fill: var(--inactive-color);
 
   path {
-    fill: #000;
+    fill: var(--inactive-text-color);
   }
 }
 </style>

@@ -1,6 +1,7 @@
 // app global css in Sass form
 
-html {
+:root {
+  --background: #fff;
   --object-color: #b0b0b0;
   --object-text-color: #000;
   --inactive-color: #000;
@@ -8,6 +9,25 @@ html {
   --object-text-active-color: var(--active-color);
   --inactive-text-color: #fff;
   --active-text-color: #fff;
+  --step-indicator-color: #e6e6e6;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #000;
+    --object-color: #555;
+    --object-text-color: #fff;
+    --inactive-color: #ccc;
+    --active-color: #c00;
+    --inactive-text-color: #000;
+    --active-text-color: #fff;
+    --object-text-active-color: var(--active-color);
+    --step-indicator-color: #333;
+  }
+}
+
+body {
+  background: var(--background);
 }
 
 .component-bg {
