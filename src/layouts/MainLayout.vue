@@ -21,6 +21,7 @@
         <q-item clickable v-ripple to="/"> CPU view </q-item>
         <q-item clickable v-ripple to="/decoder"> Configure decoder </q-item>
         <!-- <q-item clickable v-ripple to="/excercises"> Excercises </q-item> -->
+        <q-item clickable v-ripple to="/about"> About </q-item>
       </q-list>
     </q-drawer>
 
