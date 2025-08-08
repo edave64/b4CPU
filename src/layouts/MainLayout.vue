@@ -11,6 +11,8 @@
           @click="toggleLeftDrawer"
         />
 
+        <img src="favicon.svg" alt="B4CPU" width="32" height="32" />
+
         <q-toolbar-title> B4CPU </q-toolbar-title>
       </q-toolbar>
     </q-header>
