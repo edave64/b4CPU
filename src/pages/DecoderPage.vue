@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <div>
-      <h1>Decoder</h1>
+      <h2>Decoder</h2>
       <table>
         <thead>
           <tr>

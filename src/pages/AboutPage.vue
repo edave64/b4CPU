@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <div>
-      <h1>About</h1>
+      <h2>About</h2>
       <p>B4CPU is a simple CPU simulator.</p>
     </div>
   </q-page>
