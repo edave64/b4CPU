@@ -296,6 +296,13 @@ export class Cpu {
     cpu.decodedStages = cpu.decodeStages(cpu.pc.value);
     cpu.stage = state.stage;
 
+    const newGates = cpu.decodedStages[state.stage];
+
+    for (const key of Object.keys(cpu.gateMap) as Gates[]) {
+      const gate = cpu.gateMap[key];
+      gate.value = newGates.has(key);
+    }
+
     cpu.flagZ.value = state.flagZ;
     cpu.flagO.value = state.flagO;
 
