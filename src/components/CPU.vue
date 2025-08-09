@@ -295,7 +295,7 @@
       <bus
         dir="vertical"
         :length="32"
-        :value="cpu.instructionsOp[cpu.pc.value]"
+        :value="cpu.instructionsOp[cpu.pc.value]!"
         :x="96"
         :y="104"
       />

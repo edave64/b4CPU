@@ -1,6 +1,7 @@
 import type { Gates, IDecoderState } from '../interfaces/decoder';
 import type { Ref } from 'vue';
 import { computed, reactive, ref, watch } from 'vue';
+import { readDecoder, type IDecoderJson } from './readDecoder';
 
 export enum CpuStage {
   Fetch,
@@ -22,7 +23,7 @@ export class Cpu {
   private readonly _stage = ref(CpuStage.Fetch);
   public readonly pc = ref(0);
   public readonly address = computed(
-    () => this.instructionsAddr[this.pc.value],
+    () => this.instructionsAddr[this.pc.value]!,
   );
   public readonly regA = ref(0);
   public readonly regB = ref(0);
@@ -72,7 +73,7 @@ export class Cpu {
       (this._regBRead.value ? this._regBOut.value : 0) |
       (this._aluOp.value ? this._aluOut.value : 0) |
       (this._ramRead.value ? this._ramOut.value : 0) |
-      this.instructionsData[this.pc.value]
+      this.instructionsData[this.pc.value]!
     );
   });
 
@@ -142,10 +143,10 @@ export class Cpu {
     return this._aluOp.value;
   }
 
-  public readonly ram = reactive(Array(16).fill(0));
-  public readonly instructionsOp = reactive(Array(16).fill(0));
-  public readonly instructionsAddr = reactive(Array(16).fill(0));
-  public readonly instructionsData = reactive(Array(16).fill(0));
+  public readonly ram = reactive(Array(16).fill(0) as number[]);
+  public readonly instructionsOp = reactive(Array(16).fill(0) as number[]);
+  public readonly instructionsAddr = reactive(Array(16).fill(0) as number[]);
+  public readonly instructionsData = reactive(Array(16).fill(0) as number[]);
 
   protected execAluOp() {
     const aluOp = this.aluOp;
@@ -203,7 +204,7 @@ export class Cpu {
       this._regBOut.value = this.regB.value;
     }
     if (gatesActivated.has('RR')) {
-      this._ramOut.value = this.ram[this.address.value];
+      this._ramOut.value = this.ram[this.address.value]!;
     }
 
     if (gatesActivated.has('AW')) {
@@ -240,9 +241,77 @@ export class Cpu {
     return gates.intersection(mask);
   }
 
+  public saveState(): ICpuState {
+    return {
+      regA: this.regA.value,
+      regB: this.regB.value,
+      pc: this.pc.value,
+      instructionsOp: Array.from(this.instructionsOp),
+      instructionsAddr: Array.from(this.instructionsAddr),
+      instructionsData: Array.from(this.instructionsData),
+      ram: Array.from(this.ram),
+      stage: this.stage,
+
+      flagZ: this.flagZ.value,
+      flagO: this.flagO.value,
+
+      aluInA: this._aluInA.value,
+      aluInB: this._aluInB.value,
+      regAOut: this._regAOut.value,
+      regBOut: this._regBOut.value,
+      aluOut: this._aluOut.value,
+      ramOut: this._ramOut.value,
+
+      decoderState: this.saveDecoder(),
+    };
+  }
+
+  public saveDecoder(): IDecoderJson {
+    return {
+      timingMasks: {
+        fetch: Array.from(this.decoderState.timingMasks[CpuStage.Fetch]),
+        decode: Array.from(this.decoderState.timingMasks[CpuStage.Decode]),
+        read: Array.from(this.decoderState.timingMasks[CpuStage.Read]),
+        exec: Array.from(this.decoderState.timingMasks[CpuStage.Execute]),
+        write: Array.from(this.decoderState.timingMasks[CpuStage.Write]),
+      },
+      instructions: this.decoderState.instructions.map((x) => ({
+        name: x.name,
+        gates: Array.from(x.gates),
+      })),
+    };
+  }
+
+  public static loadState(state: ICpuState): Cpu {
+    const cpu = new Cpu(readDecoder(state.decoderState));
+    cpu.regA.value = state.regA;
+    cpu.regB.value = state.regB;
+    cpu.pc.value = state.pc;
+    for (let i = 0; i < 16; i++) {
+      cpu.instructionsOp[i] = state.instructionsOp[i] ?? 0;
+      cpu.instructionsAddr[i] = state.instructionsAddr[i] ?? 0;
+      cpu.instructionsData[i] = state.instructionsData[i] ?? 0;
+      cpu.ram[i] = state.ram[i] ?? 0;
+    }
+    cpu.decodedStages = cpu.decodeStages(cpu.pc.value);
+    cpu.stage = state.stage;
+
+    cpu.flagZ.value = state.flagZ;
+    cpu.flagO.value = state.flagO;
+
+    cpu._aluInA.value = state.aluInA;
+    cpu._aluInB.value = state.aluInB;
+    cpu._regAOut.value = state.regAOut;
+    cpu._regBOut.value = state.regBOut;
+    cpu._aluOut.value = state.aluOut;
+    cpu._ramOut.value = state.ramOut;
+
+    return cpu;
+  }
+
   private decodeStages(pc: number): Record<CpuStage, Set<Gates>> {
     const gates =
-      this.decoderState.instructions[this.instructionsOp[pc]]!.gates;
+      this.decoderState.instructions[this.instructionsOp[pc]!]!.gates;
     const masks = this.decoderState.timingMasks;
     return {
       [CpuStage.Fetch]: gates.intersection(masks[CpuStage.Fetch]),
@@ -266,4 +335,27 @@ export class Cpu {
     ALU1: this._aluOp1,
     ALU2: this._aluOp2,
   } as Record<Gates, Ref<boolean>>;
+}
+
+export interface ICpuState {
+  regA: number;
+  regB: number;
+  pc: number;
+  instructionsOp: number[];
+  instructionsAddr: number[];
+  instructionsData: number[];
+  ram: number[];
+  stage: CpuStage;
+
+  flagZ: boolean;
+  flagO: boolean;
+
+  aluInA: number;
+  aluInB: number;
+  regAOut: number;
+  regBOut: number;
+  aluOut: number;
+  ramOut: number;
+
+  decoderState: IDecoderJson;
 }

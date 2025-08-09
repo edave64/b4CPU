@@ -36,7 +36,7 @@
           :x="32"
           :y="48 + 40 * i + 168 * cluster"
           ref="ref_inst"
-          v-model="ops[i + cluster * 4]"
+          v-model="ops[i + cluster * 4]!"
           @keydown.right.stop="ref_addr[i + cluster * 4]!.doFocus(3)"
           @keydown.left.stop="ref_data[(i + cluster * 4 + 15) % 16]!.doFocus()"
           @up="ref_inst[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
@@ -47,7 +47,7 @@
           :x="200"
           :y="48 + 40 * i + 168 * cluster"
           ref="ref_addr"
-          v-model="addr[i + cluster * 4]"
+          v-model="addr[i + cluster * 4]!"
           @keydown.right.stop="ref_data[i + cluster * 4]!.doFocus(3)"
           @keydown.left.stop="ref_inst[i + cluster * 4]!.doFocus()"
           @up="ref_addr[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
@@ -57,7 +57,7 @@
           :x="368"
           :y="48 + 40 * i + 168 * cluster"
           ref="ref_data"
-          v-model="data[i + cluster * 4]"
+          v-model="data[i + cluster * 4]!"
           @keydown.right.stop="ref_inst[(i + cluster * 4 + 1) % 16]!.doFocus(3)"
           @keydown.left.stop="ref_addr[i + cluster * 4]!.doFocus()"
           @up="ref_data[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
@@ -87,11 +87,11 @@ const ref_inst: Ref<(typeof Word)[]> = ref([]);
 const ref_addr: Ref<(typeof Word)[]> = ref([]);
 const ref_data: Ref<(typeof Word)[]> = ref([]);
 
-const ops = props.cpu.instructionsOp;
+const ops = computed(() => props.cpu.instructionsOp);
 
-const addr = props.cpu.instructionsAddr;
+const addr = computed(() => props.cpu.instructionsAddr);
 
-const data = props.cpu.instructionsData;
+const data = computed(() => props.cpu.instructionsData);
 
 const showCode = ref(false);
 
