@@ -87,11 +87,11 @@ const ref_inst: Ref<(typeof Word)[]> = ref([]);
 const ref_addr: Ref<(typeof Word)[]> = ref([]);
 const ref_data: Ref<(typeof Word)[]> = ref([]);
 
-const ops = props.cpu.instructionsOp;
+const ops = computed(() => props.cpu.instructionsOp);
 
-const addr = props.cpu.instructionsAddr;
+const addr = computed(() => props.cpu.instructionsAddr);
 
-const data = props.cpu.instructionsData;
+const data = computed(() => props.cpu.instructionsData);
 
 const showCode = ref(false);
 

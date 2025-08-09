@@ -32,7 +32,7 @@
 <script lang="ts" setup>
 import word from 'components/WordBits.vue';
 import { Cpu } from '../engine/cpu';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import CounterArrow from './CounterArrow.vue';
 import DirectionArrow from './DirectionArrow.vue';
 
@@ -51,5 +51,5 @@ defineExpose({
   },
 });
 
-const ram = props.cpu.ram;
+const ram = computed(() => props.cpu.ram);
 </script>
