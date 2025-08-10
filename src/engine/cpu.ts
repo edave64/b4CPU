@@ -1,5 +1,5 @@
 import type { Gates, IDecoderState } from '../interfaces/decoder';
-import type { Ref } from 'vue';
+import type { DeepReadonly, Ref } from 'vue';
 import { computed, reactive, ref, watch } from 'vue';
 import { readDecoder, type IDecoderJson } from './readDecoder';
 
@@ -163,7 +163,9 @@ export class Cpu {
     return 0;
   }
 
-  public constructor(public readonly decoderState: IDecoderState) {
+  public constructor(
+    public readonly decoderState: DeepReadonly<IDecoderState>,
+  ) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (globalThis as any).cpu = this;
 
@@ -312,6 +314,40 @@ export class Cpu {
     cpu._regBOut.value = state.regBOut;
     cpu._aluOut.value = state.aluOut;
     cpu._ramOut.value = state.ramOut;
+
+    return cpu;
+  }
+
+  public withNewDecoder(decoderState: IDecoderState) {
+    const cpu = new Cpu(decoderState);
+    cpu.regA.value = this.regA.value;
+    cpu.regB.value = this.regB.value;
+    cpu.pc.value = this.pc.value;
+    for (let i = 0; i < 16; i++) {
+      cpu.instructionsOp[i] = this.instructionsOp[i] ?? 0;
+      cpu.instructionsAddr[i] = this.instructionsAddr[i] ?? 0;
+      cpu.instructionsData[i] = this.instructionsData[i] ?? 0;
+      cpu.ram[i] = this.ram[i] ?? 0;
+    }
+    cpu.decodedStages = cpu.decodeStages(cpu.pc.value);
+    cpu.stage = this.stage;
+
+    const newGates = cpu.decodedStages[this.stage];
+
+    for (const key of Object.keys(cpu.gateMap) as Gates[]) {
+      const gate = cpu.gateMap[key];
+      gate.value = newGates.has(key);
+    }
+
+    cpu.flagZ.value = this.flagZ.value;
+    cpu.flagO.value = this.flagO.value;
+
+    cpu._aluInA.value = this._aluInA.value;
+    cpu._aluInB.value = this._aluInB.value;
+    cpu._regAOut.value = this._regAOut.value;
+    cpu._regBOut.value = this._regBOut.value;
+    cpu._aluOut.value = this._aluOut.value;
+    cpu._ramOut.value = this._ramOut.value;
 
     return cpu;
   }

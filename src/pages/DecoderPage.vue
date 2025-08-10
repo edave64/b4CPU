@@ -14,17 +14,28 @@
             <td>
               <input
                 type="text"
-                readonly
                 :value="decoderState.instructions[i - 1]!.name"
+                @input="
+                  setInstructionName(
+                    i - 1,
+                    ($event.target as HTMLInputElement).value,
+                  )
+                "
               />
             </td>
 
             <td v-for="gate in gates" :key="gate">
               <input
                 type="checkbox"
-                readonly
                 :checked="
                   decoderState.instructions[i - 1]!.gates.has(gate as Gates)
+                "
+                @input="
+                  setInstructionGate(
+                    i - 1,
+                    gate as Gates,
+                    ($event.target as HTMLInputElement).checked,
+                  )
                 "
               />
             </td>
@@ -45,8 +56,14 @@
             <td v-for="gate in gates" :key="gate">
               <input
                 type="checkbox"
-                readonly
                 :checked="decoderState.timingMasks[stage]!.has(gate as Gates)"
+                @input="
+                  setTimingMask(
+                    stage,
+                    gate as Gates,
+                    ($event.target as HTMLInputElement).checked,
+                  )
+                "
               />
             </td>
           </tr>
@@ -58,12 +75,13 @@
 
 <script setup lang="ts">
 import { QPage } from 'quasar';
-import { useDecoderStore } from '../stores/decoder';
 import { AllGates } from '../interfaces/decoder';
-import type { Gates } from '../interfaces/decoder';
+import type { Gates, IDecoderState } from '../interfaces/decoder';
 import { CpuStage } from '../engine/cpu';
+import { useCpuStore } from '../stores/cpu';
+import { computed, markRaw } from 'vue';
 
-const decoderState = useDecoderStore().state;
+const decoderState = computed(() => useCpuStore().cpu!.decoderState);
 const gates = AllGates;
 const stages = {
   Fetch: CpuStage.Fetch,
@@ -72,4 +90,55 @@ const stages = {
   Execute: CpuStage.Execute,
   Write: CpuStage.Write,
 } as const;
+
+function setInstructionName(op: number, name: string) {
+  const newDecoderState = copyDecoderState();
+  newDecoderState.instructions[op]!.name = name;
+  useCpuStore().cpu = markRaw(
+    useCpuStore().cpu!.withNewDecoder(newDecoderState),
+  );
+}
+
+function setInstructionGate(op: number, gate: Gates, value: boolean) {
+  const newDecoderState = copyDecoderState();
+  if (value) {
+    newDecoderState.instructions[op]!.gates.add(gate);
+  } else {
+    newDecoderState.instructions[op]!.gates.delete(gate);
+  }
+  useCpuStore().cpu = markRaw(
+    useCpuStore().cpu!.withNewDecoder(newDecoderState),
+  );
+}
+
+function setTimingMask(stage: CpuStage, gate: Gates, value: boolean) {
+  const newDecoderState = copyDecoderState();
+  if (value) {
+    newDecoderState.timingMasks[stage].add(gate);
+  } else {
+    newDecoderState.timingMasks[stage].delete(gate);
+  }
+  useCpuStore().cpu = markRaw(
+    useCpuStore().cpu!.withNewDecoder(newDecoderState),
+  );
+}
+
+function copyDecoderState(): IDecoderState {
+  const oldDecoderState = decoderState.value;
+  return {
+    timingMasks: {
+      [CpuStage.Fetch]: new Set(oldDecoderState.timingMasks[CpuStage.Fetch]),
+      [CpuStage.Decode]: new Set(oldDecoderState.timingMasks[CpuStage.Decode]),
+      [CpuStage.Read]: new Set(oldDecoderState.timingMasks[CpuStage.Read]),
+      [CpuStage.Execute]: new Set(
+        oldDecoderState.timingMasks[CpuStage.Execute],
+      ),
+      [CpuStage.Write]: new Set(oldDecoderState.timingMasks[CpuStage.Write]),
+    },
+    instructions: oldDecoderState.instructions.map((x) => ({
+      name: x.name,
+      gates: new Set(x.gates),
+    })),
+  };
+}
 </script>
