@@ -1,31 +1,36 @@
-import { AllGates, type IDecoderState } from '../interfaces/decoder';
-import type { Gates } from '../interfaces/decoder';
+import { type IDecoderState } from '../interfaces/decoder';
+import { Gate } from './cpu';
 import { CpuStage } from './cpu';
 
 export function readDecoder(decoderJson: IDecoderJson): IDecoderState {
   return {
     instructions: decoderJson.instructions.map((i) => ({
       name: i.name,
-      gates: new Set(i.gates),
+      gates: i.gates.reduce(readGates, 0),
     })),
     timingMasks: {
-      [CpuStage.Fetch]: new Set(decoderJson.timingMasks.fetch),
-      [CpuStage.Decode]: new Set(decoderJson.timingMasks.decode),
-      [CpuStage.Read]: new Set(decoderJson.timingMasks.read),
-      [CpuStage.Execute]: new Set(decoderJson.timingMasks.exec),
-      [CpuStage.Write]: new Set(decoderJson.timingMasks.write),
+      [CpuStage.Fetch]: decoderJson.timingMasks.fetch.reduce(readGates, 0),
+      [CpuStage.Decode]: decoderJson.timingMasks.decode.reduce(readGates, 0),
+      [CpuStage.Read]: decoderJson.timingMasks.read.reduce(readGates, 0),
+      [CpuStage.Execute]: decoderJson.timingMasks.exec.reduce(readGates, 0),
+      [CpuStage.Write]: decoderJson.timingMasks.write.reduce(readGates, 0),
     },
   };
 }
 
+function readGates(acc: number, gate: string): number {
+  if (!(gate in Gate)) throw new Error('Invalid gate');
+  return Gate[gate as keyof typeof Gate] | acc;
+}
+
 export interface IDecoderJson {
-  instructions: Array<{ name: string; gates: Gates[] }>;
+  instructions: Array<{ name: string; gates: string[] }>;
   timingMasks: {
-    fetch: Gates[];
-    decode: Gates[];
-    read: Gates[];
-    exec: Gates[];
-    write: Gates[];
+    fetch: string[];
+    decode: string[];
+    read: string[];
+    exec: string[];
+    write: string[];
   };
 }
 
@@ -46,7 +51,7 @@ export function verifyDecoder(
       if (!Array.isArray(instruction.gates)) return false;
       if (
         !instruction.gates.every(
-          (gate: unknown) => typeof gate === 'string' && AllGates.has(gate),
+          (gate: unknown) => typeof gate === 'string' && gate in Gate,
         )
       )
         return false;
@@ -70,13 +75,9 @@ export function verifyDecoder(
   return true;
 }
 
-function verifyMask(mask: unknown): mask is Gates[] {
+function verifyMask(mask: unknown): mask is Gate[] {
   if (!Array.isArray(mask)) return false;
-  if (
-    !mask.every(
-      (gate: unknown) => typeof gate === 'string' && AllGates.has(gate),
-    )
-  )
+  if (!mask.every((gate: unknown) => typeof gate === 'string' && gate in Gate))
     return false;
   return true;
 }

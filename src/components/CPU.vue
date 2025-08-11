@@ -477,7 +477,7 @@ function navKey(sender: unknown, e: KeyboardEvent) {
 
 useCpuStore().cpu ??= markRaw(new Cpu(useDecoderStore().state));
 
-const cpu = computed(() => useCpuStore().cpu!);
+const cpu = computed(() => useCpuStore().cpu);
 </script>
 
 <style lang="scss" scoped>

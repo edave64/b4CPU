@@ -1,89 +1,88 @@
 import { expect, test } from 'vitest';
-import { Cpu, CpuStage } from '../src/engine/cpu';
+import { Cpu, CpuStage, Gate } from '../src/engine/cpu';
 import type { IDecoderState } from '../src/interfaces/decoder';
 
 const sharedConfig: IDecoderState = {
   instructions: [
     {
       name: 'NOP',
-      gates: new Set([]),
+      gates: 0,
     },
     {
       name: 'LDA',
-      gates: new Set(['AW']),
+      gates: Gate.AW,
     },
     {
       name: 'LRA',
-      gates: new Set(['AW', 'RR']),
+      gates: Gate.AW | Gate.RR,
     },
     {
       name: 'LDB',
-      gates: new Set(['BW']),
+      gates: Gate.BW,
     },
     {
       name: 'LRB',
-      gates: new Set(['BW', 'RR']),
+      gates: Gate.BW | Gate.RR,
     },
     {
       name: 'LDB,A',
-      gates: new Set(['AR', 'BW']),
+      gates: Gate.AR | Gate.BW,
     },
     {
       name: 'LDA,B',
-      gates: new Set(['AW', 'BR']),
+      gates: Gate.AW | Gate.BR,
     },
     {
       name: 'STA',
-      gates: new Set(['AR', 'RW']),
+      gates: Gate.AR | Gate.RW,
     },
     {
       name: 'STB',
-      gates: new Set(['BR', 'RW']),
+      gates: Gate.BR | Gate.RW,
     },
     {
       name: 'AND',
-      gates: new Set(['AW', 'ALU1']),
+      gates: Gate.AW | Gate.ALU1,
     },
     {
       name: 'ADD',
-      gates: new Set(['AW', 'ALU2']),
+      gates: Gate.AW | Gate.ALU2,
     },
     {
       name: 'SUB',
-      gates: new Set(['AW', 'ALU1', 'ALU2']),
+      gates: Gate.AW | Gate.ALU1 | Gate.ALU2,
     },
     {
       name: 'JMP',
-      gates: new Set(['JN']),
+      gates: Gate.JN,
     },
     {
       name: 'JMZ',
-      gates: new Set(['JZ']),
+      gates: Gate.JZ,
     },
     {
       name: 'JMO',
-      gates: new Set(['JO']),
+      gates: Gate.JO,
     },
     {
       name: 'JNZ',
-      gates: new Set(['JN', 'JZ']),
+      gates: Gate.JN | Gate.JZ,
     },
   ],
   timingMasks: {
-    [CpuStage.Fetch]: new Set(['JN', 'JZ', 'JO']),
-    [CpuStage.Decode]: new Set([]),
-    [CpuStage.Read]: new Set(['AR', 'BR', 'RR']),
-    [CpuStage.Execute]: new Set(['AR', 'BR', 'RR', 'ALU1', 'ALU2']),
-    [CpuStage.Write]: new Set([
-      'AR',
-      'BR',
-      'RR',
-      'ALU1',
-      'ALU2',
-      'AW',
-      'BW',
-      'RW',
-    ]),
+    [CpuStage.Fetch]: Gate.JN | Gate.JZ | Gate.JO,
+    [CpuStage.Decode]: 0,
+    [CpuStage.Read]: Gate.AR | Gate.BR | Gate.RR,
+    [CpuStage.Execute]: Gate.AR | Gate.BR | Gate.RR | Gate.ALU1 | Gate.ALU2,
+    [CpuStage.Write]:
+      Gate.AR |
+      Gate.BR |
+      Gate.RR |
+      Gate.ALU1 |
+      Gate.ALU2 |
+      Gate.AW |
+      Gate.BW |
+      Gate.RW,
   },
 };
 

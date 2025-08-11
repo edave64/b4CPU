@@ -1,38 +1,26 @@
 import type { CpuStage } from '../engine/cpu';
+import { Gate } from '../engine/cpu';
 
-export type Gates =
-  | 'JN'
-  | 'JZ'
-  | 'JO'
-  | 'AR'
-  | 'AW'
-  | 'BR'
-  | 'BW'
-  | 'ALU1'
-  | 'ALU2'
-  | 'RR'
-  | 'RW';
-
-export const AllGates: Set<string> = new Set([
-  'JN',
-  'JZ',
-  'JO',
-  'RR',
-  'RW',
-  'AR',
-  'AW',
-  'BR',
-  'BW',
-  'ALU1',
-  'ALU2',
+export const AllGates: Set<Gate> = new Set([
+  Gate.JN,
+  Gate.JZ,
+  Gate.JO,
+  Gate.RR,
+  Gate.RW,
+  Gate.AR,
+  Gate.AW,
+  Gate.BR,
+  Gate.BW,
+  Gate.ALU1,
+  Gate.ALU2,
 ]);
 
 export interface IInstruction {
   name: string;
-  gates: Set<Gates>;
+  gates: number;
 }
 
 export interface IDecoderState {
   instructions: IInstruction[];
-  timingMasks: Record<CpuStage, Set<Gates>>;
+  timingMasks: Record<CpuStage, number>;
 }

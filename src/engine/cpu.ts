@@ -1,15 +1,34 @@
-import type { Gates, IDecoderState } from '../interfaces/decoder';
+import type { IDecoderState } from '../interfaces/decoder';
 import type { DeepReadonly, Ref } from 'vue';
 import { computed, reactive, ref, watch } from 'vue';
 import { readDecoder, type IDecoderJson } from './readDecoder';
 
-export enum CpuStage {
-  Fetch,
-  Decode,
-  Read,
-  Execute,
-  Write,
-}
+export const CpuStage = {
+  Fetch: 0,
+  Decode: 1,
+  Read: 2,
+  Execute: 3,
+  Write: 4,
+} as const;
+export type CpuStage = (typeof CpuStage)[keyof typeof CpuStage];
+
+export const Gate = {
+  JN: 1,
+  JZ: 1 << 1,
+  JO: 1 << 2,
+  RR: 1 << 3,
+  RW: 1 << 4,
+  AR: 1 << 5,
+  AW: 1 << 6,
+  BR: 1 << 7,
+  BW: 1 << 8,
+  ALU1: 1 << 9,
+  ALU2: 1 << 10,
+};
+export type Gate = (typeof Gate)[keyof typeof Gate];
+const GateReverse: Record<Gate, string> = Object.fromEntries(
+  Object.entries(Gate).map(([key, value]) => [value, key]),
+);
 
 export class Cpu {
   public static NextStage = {
@@ -18,9 +37,10 @@ export class Cpu {
     [CpuStage.Read]: CpuStage.Execute,
     [CpuStage.Execute]: CpuStage.Write,
     [CpuStage.Write]: CpuStage.Fetch,
-  } as { [key: number]: CpuStage };
+  } as const;
 
-  private readonly _stage = ref(CpuStage.Fetch);
+  public readonly decoderState: DeepReadonly<IDecoderState>;
+  private readonly _stage: Ref<CpuStage> = ref(CpuStage.Fetch);
   public readonly pc = ref(0);
   public readonly address = computed(
     () => this.instructionsAddr[this.pc.value]!,
@@ -163,9 +183,8 @@ export class Cpu {
     return 0;
   }
 
-  public constructor(
-    public readonly decoderState: DeepReadonly<IDecoderState>,
-  ) {
+  public constructor(decoderState: DeepReadonly<IDecoderState>) {
+    this.decoderState = decoderState;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (globalThis as any).cpu = this;
 
@@ -182,44 +201,44 @@ export class Cpu {
 
   public nextStage() {
     const stage = this.stage;
-    const nextStage = Cpu.NextStage[stage]!;
-    const oldGates = this.decodedStages[stage];
-    const newGates = this.decodedStages[nextStage];
+    const nextStage = Cpu.NextStage[stage];
+    const oldGate = this.decodedStages[stage];
+    const newGate = this.decodedStages[nextStage];
 
-    for (const key of Object.keys(this.gateMap) as Gates[]) {
-      const gate = this.gateMap[key];
-      gate.value = newGates.has(key);
+    for (const key of Object.values(Gate)) {
+      const gate = this.gateMap[key]!;
+      gate.value = (newGate & key) !== 0;
     }
 
-    const gatesActivated = newGates.difference(oldGates);
+    const gatesActivated = (newGate ^ oldGate) & newGate;
     this.processGateActivations(gatesActivated);
 
     // Setting stage to fetch handles pc update
     this.stage = nextStage;
   }
 
-  processGateActivations(gatesActivated: Set<Gates>) {
-    if (gatesActivated.has('AR')) {
+  processGateActivations(GateActivated: number) {
+    if (GateActivated & Gate.AR) {
       this._regAOut.value = this.regA.value;
     }
-    if (gatesActivated.has('BR')) {
+    if (GateActivated & Gate.BR) {
       this._regBOut.value = this.regB.value;
     }
-    if (gatesActivated.has('RR')) {
+    if (GateActivated & Gate.RR) {
       this._ramOut.value = this.ram[this.address.value]!;
     }
 
-    if (gatesActivated.has('AW')) {
+    if (GateActivated & Gate.AW) {
       this.regA.value = this.data.value;
     }
-    if (gatesActivated.has('BW')) {
+    if (GateActivated & Gate.BW) {
       this.regB.value = this.data.value;
     }
-    if (gatesActivated.has('RW')) {
+    if (GateActivated & Gate.RW) {
       this.ram[this.address.value] = this.data.value;
     }
 
-    if (gatesActivated.has('ALU1') || gatesActivated.has('ALU2')) {
+    if (GateActivated & Gate.ALU1 || GateActivated & Gate.ALU2) {
       const value = this.execAluOp();
       this._aluInA.value = this.regA.value;
       this._aluInB.value = this.regB.value;
@@ -235,13 +254,7 @@ export class Cpu {
     } while (this.stage !== CpuStage.Fetch);
   }
 
-  private decodedStages: Record<CpuStage, Set<Gates>>;
-
-  private decodeStage(op: number, stage: CpuStage): Set<Gates> {
-    const gates = this.decoderState.instructions[op]!.gates;
-    const mask = this.decoderState.timingMasks[stage];
-    return gates.intersection(mask);
-  }
+  private decodedStages: Record<CpuStage, number>;
 
   public saveState(): ICpuState {
     return {
@@ -271,15 +284,15 @@ export class Cpu {
   public saveDecoder(): IDecoderJson {
     return {
       timingMasks: {
-        fetch: Array.from(this.decoderState.timingMasks[CpuStage.Fetch]),
-        decode: Array.from(this.decoderState.timingMasks[CpuStage.Decode]),
-        read: Array.from(this.decoderState.timingMasks[CpuStage.Read]),
-        exec: Array.from(this.decoderState.timingMasks[CpuStage.Execute]),
-        write: Array.from(this.decoderState.timingMasks[CpuStage.Write]),
+        fetch: gateSetToStrAry(this.decoderState.timingMasks[CpuStage.Fetch]),
+        decode: gateSetToStrAry(this.decoderState.timingMasks[CpuStage.Decode]),
+        read: gateSetToStrAry(this.decoderState.timingMasks[CpuStage.Read]),
+        exec: gateSetToStrAry(this.decoderState.timingMasks[CpuStage.Execute]),
+        write: gateSetToStrAry(this.decoderState.timingMasks[CpuStage.Write]),
       },
       instructions: this.decoderState.instructions.map((x) => ({
         name: x.name,
-        gates: Array.from(x.gates),
+        gates: gateSetToStrAry(x.gates),
       })),
     };
   }
@@ -298,11 +311,11 @@ export class Cpu {
     cpu.decodedStages = cpu.decodeStages(cpu.pc.value);
     cpu.stage = state.stage;
 
-    const newGates = cpu.decodedStages[state.stage];
+    const newGate = cpu.decodedStages[state.stage];
 
-    for (const key of Object.keys(cpu.gateMap) as Gates[]) {
-      const gate = cpu.gateMap[key];
-      gate.value = newGates.has(key);
+    for (const key of Object.values(Gate)) {
+      const gate = cpu.gateMap[key]!;
+      gate.value = (newGate & key) !== 0;
     }
 
     cpu.flagZ.value = state.flagZ;
@@ -332,11 +345,11 @@ export class Cpu {
     cpu.decodedStages = cpu.decodeStages(cpu.pc.value);
     cpu.stage = this.stage;
 
-    const newGates = cpu.decodedStages[this.stage];
+    const newGate = cpu.decodedStages[this.stage];
 
-    for (const key of Object.keys(cpu.gateMap) as Gates[]) {
-      const gate = cpu.gateMap[key];
-      gate.value = newGates.has(key);
+    for (const key of Object.values(Gate)) {
+      const gate = cpu.gateMap[key]!;
+      gate.value = (newGate & key) !== 0;
     }
 
     cpu.flagZ.value = this.flagZ.value;
@@ -352,32 +365,32 @@ export class Cpu {
     return cpu;
   }
 
-  private decodeStages(pc: number): Record<CpuStage, Set<Gates>> {
+  private decodeStages(pc: number): Record<CpuStage, number> {
     const gates =
       this.decoderState.instructions[this.instructionsOp[pc]!]!.gates;
     const masks = this.decoderState.timingMasks;
     return {
-      [CpuStage.Fetch]: gates.intersection(masks[CpuStage.Fetch]),
-      [CpuStage.Decode]: gates.intersection(masks[CpuStage.Decode]),
-      [CpuStage.Read]: gates.intersection(masks[CpuStage.Read]),
-      [CpuStage.Execute]: gates.intersection(masks[CpuStage.Execute]),
-      [CpuStage.Write]: gates.intersection(masks[CpuStage.Write]),
+      [CpuStage.Fetch]: gates & masks[CpuStage.Fetch],
+      [CpuStage.Decode]: gates & masks[CpuStage.Decode],
+      [CpuStage.Read]: gates & masks[CpuStage.Read],
+      [CpuStage.Execute]: gates & masks[CpuStage.Execute],
+      [CpuStage.Write]: gates & masks[CpuStage.Write],
     };
   }
 
   private gateMap = {
-    JN: this._jmpNot,
-    JZ: this._jmpZero,
-    JO: this._jmpOverflow,
-    RR: this._ramRead,
-    RW: this._ramWrite,
-    AR: this._regARead,
-    AW: this._regAWrite,
-    BR: this._regBRead,
-    BW: this._regBWrite,
-    ALU1: this._aluOp1,
-    ALU2: this._aluOp2,
-  } as Record<Gates, Ref<boolean>>;
+    [Gate.JN]: this._jmpNot,
+    [Gate.JZ]: this._jmpZero,
+    [Gate.JO]: this._jmpOverflow,
+    [Gate.RR]: this._ramRead,
+    [Gate.RW]: this._ramWrite,
+    [Gate.AR]: this._regARead,
+    [Gate.AW]: this._regAWrite,
+    [Gate.BR]: this._regBRead,
+    [Gate.BW]: this._regBWrite,
+    [Gate.ALU1]: this._aluOp1,
+    [Gate.ALU2]: this._aluOp2,
+  } as Record<Gate, Ref<boolean>>;
 }
 
 export interface ICpuState {
@@ -401,4 +414,14 @@ export interface ICpuState {
   ramOut: number;
 
   decoderState: IDecoderJson;
+}
+
+function gateSetToStrAry(gates: number): string[] {
+  const ary: string[] = [];
+  for (const key of Object.values(Gate)) {
+    if (gates & key) {
+      ary.push(GateReverse[key]!);
+    }
+  }
+  return ary;
 }
