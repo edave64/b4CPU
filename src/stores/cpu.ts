@@ -1,11 +1,9 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { Cpu } from '../engine/cpu';
-import { markRaw } from 'vue';
-import { useDecoderStore } from './decoder';
+import { makeCpuState } from '../engine/cpu';
 
 export const useCpuStore = defineStore('cpu', {
   state: () => ({
-    cpu: markRaw(new Cpu(useDecoderStore().state)),
+    cpu: makeCpuState(),
   }),
 });
 

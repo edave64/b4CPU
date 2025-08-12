@@ -1,5 +1,12 @@
 import { expect, test } from 'vitest';
-import { Cpu, CpuStage, Gate } from '../src/engine/cpu';
+import type { CpuState } from '../src/engine/cpu';
+import {
+  Gate,
+  runInstruction,
+  makeCpuState,
+  CpuStage,
+  CpuAccessor,
+} from '../src/engine/cpu';
 import type { IDecoderState } from '../src/interfaces/decoder';
 
 const sharedConfig: IDecoderState = {
@@ -87,346 +94,346 @@ const sharedConfig: IDecoderState = {
 };
 
 test('LDA', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
   // LDA 12
-  cpu.instructionsOp[0] = 1;
-  cpu.instructionsData[0] = 12;
-  cpu.step();
+  CpuAccessor.setInstructionsOp(cpu, 0, 1);
+  CpuAccessor.setInstructionsData(cpu, 0, 12);
+  cpu = runInstruction(sharedConfig, cpu);
 
-  expect(cpu.regA.value).toBe(12);
+  expect(CpuAccessor.getRegA(cpu)).toBe(12);
 });
 
 test('LRA', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
   for (let i = 0; i < 16; i++) {
-    cpu.ram[i] = 16 - i;
+    CpuAccessor.setRam(cpu, i, 16 - i);
   }
 
   // LRA
   for (let i = 0; i < 16; i++) {
-    cpu.pc.value = 0;
-    cpu.instructionsOp[0] = 2;
-    cpu.instructionsAddr[0] = i;
-    cpu.step();
-    expect(cpu.regA.value).toBe(16 - i);
+    CpuAccessor.setPc(cpu, 0);
+    CpuAccessor.setInstructionsOp(cpu, 0, 2);
+    CpuAccessor.setInstructionsAddr(cpu, 0, i);
+    cpu = runInstruction(sharedConfig, cpu);
+    expect(CpuAccessor.getRegA(cpu)).toBe(16 - i);
   }
 });
 
 test('LDB', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
   // LDB 12
-  cpu.instructionsOp[0] = 3;
-  cpu.instructionsData[0] = 12;
-  cpu.step();
+  CpuAccessor.setInstructionsOp(cpu, 0, 3);
+  CpuAccessor.setInstructionsData(cpu, 0, 12);
+  cpu = runInstruction(sharedConfig, cpu);
 
-  expect(cpu.regB.value).toBe(12);
+  expect(CpuAccessor.getRegB(cpu)).toBe(12);
 });
 
 test('LRB', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
   for (let i = 0; i < 16; i++) {
-    cpu.ram[i] = 16 - i;
+    CpuAccessor.setRam(cpu, i, 16 - i);
   }
 
   // LRB
   for (let i = 0; i < 16; i++) {
-    cpu.pc.value = 0;
-    cpu.instructionsOp[0] = 2;
-    cpu.instructionsAddr[0] = i;
-    cpu.step();
-    expect(cpu.regA.value).toBe(16 - i);
+    CpuAccessor.setPc(cpu, 0);
+    CpuAccessor.setInstructionsOp(cpu, 0, 2);
+    CpuAccessor.setInstructionsAddr(cpu, 0, i);
+    cpu = runInstruction(sharedConfig, cpu);
+    expect(CpuAccessor.getRegA(cpu)).toBe(16 - i);
   }
 });
 
 test('LDB A', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
   // LDB A
-  cpu.regA.value = 12;
-  cpu.instructionsOp[0] = 5;
-  cpu.step();
+  CpuAccessor.setRegA(cpu, 12);
+  CpuAccessor.setInstructionsOp(cpu, 0, 5);
+  cpu = runInstruction(sharedConfig, cpu);
 
-  expect(cpu.regA.value).toBe(12);
-  expect(cpu.regB.value).toBe(12);
+  expect(CpuAccessor.getRegA(cpu)).toBe(12);
+  expect(CpuAccessor.getRegB(cpu)).toBe(12);
 });
 
 test('LDA B', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
   // LDA B
-  cpu.regB.value = 12;
-  cpu.instructionsOp[0] = 6;
-  cpu.step();
+  CpuAccessor.setRegB(cpu, 12);
+  CpuAccessor.setInstructionsOp(cpu, 0, 6);
+  cpu = runInstruction(sharedConfig, cpu);
 
-  expect(cpu.regA.value).toBe(12);
-  expect(cpu.regB.value).toBe(12);
+  expect(CpuAccessor.getRegA(cpu)).toBe(12);
+  expect(CpuAccessor.getRegB(cpu)).toBe(12);
 });
 
 test('STA', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
   // STA
-  cpu.regA.value = 12;
-  cpu.instructionsOp[0] = 7;
-  cpu.instructionsAddr[0] = 0;
+  CpuAccessor.setRegA(cpu, 12);
+  CpuAccessor.setInstructionsOp(cpu, 0, 7);
+  CpuAccessor.setInstructionsAddr(cpu, 0, 0);
 
-  expect(cpu.ram[0]).toBe(0);
-  cpu.step();
-  expect(cpu.ram[0]).toBe(12);
+  expect(CpuAccessor.getRam(cpu, 0)).toBe(0);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getRam(cpu, 0)).toBe(12);
 });
 
 test('STB', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
   // STB
-  cpu.regB.value = 12;
-  cpu.instructionsOp[0] = 8;
-  cpu.instructionsAddr[0] = 0;
+  CpuAccessor.setRegB(cpu, 12);
+  CpuAccessor.setInstructionsOp(cpu, 0, 8);
+  CpuAccessor.setInstructionsAddr(cpu, 0, 0);
 
-  expect(cpu.ram[0]).toBe(0);
-  cpu.step();
-  expect(cpu.ram[0]).toBe(12);
+  expect(CpuAccessor.getRam(cpu, 0)).toBe(0);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getRam(cpu, 0)).toBe(12);
 });
 
 test('AND', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
   // AND
-  cpu.instructionsOp[0] = 9;
-  cpu.regA.value = 0b1110;
-  cpu.regB.value = 0b0111;
+  CpuAccessor.setInstructionsOp(cpu, 0, 9);
+  CpuAccessor.setRegA(cpu, 0b1110);
+  CpuAccessor.setRegB(cpu, 0b0111);
 
-  expect(cpu.regA.value).toBe(0b1110);
-  expect(cpu.regB.value).toBe(0b0111);
-  cpu.step();
-  expect(cpu.regA.value).toBe(0b0110);
-  expect(cpu.regB.value).toBe(0b0111);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b1110);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0111);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b0110);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0111);
 });
 
 test('AND Z', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
   // AND
-  cpu.instructionsOp[0] = 9;
-  cpu.regA.value = 0b1100;
-  cpu.regB.value = 0b0011;
+  CpuAccessor.setInstructionsOp(cpu, 0, 9);
+  CpuAccessor.setRegA(cpu, 0b1100);
+  CpuAccessor.setRegB(cpu, 0b0011);
 
-  expect(cpu.regA.value).toBe(0b1100);
-  expect(cpu.regB.value).toBe(0b0011);
-  cpu.step();
-  expect(cpu.regA.value).toBe(0b0000);
-  expect(cpu.regB.value).toBe(0b0011);
-  expect(cpu.flagZ.value).toBe(true);
-  expect(cpu.flagO.value).toBe(false);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b1100);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0011);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b0000);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0011);
+  expect(CpuAccessor.getFlagZ(cpu)).toBe(true);
+  expect(CpuAccessor.getFlagO(cpu)).toBe(false);
 });
 
 test('ADD', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
   // ADD
-  cpu.instructionsOp[0] = 10;
-  cpu.regA.value = 0b0111;
-  cpu.regB.value = 0b0111;
+  CpuAccessor.setInstructionsOp(cpu, 0, 10);
+  CpuAccessor.setRegA(cpu, 0b0111);
+  CpuAccessor.setRegB(cpu, 0b0111);
 
-  expect(cpu.regA.value).toBe(0b0111);
-  expect(cpu.regB.value).toBe(0b0111);
-  expect(cpu.flagZ.value).toBe(false);
-  expect(cpu.flagO.value).toBe(false);
-  cpu.step();
-  expect(cpu.regA.value).toBe(0b1110);
-  expect(cpu.regB.value).toBe(0b0111);
-  expect(cpu.flagZ.value).toBe(false);
-  expect(cpu.flagO.value).toBe(false);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b0111);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0111);
+  expect(CpuAccessor.getFlagZ(cpu)).toBe(false);
+  expect(CpuAccessor.getFlagO(cpu)).toBe(false);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b1110);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0111);
+  expect(CpuAccessor.getFlagZ(cpu)).toBe(false);
+  expect(CpuAccessor.getFlagO(cpu)).toBe(false);
 });
 
 test('ADD O', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
   // ADD
-  cpu.instructionsOp[0] = 10;
-  cpu.regA.value = 0b1111;
-  cpu.regB.value = 0b0010;
+  CpuAccessor.setInstructionsOp(cpu, 0, 10);
+  CpuAccessor.setRegA(cpu, 0b1111);
+  CpuAccessor.setRegB(cpu, 0b0010);
 
-  expect(cpu.regA.value).toBe(0b1111);
-  expect(cpu.regB.value).toBe(0b0010);
-  expect(cpu.flagZ.value).toBe(false);
-  expect(cpu.flagO.value).toBe(false);
-  cpu.step();
-  expect(cpu.regA.value).toBe(0b0001);
-  expect(cpu.regB.value).toBe(0b0010);
-  expect(cpu.flagZ.value).toBe(false);
-  expect(cpu.flagO.value).toBe(true);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b1111);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0010);
+  expect(CpuAccessor.getFlagZ(cpu)).toBe(false);
+  expect(CpuAccessor.getFlagO(cpu)).toBe(false);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b0001);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0010);
+  expect(CpuAccessor.getFlagZ(cpu)).toBe(false);
+  expect(CpuAccessor.getFlagO(cpu)).toBe(true);
 });
 
 test('ADD OZ', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
   // ADD
-  cpu.instructionsOp[0] = 10;
-  cpu.regA.value = 0b1111;
-  cpu.regB.value = 0b0001;
+  CpuAccessor.setInstructionsOp(cpu, 0, 10);
+  CpuAccessor.setRegA(cpu, 0b1111);
+  CpuAccessor.setRegB(cpu, 0b0001);
 
-  expect(cpu.regA.value).toBe(0b1111);
-  expect(cpu.regB.value).toBe(0b0001);
-  expect(cpu.flagZ.value).toBe(false);
-  expect(cpu.flagO.value).toBe(false);
-  cpu.step();
-  expect(cpu.regA.value).toBe(0b0000);
-  expect(cpu.regB.value).toBe(0b0001);
-  expect(cpu.flagZ.value).toBe(true);
-  expect(cpu.flagO.value).toBe(true);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b1111);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0001);
+  expect(CpuAccessor.getFlagZ(cpu)).toBe(false);
+  expect(CpuAccessor.getFlagO(cpu)).toBe(false);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b0000);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0001);
+  expect(CpuAccessor.getFlagZ(cpu)).toBe(true);
+  expect(CpuAccessor.getFlagO(cpu)).toBe(true);
 });
 
 test('SUB', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
   // SUB
-  cpu.instructionsOp[0] = 11;
-  cpu.regA.value = 0b0111;
-  cpu.regB.value = 0b0011;
+  CpuAccessor.setInstructionsOp(cpu, 0, 11);
+  CpuAccessor.setRegA(cpu, 0b0111);
+  CpuAccessor.setRegB(cpu, 0b0011);
 
-  expect(cpu.regA.value).toBe(0b0111);
-  expect(cpu.regB.value).toBe(0b0011);
-  expect(cpu.flagZ.value).toBe(false);
-  expect(cpu.flagO.value).toBe(false);
-  cpu.step();
-  expect(cpu.regA.value).toBe(0b0100);
-  expect(cpu.regB.value).toBe(0b0011);
-  expect(cpu.flagZ.value).toBe(false);
-  expect(cpu.flagO.value).toBe(false);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b0111);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0011);
+  expect(CpuAccessor.getFlagZ(cpu)).toBe(false);
+  expect(CpuAccessor.getFlagO(cpu)).toBe(false);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b0100);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0011);
+  expect(CpuAccessor.getFlagZ(cpu)).toBe(false);
+  expect(CpuAccessor.getFlagO(cpu)).toBe(false);
 });
 
 test('SUB Z', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
   // SUB
-  cpu.instructionsOp[0] = 11;
-  cpu.regA.value = 0b0111;
-  cpu.regB.value = 0b0111;
+  CpuAccessor.setInstructionsOp(cpu, 0, 11);
+  CpuAccessor.setRegA(cpu, 0b0111);
+  CpuAccessor.setRegB(cpu, 0b0111);
 
-  expect(cpu.regA.value).toBe(0b0111);
-  expect(cpu.regB.value).toBe(0b0111);
-  expect(cpu.flagZ.value).toBe(false);
-  expect(cpu.flagO.value).toBe(false);
-  cpu.step();
-  expect(cpu.regA.value).toBe(0b0000);
-  expect(cpu.regB.value).toBe(0b0111);
-  expect(cpu.flagZ.value).toBe(true);
-  expect(cpu.flagO.value).toBe(false);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b0111);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0111);
+  expect(CpuAccessor.getFlagZ(cpu)).toBe(false);
+  expect(CpuAccessor.getFlagO(cpu)).toBe(false);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b0000);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0111);
+  expect(CpuAccessor.getFlagZ(cpu)).toBe(true);
+  expect(CpuAccessor.getFlagO(cpu)).toBe(false);
 });
 
 test('SUB O', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
   // SUB
-  cpu.instructionsOp[0] = 11;
-  cpu.regA.value = 0b0001;
-  cpu.regB.value = 0b0011;
+  CpuAccessor.setInstructionsOp(cpu, 0, 11);
+  CpuAccessor.setRegA(cpu, 0b0001);
+  CpuAccessor.setRegB(cpu, 0b0011);
 
-  expect(cpu.regA.value).toBe(0b0001);
-  expect(cpu.regB.value).toBe(0b0011);
-  expect(cpu.flagZ.value).toBe(false);
-  expect(cpu.flagO.value).toBe(false);
-  cpu.step();
-  expect(cpu.regA.value).toBe(0b1110);
-  expect(cpu.regB.value).toBe(0b0011);
-  expect(cpu.flagZ.value).toBe(false);
-  expect(cpu.flagO.value).toBe(true);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b0001);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0011);
+  expect(CpuAccessor.getFlagZ(cpu)).toBe(false);
+  expect(CpuAccessor.getFlagO(cpu)).toBe(false);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getRegA(cpu)).toBe(0b1110);
+  expect(CpuAccessor.getRegB(cpu)).toBe(0b0011);
+  expect(CpuAccessor.getFlagZ(cpu)).toBe(false);
+  expect(CpuAccessor.getFlagO(cpu)).toBe(true);
 });
 
 test('JMP', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
-  cpu.instructionsOp[0] = 12;
-  cpu.instructionsAddr[0] = 10;
+  CpuAccessor.setInstructionsOp(cpu, 0, 12);
+  CpuAccessor.setInstructionsAddr(cpu, 0, 10);
 
-  expect(cpu.pc.value).toBe(0);
-  cpu.step();
-  expect(cpu.pc.value).toBe(10);
+  expect(CpuAccessor.getPc(cpu)).toBe(0);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getPc(cpu)).toBe(10);
 });
 
 test('JMZ No Jump', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
-  cpu.instructionsOp[0] = 13;
-  cpu.instructionsAddr[0] = 10;
+  CpuAccessor.setInstructionsOp(cpu, 0, 13);
+  CpuAccessor.setInstructionsAddr(cpu, 0, 10);
 
-  expect(cpu.pc.value).toBe(0);
-  cpu.step();
-  expect(cpu.pc.value).toBe(1);
+  expect(CpuAccessor.getPc(cpu)).toBe(0);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getPc(cpu)).toBe(1);
 });
 
 test('JMZ Jump', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
-  cpu.instructionsOp[0] = 13;
-  cpu.instructionsAddr[0] = 10;
+  CpuAccessor.setInstructionsOp(cpu, 0, 13);
+  CpuAccessor.setInstructionsAddr(cpu, 0, 10);
 
-  cpu.flagZ.value = true;
-  expect(cpu.pc.value).toBe(0);
-  cpu.step();
-  expect(cpu.pc.value).toBe(10);
+  CpuAccessor.setFlagZ(cpu, true);
+  expect(CpuAccessor.getPc(cpu)).toBe(0);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getPc(cpu)).toBe(10);
 });
 
 test('JMO No Jump', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
-  cpu.instructionsOp[0] = 14;
-  cpu.instructionsAddr[0] = 10;
+  CpuAccessor.setInstructionsOp(cpu, 0, 14);
+  CpuAccessor.setInstructionsAddr(cpu, 0, 10);
 
-  expect(cpu.pc.value).toBe(0);
-  cpu.step();
-  expect(cpu.pc.value).toBe(1);
+  expect(CpuAccessor.getPc(cpu)).toBe(0);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getPc(cpu)).toBe(1);
 });
 
 test('JMO Jump', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
-  cpu.instructionsOp[0] = 14;
-  cpu.instructionsAddr[0] = 10;
+  CpuAccessor.setInstructionsOp(cpu, 0, 14);
+  CpuAccessor.setInstructionsAddr(cpu, 0, 10);
 
-  cpu.flagO.value = true;
-  expect(cpu.pc.value).toBe(0);
-  cpu.step();
-  expect(cpu.pc.value).toBe(10);
+  CpuAccessor.setFlagO(cpu, true);
+  expect(CpuAccessor.getPc(cpu)).toBe(0);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getPc(cpu)).toBe(10);
 });
 
 test('JNZ No Jump', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
-  cpu.instructionsOp[0] = 15;
-  cpu.instructionsAddr[0] = 10;
+  CpuAccessor.setInstructionsOp(cpu, 0, 15);
+  CpuAccessor.setInstructionsAddr(cpu, 0, 10);
 
-  cpu.flagZ.value = true;
-  expect(cpu.pc.value).toBe(0);
-  cpu.step();
-  expect(cpu.pc.value).toBe(1);
+  CpuAccessor.setFlagZ(cpu, true);
+  expect(CpuAccessor.getPc(cpu)).toBe(0);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getPc(cpu)).toBe(1);
 });
 
 test('JNZ Jump', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
-  cpu.instructionsOp[0] = 15;
-  cpu.instructionsAddr[0] = 10;
+  CpuAccessor.setInstructionsOp(cpu, 0, 15);
+  CpuAccessor.setInstructionsAddr(cpu, 0, 10);
 
-  expect(cpu.pc.value).toBe(0);
-  cpu.step();
-  expect(cpu.pc.value).toBe(10);
+  expect(CpuAccessor.getPc(cpu)).toBe(0);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getPc(cpu)).toBe(10);
 });
 
 test('JNZ Jump', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
 
-  cpu.instructionsOp[0] = 15;
-  cpu.instructionsAddr[0] = 10;
+  CpuAccessor.setInstructionsOp(cpu, 0, 15);
+  CpuAccessor.setInstructionsAddr(cpu, 0, 10);
 
-  expect(cpu.pc.value).toBe(0);
-  cpu.step();
-  expect(cpu.pc.value).toBe(10);
+  expect(CpuAccessor.getPc(cpu)).toBe(0);
+  cpu = runInstruction(sharedConfig, cpu);
+  expect(CpuAccessor.getPc(cpu)).toBe(10);
 });
 
 test('Sorter', () => {
-  const cpu = new Cpu(sharedConfig);
+  let cpu = makeCpuState();
   parseInstructions(
     cpu,
     `
@@ -447,20 +454,20 @@ test('Sorter', () => {
     `,
   );
 
-  cpu.ram[0] = 10;
-  cpu.ram[1] = 5;
-  cpu.ram[2] = 3;
+  CpuAccessor.setRam(cpu, 0, 10);
+  CpuAccessor.setRam(cpu, 1, 5);
+  CpuAccessor.setRam(cpu, 2, 3);
 
   for (let i = 0; i < 23; i++) {
-    cpu.step();
+    cpu = runInstruction(sharedConfig, cpu);
   }
 
-  expect(cpu.ram[0]).toBe(3);
-  expect(cpu.ram[1]).toBe(5);
-  expect(cpu.ram[2]).toBe(10);
+  expect(CpuAccessor.getRam(cpu, 0)).toBe(3);
+  expect(CpuAccessor.getRam(cpu, 1)).toBe(5);
+  expect(CpuAccessor.getRam(cpu, 2)).toBe(10);
 });
 
-function parseInstructions(cpu: Cpu, instructions: string): void {
+function parseInstructions(cpu: CpuState, instructions: string): void {
   const lines = instructions.split('\n');
   for (const line of lines) {
     const parts = line.split(' ');
@@ -470,8 +477,8 @@ function parseInstructions(cpu: Cpu, instructions: string): void {
     const op = sharedConfig.instructions.findIndex((x) => x.name === parts[1]);
     const addr = parseInt(parts[2] ?? '0', 10);
     const data = parseInt(parts[3] ?? '0', 2);
-    cpu.instructionsOp[i] = op;
-    cpu.instructionsAddr[i] = addr;
-    cpu.instructionsData[i] = data;
+    CpuAccessor.setInstructionsOp(cpu, i, op);
+    CpuAccessor.setInstructionsAddr(cpu, i, addr);
+    CpuAccessor.setInstructionsData(cpu, i, data);
   }
 }

@@ -1,0 +1,427 @@
+import type { IDecoderState } from '../interfaces/decoder';
+import type { DeepReadonly, Ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
+import { readDecoder, type IDecoderJson } from './readDecoder';
+
+export const CpuStage = {
+  Fetch: 0,
+  Decode: 1,
+  Read: 2,
+  Execute: 3,
+  Write: 4,
+} as const;
+export type CpuStage = (typeof CpuStage)[keyof typeof CpuStage];
+
+export const Gate = {
+  JN: 1,
+  JZ: 1 << 1,
+  JO: 1 << 2,
+  RR: 1 << 3,
+  RW: 1 << 4,
+  AR: 1 << 5,
+  AW: 1 << 6,
+  BR: 1 << 7,
+  BW: 1 << 8,
+  ALU1: 1 << 9,
+  ALU2: 1 << 10,
+};
+export type Gate = (typeof Gate)[keyof typeof Gate];
+const GateReverse: Record<Gate, string> = Object.fromEntries(
+  Object.entries(Gate).map(([key, value]) => [value, key]),
+);
+
+export class Cpu {
+  public static NextStage = {
+    [CpuStage.Fetch]: CpuStage.Decode,
+    [CpuStage.Decode]: CpuStage.Read,
+    [CpuStage.Read]: CpuStage.Execute,
+    [CpuStage.Execute]: CpuStage.Write,
+    [CpuStage.Write]: CpuStage.Fetch,
+  } as const;
+
+  public readonly decoderState: DeepReadonly<IDecoderState>;
+  private readonly _stage: Ref<CpuStage> = ref(CpuStage.Fetch);
+  public readonly pc = ref(0);
+  public readonly address = computed(
+    () => this.instructionsAddr[this.pc.value]!,
+  );
+  public readonly regA = ref(0);
+  public readonly regB = ref(0);
+  public readonly flagZ = ref(false);
+  public readonly flagO = ref(false);
+
+  private readonly _pcJump = computed(() => {
+    const jmpNot = this._jmpNot.value;
+    const jmpOverflow = this._jmpOverflow.value;
+    const jmpZero = this._jmpZero.value;
+
+    if (!jmpOverflow && !jmpZero) {
+      return jmpNot;
+    }
+
+    const conditions =
+      (jmpZero ? this.flagZ.value : true) &&
+      (jmpOverflow ? this.flagO.value : true);
+    return jmpNot ? !conditions : conditions;
+  });
+  private readonly _jmpNot = ref(false);
+  private readonly _jmpZero = ref(false);
+  private readonly _jmpOverflow = ref(false);
+  private readonly _regAWrite = ref(false);
+  private readonly _regARead = ref(false);
+  private readonly _regBWrite = ref(false);
+  private readonly _regBRead = ref(false);
+  private readonly _ramWrite = ref(false);
+  private readonly _ramRead = ref(false);
+  private readonly _aluOp1 = ref(false);
+  private readonly _aluOp2 = ref(false);
+  private readonly _aluOp = computed(
+    () => (this._aluOp1.value ? 1 : 0) + (this._aluOp2.value ? 2 : 0),
+  );
+
+  private readonly _aluInA = ref(0);
+  private readonly _aluInB = ref(0);
+
+  private readonly _regAOut = ref(0);
+  private readonly _regBOut = ref(0);
+  private readonly _aluOut = ref(0);
+  private readonly _ramOut = ref(0);
+
+  public readonly data = computed(() => {
+    return (
+      (this._regARead.value ? this._regAOut.value : 0) |
+      (this._regBRead.value ? this._regBOut.value : 0) |
+      (this._aluOp.value ? this._aluOut.value : 0) |
+      (this._ramRead.value ? this._ramOut.value : 0) |
+      this.instructionsData[this.pc.value]!
+    );
+  });
+
+  public readonly aluInA = computed(() => {
+    if (this._aluOp.value === 0) return this.regA.value;
+    return this._aluInA.value;
+  });
+
+  public readonly aluInB = computed(() => {
+    if (this._aluOp.value === 0) return this.regB.value;
+    return this._aluInB.value;
+  });
+
+  public get pcJump() {
+    return this._pcJump.value;
+  }
+
+  public get stage() {
+    return this._stage.value;
+  }
+
+  public set stage(newStage: CpuStage) {
+    if (newStage === this._stage.value) return;
+    switch (newStage) {
+      case CpuStage.Fetch: {
+        const targetAddr = this.pcJump
+          ? this.address.value
+          : (this.pc.value + 1) & 0b1111;
+        this.pc.value = targetAddr;
+        break;
+      }
+      case CpuStage.Decode:
+        this.decodedStages = this.decodeStages(this.pc.value);
+        break;
+    }
+    this._stage.value = newStage;
+  }
+
+  public get jmpNot() {
+    return this._jmpNot.value;
+  }
+  public get jmpZero() {
+    return this._jmpZero.value;
+  }
+  public get jmpOverflow() {
+    return this._jmpOverflow.value;
+  }
+  public get regAWrite() {
+    return this._regAWrite.value;
+  }
+  public get regARead() {
+    return this._regARead.value;
+  }
+  public get regBWrite() {
+    return this._regBWrite.value;
+  }
+  public get regBRead() {
+    return this._regBRead.value;
+  }
+  public get ramWrite() {
+    return this._ramWrite.value;
+  }
+  public get ramRead() {
+    return this._ramRead.value;
+  }
+  public get aluOp() {
+    return this._aluOp.value;
+  }
+
+  public readonly ram = reactive(Array(16).fill(0) as number[]);
+  public readonly instructionsOp = reactive(Array(16).fill(0) as number[]);
+  public readonly instructionsAddr = reactive(Array(16).fill(0) as number[]);
+  public readonly instructionsData = reactive(Array(16).fill(0) as number[]);
+
+  protected execAluOp() {
+    const aluOp = this.aluOp;
+    const regA = this.regA.value;
+    const regB = this.regB.value;
+    switch (aluOp) {
+      case 1:
+        return regA & regB;
+      case 2:
+        return regA + regB;
+      case 3:
+        return regA - regB;
+    }
+    return 0;
+  }
+
+  public constructor(decoderState: DeepReadonly<IDecoderState>) {
+    this.decoderState = decoderState;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (globalThis as any).cpu = this;
+
+    watch(
+      () => this.instructionsOp[this.pc.value],
+      () => {
+        if (this.stage === CpuStage.Decode) {
+          this.decodedStages = this.decodeStages(this.pc.value);
+        }
+      },
+    );
+    this.decodedStages = this.decodeStages(this.pc.value);
+  }
+
+  public nextStage() {
+    const stage = this.stage;
+    const nextStage = Cpu.NextStage[stage];
+    const oldGate = this.decodedStages[stage];
+    const newGate = this.decodedStages[nextStage];
+
+    for (const key of Object.values(Gate)) {
+      const gate = this.gateMap[key]!;
+      gate.value = (newGate & key) !== 0;
+    }
+
+    const gatesActivated = (newGate ^ oldGate) & newGate;
+    this.processGateActivations(gatesActivated);
+
+    // Setting stage to fetch handles pc update
+    this.stage = nextStage;
+  }
+
+  processGateActivations(GateActivated: number) {
+    if (GateActivated & Gate.AR) {
+      this._regAOut.value = this.regA.value;
+    }
+    if (GateActivated & Gate.BR) {
+      this._regBOut.value = this.regB.value;
+    }
+    if (GateActivated & Gate.RR) {
+      this._ramOut.value = this.ram[this.address.value]!;
+    }
+
+    if (GateActivated & Gate.AW) {
+      this.regA.value = this.data.value;
+    }
+    if (GateActivated & Gate.BW) {
+      this.regB.value = this.data.value;
+    }
+    if (GateActivated & Gate.RW) {
+      this.ram[this.address.value] = this.data.value;
+    }
+
+    if (GateActivated & Gate.ALU1 || GateActivated & Gate.ALU2) {
+      const value = this.execAluOp();
+      this._aluInA.value = this.regA.value;
+      this._aluInB.value = this.regB.value;
+      this._aluOut.value = value & 0b1111;
+      this.flagZ.value = this._aluOut.value === 0;
+      this.flagO.value = value > 0b1111 || value < 0;
+    }
+  }
+
+  public step() {
+    do {
+      this.nextStage();
+    } while (this.stage !== CpuStage.Fetch);
+  }
+
+  private decodedStages: Record<CpuStage, number>;
+
+  public saveState(): ICpuState {
+    return {
+      regA: this.regA.value,
+      regB: this.regB.value,
+      pc: this.pc.value,
+      instructionsOp: Array.from(this.instructionsOp),
+      instructionsAddr: Array.from(this.instructionsAddr),
+      instructionsData: Array.from(this.instructionsData),
+      ram: Array.from(this.ram),
+      stage: this.stage,
+
+      flagZ: this.flagZ.value,
+      flagO: this.flagO.value,
+
+      aluInA: this._aluInA.value,
+      aluInB: this._aluInB.value,
+      regAOut: this._regAOut.value,
+      regBOut: this._regBOut.value,
+      aluOut: this._aluOut.value,
+      ramOut: this._ramOut.value,
+
+      decoderState: this.saveDecoder(),
+    };
+  }
+
+  public saveDecoder(): IDecoderJson {
+    return {
+      timingMasks: {
+        fetch: gateSetToStrAry(this.decoderState.timingMasks[CpuStage.Fetch]),
+        decode: gateSetToStrAry(this.decoderState.timingMasks[CpuStage.Decode]),
+        read: gateSetToStrAry(this.decoderState.timingMasks[CpuStage.Read]),
+        exec: gateSetToStrAry(this.decoderState.timingMasks[CpuStage.Execute]),
+        write: gateSetToStrAry(this.decoderState.timingMasks[CpuStage.Write]),
+      },
+      instructions: this.decoderState.instructions.map((x) => ({
+        name: x.name,
+        gates: gateSetToStrAry(x.gates),
+      })),
+    };
+  }
+
+  public static loadState(state: ICpuState): Cpu {
+    const cpu = new Cpu(readDecoder(state.decoderState));
+    cpu.regA.value = state.regA;
+    cpu.regB.value = state.regB;
+    cpu.pc.value = state.pc;
+    for (let i = 0; i < 16; i++) {
+      cpu.instructionsOp[i] = state.instructionsOp[i] ?? 0;
+      cpu.instructionsAddr[i] = state.instructionsAddr[i] ?? 0;
+      cpu.instructionsData[i] = state.instructionsData[i] ?? 0;
+      cpu.ram[i] = state.ram[i] ?? 0;
+    }
+    cpu.decodedStages = cpu.decodeStages(cpu.pc.value);
+    cpu.stage = state.stage;
+
+    const newGate = cpu.decodedStages[state.stage];
+
+    for (const key of Object.values(Gate)) {
+      const gate = cpu.gateMap[key]!;
+      gate.value = (newGate & key) !== 0;
+    }
+
+    cpu.flagZ.value = state.flagZ;
+    cpu.flagO.value = state.flagO;
+
+    cpu._aluInA.value = state.aluInA;
+    cpu._aluInB.value = state.aluInB;
+    cpu._regAOut.value = state.regAOut;
+    cpu._regBOut.value = state.regBOut;
+    cpu._aluOut.value = state.aluOut;
+    cpu._ramOut.value = state.ramOut;
+
+    return cpu;
+  }
+
+  public withNewDecoder(decoderState: IDecoderState) {
+    const cpu = new Cpu(decoderState);
+    cpu.regA.value = this.regA.value;
+    cpu.regB.value = this.regB.value;
+    cpu.pc.value = this.pc.value;
+    for (let i = 0; i < 16; i++) {
+      cpu.instructionsOp[i] = this.instructionsOp[i] ?? 0;
+      cpu.instructionsAddr[i] = this.instructionsAddr[i] ?? 0;
+      cpu.instructionsData[i] = this.instructionsData[i] ?? 0;
+      cpu.ram[i] = this.ram[i] ?? 0;
+    }
+    cpu.decodedStages = cpu.decodeStages(cpu.pc.value);
+    cpu.stage = this.stage;
+
+    const newGate = cpu.decodedStages[this.stage];
+
+    for (const key of Object.values(Gate)) {
+      const gate = cpu.gateMap[key]!;
+      gate.value = (newGate & key) !== 0;
+    }
+
+    cpu.flagZ.value = this.flagZ.value;
+    cpu.flagO.value = this.flagO.value;
+
+    cpu._aluInA.value = this._aluInA.value;
+    cpu._aluInB.value = this._aluInB.value;
+    cpu._regAOut.value = this._regAOut.value;
+    cpu._regBOut.value = this._regBOut.value;
+    cpu._aluOut.value = this._aluOut.value;
+    cpu._ramOut.value = this._ramOut.value;
+
+    return cpu;
+  }
+
+  private decodeStages(pc: number): Record<CpuStage, number> {
+    const gates =
+      this.decoderState.instructions[this.instructionsOp[pc]!]!.gates;
+    const masks = this.decoderState.timingMasks;
+    return {
+      [CpuStage.Fetch]: gates & masks[CpuStage.Fetch],
+      [CpuStage.Decode]: gates & masks[CpuStage.Decode],
+      [CpuStage.Read]: gates & masks[CpuStage.Read],
+      [CpuStage.Execute]: gates & masks[CpuStage.Execute],
+      [CpuStage.Write]: gates & masks[CpuStage.Write],
+    };
+  }
+
+  private gateMap = {
+    [Gate.JN]: this._jmpNot,
+    [Gate.JZ]: this._jmpZero,
+    [Gate.JO]: this._jmpOverflow,
+    [Gate.RR]: this._ramRead,
+    [Gate.RW]: this._ramWrite,
+    [Gate.AR]: this._regARead,
+    [Gate.AW]: this._regAWrite,
+    [Gate.BR]: this._regBRead,
+    [Gate.BW]: this._regBWrite,
+    [Gate.ALU1]: this._aluOp1,
+    [Gate.ALU2]: this._aluOp2,
+  } as Record<Gate, Ref<boolean>>;
+}
+
+export interface ICpuState {
+  regA: number;
+  regB: number;
+  pc: number;
+  instructionsOp: number[];
+  instructionsAddr: number[];
+  instructionsData: number[];
+  ram: number[];
+  stage: CpuStage;
+
+  flagZ: boolean;
+  flagO: boolean;
+
+  aluInA: number;
+  aluInB: number;
+  regAOut: number;
+  regBOut: number;
+  aluOut: number;
+  ramOut: number;
+
+  decoderState: IDecoderJson;
+}
+
+function gateSetToStrAry(gates: number): string[] {
+  const ary: string[] = [];
+  for (const key of Object.values(Gate)) {
+    if (gates & key) {
+      ary.push(GateReverse[key]!);
+    }
+  }
+  return ary;
+}
