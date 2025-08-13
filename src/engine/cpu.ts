@@ -276,7 +276,7 @@ export function cpuStep(
 
     const value = CpuAccessor.execAluOp(newState);
 
-    CpuAccessor.setFlagZ(newState, value === 0);
+    CpuAccessor.setFlagZ(newState, (value & 0b1111) === 0);
     CpuAccessor.setFlagO(newState, value > 0b1111 || value < 0);
   }
 
