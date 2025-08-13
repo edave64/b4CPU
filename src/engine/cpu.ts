@@ -233,8 +233,6 @@ export function cpuStep(
       CpuAccessor.setLastDecodedGates(
         newState,
         stage,
-        //@ts-expect-error TS-Bug. This produces an error for possible undefined value, but adding a non-null assertion
-        //                 produces an error because it's unnecessary.
         instructionGates & masks[stage],
       );
     }
@@ -271,8 +269,8 @@ export function cpuStep(
   }
 
   if (gatesActivated & Gate.ALU1 || gatesActivated & Gate.ALU2) {
-    const regA = CpuAccessor.getLatchedRegA(newState);
-    const regB = CpuAccessor.getLatchedRegB(newState);
+    const regA = CpuAccessor.getRegA(newState);
+    const regB = CpuAccessor.getRegB(newState);
     CpuAccessor.setLatchedAluInA(newState, regA);
     CpuAccessor.setLatchedAluInB(newState, regB);
 
