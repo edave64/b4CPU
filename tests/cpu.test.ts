@@ -107,7 +107,7 @@ test('LRA', () => {
   let cpu = makeCpuState();
 
   for (let i = 0; i < 16; i++) {
-    CpuAccessor.setRam(cpu, i, 16 - i);
+    CpuAccessor.setRam(cpu, i, 15 - i);
   }
 
   // LRA
@@ -116,7 +116,7 @@ test('LRA', () => {
     CpuAccessor.setInstructionsOp(cpu, 0, 2);
     CpuAccessor.setInstructionsAddr(cpu, 0, i);
     cpu = runInstruction(sharedConfig, cpu);
-    expect(CpuAccessor.getRegA(cpu)).toBe(16 - i);
+    expect(CpuAccessor.getRegA(cpu)).toBe(15 - i);
   }
 });
 
@@ -134,7 +134,7 @@ test('LRB', () => {
   let cpu = makeCpuState();
 
   for (let i = 0; i < 16; i++) {
-    CpuAccessor.setRam(cpu, i, 16 - i);
+    CpuAccessor.setRam(cpu, i, 15 - i);
   }
 
   // LRB
@@ -143,7 +143,7 @@ test('LRB', () => {
     CpuAccessor.setInstructionsOp(cpu, 0, 2);
     CpuAccessor.setInstructionsAddr(cpu, 0, i);
     cpu = runInstruction(sharedConfig, cpu);
-    expect(CpuAccessor.getRegA(cpu)).toBe(16 - i);
+    expect(CpuAccessor.getRegA(cpu)).toBe(15 - i);
   }
 });
 
