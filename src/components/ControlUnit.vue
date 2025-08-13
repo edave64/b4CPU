@@ -6,31 +6,31 @@
       :x="336"
       :y="32"
       label="Fetch"
-      :active="cpu.stage === CpuStage.Fetch"
+      :active="CpuAccessor.getStage(cpu) === CpuStage.Fetch"
     />
     <step-indicator
       :x="544"
       :y="32"
       label="Decode"
-      :active="cpu.stage === CpuStage.Decode"
+      :active="CpuAccessor.getStage(cpu) === CpuStage.Decode"
     />
     <step-indicator
       :x="752"
       :y="32"
       label="Read"
-      :active="cpu.stage === CpuStage.Read"
+      :active="CpuAccessor.getStage(cpu) === CpuStage.Read"
     />
     <step-indicator
       :x="960"
       :y="32"
       label="Execute"
-      :active="cpu.stage === CpuStage.Execute"
+      :active="CpuAccessor.getStage(cpu) === CpuStage.Execute"
     />
     <step-indicator
       :x="1168"
       :y="32"
       label="Write"
-      :active="cpu.stage === CpuStage.Write"
+      :active="CpuAccessor.getStage(cpu) === CpuStage.Write"
     />
     <g
       class="btn"
@@ -59,19 +59,28 @@
 
 <script lang="ts" setup>
 import StepIndicator from './StepIndicator.vue';
-import { Cpu, CpuStage } from '../engine/cpu';
+import {
+  CpuStage,
+  cpuStep,
+  runInstruction,
+  CpuAccessor,
+  type CpuState,
+} from '../engine/cpu';
+import { useCpuStore } from '../stores/cpu';
+import { useDecoderStore } from '../stores/decoder';
 
-const props = defineProps({
-  cpu: {
-    type: Cpu,
-    required: true,
-  },
-});
+defineProps<{
+  cpu: CpuState;
+}>();
+
 function step() {
-  props.cpu.nextStage();
+  useCpuStore().cpu = cpuStep(useDecoderStore().state, useCpuStore().cpu);
 }
 function cycle() {
-  props.cpu.step();
+  useCpuStore().cpu = runInstruction(
+    useDecoderStore().state,
+    useCpuStore().cpu,
+  );
 }
 
 defineExpose({

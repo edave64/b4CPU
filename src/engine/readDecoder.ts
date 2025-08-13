@@ -1,5 +1,5 @@
 import { type IDecoderState } from '../interfaces/decoder';
-import { Gate } from './cpu';
+import { Gate, GateReverse } from './cpu';
 import { CpuStage } from './cpu';
 
 export function readDecoder(decoderJson: IDecoderJson): IDecoderState {
@@ -16,6 +16,32 @@ export function readDecoder(decoderJson: IDecoderJson): IDecoderState {
       [CpuStage.Write]: decoderJson.timingMasks.write.reduce(readGates, 0),
     },
   };
+}
+
+export function writeDecoder(decoderState: IDecoderState): IDecoderJson {
+  return {
+    instructions: decoderState.instructions.map((i) => ({
+      name: i.name,
+      gates: gateSetToStrAry(i.gates),
+    })),
+    timingMasks: {
+      fetch: gateSetToStrAry(decoderState.timingMasks[CpuStage.Fetch]),
+      decode: gateSetToStrAry(decoderState.timingMasks[CpuStage.Decode]),
+      read: gateSetToStrAry(decoderState.timingMasks[CpuStage.Read]),
+      exec: gateSetToStrAry(decoderState.timingMasks[CpuStage.Execute]),
+      write: gateSetToStrAry(decoderState.timingMasks[CpuStage.Write]),
+    },
+  };
+}
+
+function gateSetToStrAry(gates: number): string[] {
+  const ary: string[] = [];
+  for (const key of Object.values(Gate)) {
+    if (gates & key) {
+      ary.push(GateReverse[key]!);
+    }
+  }
+  return ary;
 }
 
 function readGates(acc: number, gate: string): number {

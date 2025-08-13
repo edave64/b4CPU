@@ -71,23 +71,16 @@
 <script lang="ts" setup>
 import Word from './WordBits.vue';
 import CounterArrow from './CounterArrow.vue';
-import { Cpu } from '../engine/cpu';
 import type { Ref } from 'vue';
 import { computed, ref } from 'vue';
 import ToggleBtn from './ToggleBtn.vue';
-
-const props = defineProps({
-  cpu: {
-    type: Cpu,
-    required: true,
-  },
-});
+import { useCpuStore } from '../stores/cpu';
 
 const ref_inst: Ref<(typeof Word)[]> = ref([]);
 const ref_addr: Ref<(typeof Word)[]> = ref([]);
 const ref_data: Ref<(typeof Word)[]> = ref([]);
 
-const ops = computed(() => props.cpu.instructionsOp);
+const ops = computed(() => useCpuStore().cpu.instructionsOp);
 
 const addr = computed(() => props.cpu.instructionsAddr);
 

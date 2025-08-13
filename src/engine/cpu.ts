@@ -23,7 +23,7 @@ export const Gate = {
   ALU2: 1 << 10,
 };
 export type Gate = (typeof Gate)[keyof typeof Gate];
-const GateReverse: Record<Gate, string> = Object.fromEntries(
+export const GateReverse: Record<Gate, string> = Object.fromEntries(
   Object.entries(Gate).map(([key, value]) => [value, key]),
 );
 
@@ -359,14 +359,4 @@ function doJump(
     (jmpZero ? CpuAccessor.getFlagZ(cpuState) : true) &&
     (jmpOverflow ? CpuAccessor.getFlagO(cpuState) : true);
   return jmpNot ? !conditions : conditions;
-}
-
-export function gateSetToStrAry(gates: number): string[] {
-  const ary: string[] = [];
-  for (const key of Object.values(Gate)) {
-    if (gates & key) {
-      ary.push(GateReverse[key]!);
-    }
-  }
-  return ary;
 }
