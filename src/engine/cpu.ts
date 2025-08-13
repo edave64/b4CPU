@@ -208,7 +208,48 @@ export const CpuAccessor = {
     }
     return value;
   },
+
+  getDebug(state: CpuState) {
+    return {
+      regA: CpuAccessor.getRegA(state),
+      regB: CpuAccessor.getRegB(state),
+      pc: CpuAccessor.getPc(state),
+      flagZ: CpuAccessor.getFlagZ(state),
+      flagO: CpuAccessor.getFlagO(state),
+      latchedRegA: CpuAccessor.getLatchedRegA(state),
+      latchedRegB: CpuAccessor.getLatchedRegB(state),
+      latchedRamOut: CpuAccessor.getLatchedRamOut(state),
+      latchedAluInA: CpuAccessor.getLatchedAluInA(state),
+      latchedAluInB: CpuAccessor.getLatchedAluInB(state),
+      stage: CpuAccessor.getStage(state),
+      gates: {
+        fetch: CpuAccessor.getLastDecodedGates(state, CpuStage.Fetch),
+        decode: CpuAccessor.getLastDecodedGates(state, CpuStage.Decode),
+        read: CpuAccessor.getLastDecodedGates(state, CpuStage.Read),
+        execute: CpuAccessor.getLastDecodedGates(state, CpuStage.Execute),
+        write: CpuAccessor.getLastDecodedGates(state, CpuStage.Write),
+      },
+      ram: range(0, 16)
+        .map((i) => CpuAccessor.getRam(state, i))
+        .toArray(),
+      instructions: range(0, 16)
+        .map((i) => CpuAccessor.getInstructionsOp(state, i))
+        .toArray(),
+      instructionsAddr: range(0, 16)
+        .map((i) => CpuAccessor.getInstructionsAddr(state, i))
+        .toArray(),
+      instructionsData: range(0, 16)
+        .map((i) => CpuAccessor.getInstructionsData(state, i))
+        .toArray(),
+    };
+  },
 };
+
+function* range(start: number, end: number): Generator<number> {
+  for (let i = start; i < end; i++) {
+    yield i;
+  }
+}
 
 export function getAluOp(gates: number): AluOp {
   return ((gates & Gate.ALU1 ? 1 : 0) + (gates & Gate.ALU2 ? 2 : 0)) as AluOp;
@@ -296,12 +337,12 @@ export function cpuStep(
 
 export function runInstruction(
   decoderState: IDecoderState,
-  state: CpuState,
+  cpu: CpuState,
 ): CpuState {
   do {
-    state = cpuStep(decoderState, state);
-  } while (CpuAccessor.getStage(state) !== CpuStage.Fetch);
-  return state;
+    cpu = cpuStep(decoderState, cpu);
+  } while (CpuAccessor.getStage(cpu) !== CpuStage.Fetch);
+  return cpu;
 }
 
 function doJump(
