@@ -4,19 +4,16 @@
     <text class="component-label" x="30" y="40"> RAM </text>
     <counter-arrow
       :x="8"
-      :y="
-        56 +
-        40 * (cpu.address.value % 4) +
-        168 * Math.floor(cpu.address.value / 4)
-      "
+      :y="56 + 40 * (addr % 4) + 168 * Math.floor(addr / 4)"
     />
     <g v-for="cluster in [0, 1, 2, 3]" :key="'data_' + cluster">
       <g v-for="i in [0, 1, 2, 3]" :key="'data_' + cluster + '_' + i">
-        <word
+        <word-bits
           :x="32"
           :y="48 + 40 * i + 168 * cluster"
           ref="dataComp"
-          v-model="ram[i + cluster * 4]"
+          :model-value="ram[i + cluster * 4]!.value"
+          @update:model-value="ram[i + cluster * 4]!.value = $event"
           @up="dataComp[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
           @down="dataComp[(i + cluster * 4 + 1) % 16]!.doFocus($event)"
           @keydown.right.stop="dataComp[(i + cluster * 4 + 1) % 16]!.doFocus(3)"
@@ -24,26 +21,21 @@
         />
       </g>
     </g>
-    <direction-arrow dir="up" :x="40" :y="720" :value="cpu.ramWrite" />
-    <direction-arrow dir="down" :x="72" :y="720" :value="cpu.ramRead" />
+    <direction-arrow dir="up" :x="40" :y="720" :value="ramWrite" />
+    <direction-arrow dir="down" :x="72" :y="720" :value="ramRead" />
   </g>
 </template>
 
 <script lang="ts" setup>
-import word from 'components/WordBits.vue';
-import { Cpu } from '../engine/cpu';
+import WordBits from 'components/WordBits.vue';
+import type { Ref } from 'vue';
 import { computed, ref } from 'vue';
 import CounterArrow from './CounterArrow.vue';
 import DirectionArrow from './DirectionArrow.vue';
+import { useCpuStore } from '../stores/cpu';
+import { CpuAccessor, Gate } from '../engine/cpu';
 
-const props = defineProps({
-  cpu: {
-    type: Cpu,
-    required: true,
-  },
-});
-
-const dataComp = ref([] as (typeof word | null)[]);
+const dataComp = ref([] as (typeof WordBits | null)[]);
 
 defineExpose({
   doFocus() {
@@ -51,5 +43,38 @@ defineExpose({
   },
 });
 
-const ram = computed(() => props.cpu.ram);
+const ram: Ref<number>[] = [];
+
+for (let i = 0; i < 16; i++) {
+  ram.push(
+    computed({
+      get: () => CpuAccessor.getRam(useCpuStore().cpu, i),
+      set: (v) => {
+        useCpuStore().update((cpu) => {
+          CpuAccessor.setRam(cpu, i, v);
+        });
+      },
+    }),
+  );
+}
+
+const stage = computed(() => CpuAccessor.getStage(useCpuStore().cpu));
+
+const addr = computed(() => {
+  const pc = CpuAccessor.getPc(useCpuStore().cpu);
+  return CpuAccessor.getInstructionsAddr(useCpuStore().cpu, pc);
+});
+
+const ramWrite = computed(
+  () =>
+    !!(
+      CpuAccessor.getLastDecodedGates(useCpuStore().cpu, stage.value) & Gate.RW
+    ),
+);
+const ramRead = computed(
+  () =>
+    !!(
+      CpuAccessor.getLastDecodedGates(useCpuStore().cpu, stage.value) & Gate.RW
+    ),
+);
 </script>

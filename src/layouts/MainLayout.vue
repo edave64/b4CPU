@@ -36,9 +36,10 @@
 </template>
 
 <script setup lang="ts">
-import { Cpu } from '../engine/cpu';
+import { useDecoderStore } from '../stores/decoder';
+import { readDecoder, writeDecoder } from '../engine/readDecoder';
 import { useCpuStore } from '../stores/cpu';
-import { markRaw, ref } from 'vue';
+import { ref } from 'vue';
 
 const leftDrawerOpen = ref(false);
 
@@ -47,11 +48,19 @@ function toggleLeftDrawer() {
 }
 
 function save() {
-  const state = useCpuStore().cpu!.saveState();
+  const state = useCpuStore().cpu;
 
   const a = document.createElement('a');
   const url = URL.createObjectURL(
-    new Blob([JSON.stringify(state)], { type: 'application/json' }),
+    new Blob(
+      [
+        JSON.stringify({
+          cpu: state,
+          decoder: writeDecoder(useDecoderStore().state),
+        }),
+      ],
+      { type: 'application/json' },
+    ),
   );
   const date = new Date();
   a.setAttribute(
@@ -75,8 +84,9 @@ function load() {
     const reader = new FileReader();
     reader.onload = () => {
       const json = JSON.parse(reader.result as string);
-      const cpu = Cpu.loadState(json);
-      useCpuStore().cpu = markRaw(cpu);
+      const cpu = new Uint8Array(json.cpu);
+      useDecoderStore().state = readDecoder(json.decoder);
+      useCpuStore().cpu = cpu;
     };
     reader.readAsText(file);
   };

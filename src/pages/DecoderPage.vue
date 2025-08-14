@@ -77,12 +77,12 @@ import { AllGates } from '../interfaces/decoder';
 import type { IDecoderState } from '../interfaces/decoder';
 import { Gate } from '../engine/cpu';
 import { CpuStage } from '../engine/cpu';
-import { useCpuStore } from '../stores/cpu';
 import { computed, markRaw } from 'vue';
+import { useDecoderStore } from '../stores/decoder';
 
 const gateNames = Object.keys(Gate);
 
-const decoderState = computed(() => useCpuStore().cpu.decoderState);
+const decoderState = computed(() => useDecoderStore().state);
 const gates = AllGates;
 const stages = {
   Fetch: CpuStage.Fetch,
@@ -95,9 +95,7 @@ const stages = {
 function setInstructionName(op: number, name: string) {
   const newDecoderState = copyDecoderState();
   newDecoderState.instructions[op]!.name = name;
-  useCpuStore().cpu = markRaw(
-    useCpuStore().cpu.withNewDecoder(newDecoderState),
-  );
+  useDecoderStore().state = markRaw(newDecoderState);
 }
 
 function setInstructionGate(op: number, gate: Gate, value: boolean) {
@@ -107,9 +105,7 @@ function setInstructionGate(op: number, gate: Gate, value: boolean) {
   } else {
     newDecoderState.instructions[op]!.gates &= ~gate;
   }
-  useCpuStore().cpu = markRaw(
-    useCpuStore().cpu.withNewDecoder(newDecoderState),
-  );
+  useDecoderStore().state = markRaw(newDecoderState);
 }
 
 function setTimingMask(stage: CpuStage, gate: Gate, value: boolean) {
@@ -119,9 +115,7 @@ function setTimingMask(stage: CpuStage, gate: Gate, value: boolean) {
   } else {
     newDecoderState.timingMasks[stage] &= ~gate;
   }
-  useCpuStore().cpu = markRaw(
-    useCpuStore().cpu.withNewDecoder(newDecoderState),
-  );
+  useDecoderStore().state = markRaw(newDecoderState);
 }
 
 function copyDecoderState(): IDecoderState {

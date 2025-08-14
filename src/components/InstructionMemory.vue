@@ -3,10 +3,7 @@
     <rect class="component-bg" width="536" height="720" x="0" y="0" />
     <text class="component-label" x="30" y="40">ROM</text>
 
-    <counter-arrow
-      :x="8"
-      :y="56 + 40 * (cpu.pc.value % 4) + 168 * Math.floor(cpu.pc.value / 4)"
-    />
+    <counter-arrow :x="8" :y="56 + 40 * (pc % 4) + 168 * Math.floor(pc / 4)" />
     <ToggleBtn
       :x="370"
       :y="8"
@@ -25,7 +22,12 @@
         >
           <select
             style="height: 100%; width: 100%"
-            v-model="ops[i + cluster * 4]"
+            :value="ops[i + cluster * 4]!.value"
+            @input="
+              ops[i + cluster * 4]!.value = +(
+                $event.target as HTMLSelectElement
+              ).value
+            "
           >
             <option v-for="(op, i) in instructions" :key="op.name" :value="i">
               {{ op.name }}
@@ -36,7 +38,8 @@
           :x="32"
           :y="48 + 40 * i + 168 * cluster"
           ref="ref_inst"
-          v-model="ops[i + cluster * 4]!"
+          :model-value="ops[i + cluster * 4]!.value"
+          @update:model-value="ops[i + cluster * 4]!.value = $event"
           @keydown.right.stop="ref_addr[i + cluster * 4]!.doFocus(3)"
           @keydown.left.stop="ref_data[(i + cluster * 4 + 15) % 16]!.doFocus()"
           @up="ref_inst[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
@@ -47,7 +50,8 @@
           :x="200"
           :y="48 + 40 * i + 168 * cluster"
           ref="ref_addr"
-          v-model="addr[i + cluster * 4]!"
+          :model-value="addr[i + cluster * 4]!.value"
+          @update:model-value="addr[i + cluster * 4]!.value = $event"
           @keydown.right.stop="ref_data[i + cluster * 4]!.doFocus(3)"
           @keydown.left.stop="ref_inst[i + cluster * 4]!.doFocus()"
           @up="ref_addr[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
@@ -57,7 +61,8 @@
           :x="368"
           :y="48 + 40 * i + 168 * cluster"
           ref="ref_data"
-          v-model="data[i + cluster * 4]!"
+          :model-value="data[i + cluster * 4]!.value"
+          @update:model-value="data[i + cluster * 4]!.value = $event"
           @keydown.right.stop="ref_inst[(i + cluster * 4 + 1) % 16]!.doFocus(3)"
           @keydown.left.stop="ref_addr[i + cluster * 4]!.doFocus()"
           @up="ref_data[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
@@ -71,32 +76,61 @@
 <script lang="ts" setup>
 import Word from './WordBits.vue';
 import CounterArrow from './CounterArrow.vue';
-import { Cpu } from '../engine/cpu';
 import type { Ref } from 'vue';
 import { computed, ref } from 'vue';
 import ToggleBtn from './ToggleBtn.vue';
-
-const props = defineProps({
-  cpu: {
-    type: Cpu,
-    required: true,
-  },
-});
+import { useCpuStore } from '../stores/cpu';
+import { CpuAccessor } from '../engine/cpu';
+import { useDecoderStore } from '../stores/decoder';
 
 const ref_inst: Ref<(typeof Word)[]> = ref([]);
 const ref_addr: Ref<(typeof Word)[]> = ref([]);
 const ref_data: Ref<(typeof Word)[]> = ref([]);
 
-const ops = computed(() => props.cpu.instructionsOp);
-
-const addr = computed(() => props.cpu.instructionsAddr);
-
-const data = computed(() => props.cpu.instructionsData);
+const cpu = computed(() => useCpuStore().cpu);
+const pc = computed(() => CpuAccessor.getPc(useCpuStore().cpu));
 
 const showCode = ref(false);
 
+const ops: Ref<number>[] = [];
+const addr: Ref<number>[] = [];
+const data: Ref<number>[] = [];
+
+for (let i = 0; i < 16; i++) {
+  ops.push(
+    computed({
+      get: () => CpuAccessor.getInstructionsOp(cpu.value, i),
+      set: (v) => {
+        useCpuStore().update((cpu) => {
+          CpuAccessor.setInstructionsOp(cpu, i, v);
+        });
+      },
+    }),
+  );
+  addr.push(
+    computed({
+      get: () => CpuAccessor.getInstructionsAddr(cpu.value, i),
+      set: (v) => {
+        useCpuStore().update((cpu) => {
+          CpuAccessor.setInstructionsAddr(cpu, i, v);
+        });
+      },
+    }),
+  );
+  data.push(
+    computed({
+      get: () => CpuAccessor.getInstructionsData(cpu.value, i),
+      set: (v) => {
+        useCpuStore().update((cpu) => {
+          CpuAccessor.setInstructionsData(cpu, i, v);
+        });
+      },
+    }),
+  );
+}
+
 const instructions = computed(() => {
-  return props.cpu.decoderState.instructions;
+  return useDecoderStore().state.instructions;
 });
 </script>
 

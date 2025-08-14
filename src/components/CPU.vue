@@ -13,7 +13,7 @@
         id="main_data_bus"
         :x="0"
         :y="1016"
-        :value="cpu.data.value"
+        :value="dataBus"
         dir="horizontal"
         :length="1920"
       />
@@ -22,7 +22,7 @@
         id="main_address_bus"
         :x="0"
         :y="912"
-        :value="cpu.address.value"
+        :value="addressBus"
         dir="horizontal"
         :length="1920"
       />
@@ -30,17 +30,16 @@
         id="program_out_address"
         :x="264"
         :y="856"
-        :value="cpu.address.value"
+        :value="addressBus"
         dir="vertical"
         :length="112"
         taperedEnd
       />
-
       <bus
         id="program_out_data"
         :x="432"
         :y="856"
-        :value="cpu.data.value"
+        :value="dataBus"
         dir="vertical"
         :length="216"
         taperedEnd
@@ -50,7 +49,7 @@
         id="pc_in_address"
         :x="808"
         :y="768"
-        :value="cpu.address.value"
+        :value="addressBus"
         dir="vertical"
         :length="200"
         taperedEnd
@@ -60,7 +59,7 @@
         id="incrementor_bus"
         :x="576"
         :y="776"
-        :value="cpu.pc.value + 1"
+        :value="pc + 1"
         dir="horizontal"
         :length="192"
         taperedStart
@@ -70,7 +69,7 @@
         id="incrementor_out"
         :x="576"
         :y="768"
-        :value="cpu.pc.value + 1"
+        :value="pc + 1"
         dir="vertical"
         :length="64"
         taperedEnd
@@ -79,7 +78,7 @@
         id="pc_incrementor_in"
         :x="712"
         :y="768"
-        :value="cpu.pc.value + 1"
+        :value="pc + 1"
         dir="vertical"
         :length="64"
         taperedEnd
@@ -88,7 +87,7 @@
         id="pc_bus"
         :x="552"
         :y="640"
-        :value="cpu.pc.value"
+        :value="pc"
         dir="horizontal"
         :length="152"
       />
@@ -97,7 +96,7 @@
         id="incrementor_in"
         :x="576"
         :y="640"
-        :value="cpu.pc.value"
+        :value="pc"
         dir="vertical"
         :length="80"
         taperedStart
@@ -107,7 +106,7 @@
         id="alu_out"
         :x="1144"
         :y="592"
-        :value="cpu.data.value"
+        :value="dataBus"
         dir="vertical"
         :length="480"
         taperedEnd
@@ -117,7 +116,7 @@
         id="databus_registers_ext"
         :x="1568"
         :y="200"
-        :value="cpu.data.value"
+        :value="dataBus"
         dir="vertical"
         :length="872"
         taperedStart
@@ -127,7 +126,7 @@
         id="databus_registers"
         :x="1040"
         :y="200"
-        :value="cpu.data.value"
+        :value="dataBus"
         dir="horizontal"
         :length="582"
         taperedStart
@@ -137,7 +136,7 @@
         id="register_A_in"
         :x="1040"
         :y="200"
-        :value="cpu.data.value"
+        :value="dataBus"
         dir="vertical"
         :length="64"
         taperedStart
@@ -146,7 +145,7 @@
         id="register_B_in"
         :x="1248"
         :y="200"
-        :value="cpu.data.value"
+        :value="dataBus"
         dir="vertical"
         :length="64"
         taperedStart
@@ -154,64 +153,52 @@
       <lane
         dir="horizontal"
         :length="16"
-        :value="cpu.flagZ.value"
+        :value="CpuAccessor.getFlagZ(cpu)"
         :x="968"
         :y="448"
       />
       <lane
         dir="horizontal"
         :length="16"
-        :value="cpu.flagO.value"
+        :value="CpuAccessor.getFlagO(cpu)"
         :x="968"
         :y="464"
       />
-      <lane
-        :length="264"
-        :x="936"
-        :y="488"
-        dir="vertical"
-        :value="cpu.pcJump"
-      />
-      <lane
-        :length="72"
-        :x="872"
-        :y="744"
-        dir="horizontal"
-        :value="cpu.pcJump"
-      />
+      <lane :length="264" :x="936" :y="488" dir="vertical" :value="false" />
+      <lane :length="72" :x="872" :y="744" dir="horizontal" :value="false" />
 
       <lane
         :length="328"
         :x="920"
         :y="104"
         dir="vertical"
-        :value="cpu.jmpNot"
+        :value="!!(gates & Gate.JN)"
       />
       <lane
         :length="328"
         :x="936"
         :y="104"
         dir="vertical"
-        :value="cpu.jmpZero"
+        :value="!!(gates & Gate.JZ)"
       />
       <lane
         :length="328"
         :x="952"
         :y="104"
         dir="vertical"
-        :value="cpu.jmpOverflow"
+        :value="!!(gates & Gate.JO)"
       />
 
       <lane
         dir="horizontal"
-        :value="cpu.regAWrite"
+        :value="!!(gates & Gate.AW)"
         :length="16"
         :x="1152"
         :y="272"
       />
       <lane
         dir="vertical"
-        :value="cpu.regAWrite"
+        :value="!!(gates & Gate.AW)"
         :length="176"
         :x="1160"
         :y="104"
@@ -219,14 +206,14 @@
 
       <lane
         dir="horizontal"
-        :value="cpu.regARead"
+        :value="!!(gates & Gate.AR)"
         :length="32"
         :x="1152"
         :y="288"
       />
       <lane
         dir="vertical"
-        :value="cpu.regARead"
+        :value="!!(gates & Gate.AR)"
         :length="192"
         :x="1176"
         :y="104"
@@ -234,14 +221,14 @@
 
       <lane
         dir="horizontal"
-        :value="cpu.regBWrite"
+        :value="!!(gates & Gate.BW)"
         :length="16"
         :x="1360"
         :y="272"
       />
       <lane
         dir="vertical"
-        :value="cpu.regBWrite"
+        :value="!!(gates & Gate.BW)"
         :length="176"
         :x="1368"
         :y="104"
@@ -249,14 +236,14 @@
 
       <lane
         dir="horizontal"
-        :value="cpu.regBRead"
+        :value="!!(gates & Gate.BR)"
         :length="32"
         :x="1360"
         :y="288"
       />
       <lane
         dir="vertical"
-        :value="cpu.regBRead"
+        :value="!!(gates & Gate.BR)"
         :length="192"
         :x="1384"
         :y="104"
@@ -264,14 +251,14 @@
 
       <lane
         dir="horizontal"
-        :value="cpu.ramWrite"
+        :value="!!(gates & Gate.RW)"
         :length="32"
         :x="1672"
         :y="856"
       />
       <lane
         dir="vertical"
-        :value="cpu.ramWrite"
+        :value="!!(gates & Gate.RW)"
         :length="760"
         :x="1672"
         :y="104"
@@ -279,14 +266,14 @@
 
       <lane
         dir="horizontal"
-        :value="cpu.ramRead"
+        :value="!!(gates & Gate.RR)"
         :length="48"
         :x="1656"
         :y="872"
       />
       <lane
         dir="vertical"
-        :value="cpu.ramRead"
+        :value="!!(gates & Gate.RR)"
         :length="776"
         :x="1656"
         :y="104"
@@ -295,35 +282,35 @@
       <bus
         dir="vertical"
         :length="32"
-        :value="cpu.instructionsOp[cpu.pc.value]!"
+        :value="CpuAccessor.getInstructionsOp(cpu, pc)"
         :x="96"
         :y="104"
       />
 
       <lane
         dir="horizontal"
-        :value="!!(cpu.aluOp & 0b01)"
+        :value="!!(aluOp & 0b01)"
         :length="56"
         :x="1360"
         :y="416"
       />
       <lane
         dir="vertical"
-        :value="!!(cpu.aluOp & 0b01)"
+        :value="!!(aluOp & 0b01)"
         :length="320"
         :x="1408"
         :y="104"
       />
       <lane
         dir="horizontal"
-        :value="!!(cpu.aluOp & 0b10)"
+        :value="!!(aluOp & 0b10)"
         :length="72"
         :x="1360"
         :y="432"
       />
       <lane
         dir="vertical"
-        :value="!!(cpu.aluOp & 0b10)"
+        :value="!!(aluOp & 0b10)"
         :length="336"
         :x="1424"
         :y="104"
@@ -333,7 +320,7 @@
         id="ram_in_address"
         :x="1840"
         :y="856"
-        :value="cpu.address.value"
+        :value="addressBus"
         dir="vertical"
         :length="112"
         taperedEnd
@@ -343,36 +330,24 @@
         id="databus_ram"
         :x="1744"
         :y="896"
-        :value="cpu.data.value"
+        :value="dataBus"
         dir="vertical"
         :length="176"
         taperedEnd
       />
 
-      <control-unit
-        ref="controlComp"
-        :cpu="cpu"
-        @keydown="navKey(controlComp, $event)"
-      />
-      <instruction-memory
-        ref="romComp"
-        :cpu="cpu"
-        @keydown="navKey(romComp, $event)"
-      />
-      <data-memory
-        ref="dataComp"
-        :cpu="cpu"
-        @keydown="navKey(dataComp, $event)"
-      />
+      <control-unit ref="controlComp" @keydown="navKey(controlComp, $event)" />
+      <instruction-memory ref="romComp" @keydown="navKey(romComp, $event)" />
+      <data-memory ref="dataComp" @keydown="navKey(dataComp, $event)" />
 
       <register
         name="A"
         :x="984"
         :y="264"
         ref="regAComp"
-        v-model="cpu.regA.value"
-        :command-read="cpu.regARead"
-        :command-write="cpu.regAWrite"
+        v-model="regA"
+        :command-read="!!(gates & Gate.AR)"
+        :command-write="!!(gates & Gate.AW)"
         @keydown="navKey(regAComp, $event)"
       />
       <register
@@ -380,17 +355,17 @@
         :x="1192"
         :y="264"
         ref="regBComp"
-        v-model="cpu.regB.value"
-        :command-read="cpu.regBRead"
-        :command-write="cpu.regBWrite"
+        v-model="regB"
+        :command-read="!!(gates & Gate.BR)"
+        :command-write="!!(gates & Gate.BW)"
         @keydown="navKey(regBComp, $event)"
       />
 
       <alu
         ref="aluComp"
-        :select="cpu.aluOp"
-        v-model:flag-z="cpu.flagZ.value"
-        v-model:flag-o="cpu.flagO.value"
+        :select="aluOp"
+        v-model:flag-o="flagO"
+        v-model:flag-z="flagZ"
         @keydown="navKey(aluComp, $event)"
       />
       <bus
@@ -399,7 +374,7 @@
         :length="40"
         :x="1040"
         :y="360"
-        :value="cpu.regA.value"
+        :value="regA"
       />
       <bus
         id="alu_in_B"
@@ -407,14 +382,14 @@
         :length="40"
         :x="1248"
         :y="360"
-        :value="cpu.regB.value"
+        :value="regB"
       />
 
       <jump-manager />
       <program-counter
         ref="pcComp"
-        v-model="cpu.pc.value"
-        :jump="cpu.pcJump"
+        v-model="pc"
+        :jump="false"
         @keydown="navKey(pcComp, $event)"
       />
       <incrementor />
@@ -423,10 +398,10 @@
 </template>
 
 <script lang="ts" setup>
-import { Cpu } from '../engine/cpu';
+import { CpuAccessor, getAluOp } from '../engine/cpu';
 import type { IExcerciseState } from '../interfaces/excercises';
 import type { PropType } from 'vue';
-import { computed, markRaw, ref } from 'vue';
+import { computed, ref } from 'vue';
 import alu from './ALU.vue';
 import bus from './BusLanes.vue';
 import ControlUnit from './ControlUnit.vue';
@@ -438,7 +413,7 @@ import lane from './BusLane.vue';
 import ProgramCounter from './ProgramCounter.vue';
 import Register from './DataRegister.vue';
 import { useCpuStore } from '../stores/cpu';
-import { useDecoderStore } from '../stores/decoder';
+import { Gate } from '../engine/cpu';
 
 defineProps({
   excerciseState: {
@@ -475,9 +450,76 @@ function navKey(sender: unknown, e: KeyboardEvent) {
   }
 }
 
-useCpuStore().cpu ??= markRaw(new Cpu(useDecoderStore().state));
-
 const cpu = computed(() => useCpuStore().cpu);
+const gates = computed(() => {
+  const cpu = useCpuStore().cpu;
+  const stage = CpuAccessor.getStage(cpu);
+  return CpuAccessor.getLastDecodedGates(cpu, stage);
+});
+const addressBus = computed(() => {
+  const cpu = useCpuStore().cpu;
+  return CpuAccessor.getInstructionsAddr(cpu, CpuAccessor.getPc(cpu));
+});
+const dataBus = computed(() => {
+  const cpu = useCpuStore().cpu;
+  return CpuAccessor.getDataBus(cpu);
+});
+
+const aluOp = computed(() => {
+  return getAluOp(gates.value);
+});
+
+const regA = computed({
+  get() {
+    return CpuAccessor.getRegA(cpu.value);
+  },
+  set(value) {
+    useCpuStore().update((cpu) => {
+      CpuAccessor.setRegA(cpu, value);
+    });
+  },
+});
+const regB = computed({
+  get() {
+    return CpuAccessor.getRegB(cpu.value);
+  },
+  set(value) {
+    useCpuStore().update((cpu) => {
+      CpuAccessor.setRegB(cpu, value);
+    });
+  },
+});
+const pc = computed({
+  get() {
+    return CpuAccessor.getPc(cpu.value);
+  },
+  set(value) {
+    useCpuStore().update((cpu) => {
+      CpuAccessor.setPc(cpu, value);
+    });
+  },
+});
+
+const flagO = computed({
+  get() {
+    return CpuAccessor.getFlagO(cpu.value);
+  },
+  set(value) {
+    useCpuStore().update((cpu) => {
+      CpuAccessor.setFlagO(cpu, value);
+    });
+  },
+});
+const flagZ = computed({
+  get() {
+    return CpuAccessor.getFlagZ(cpu.value);
+  },
+  set(value) {
+    useCpuStore().update((cpu) => {
+      CpuAccessor.setFlagZ(cpu, value);
+    });
+  },
+});
 </script>
 
 <style lang="scss" scoped>
