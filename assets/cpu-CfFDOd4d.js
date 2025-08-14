@@ -1,1 +1,0 @@
-import{a5 as o}from"./index-CC1YTvc1.js";import{m as s}from"./decoder-hAEFPFU1.js";const p=o("cpu",{state:()=>({cpu:s()}),actions:{update(e){const t=structuredClone(this.cpu);e(t),this.cpu=t}}});export{p as u};
