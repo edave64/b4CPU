@@ -35,7 +35,7 @@ export const AluOp = {
 } as const;
 export type AluOp = (typeof AluOp)[keyof typeof AluOp];
 
-export type CpuState = Uint8Array;
+export type CpuState = Uint8Array<ArrayBuffer>;
 
 const NextStage = {
   [CpuStage.Fetch]: CpuStage.Decode,
@@ -50,83 +50,83 @@ export function makeCpuState(): CpuState {
 }
 
 export const CpuAccessor = {
-  validateState(state: CpuState): void {
-    if (state.length !== 2) {
-      throw new Error('State must be of length 2');
+  validateState(state: Readonly<CpuState>): void {
+    if (state.length !== 84) {
+      throw new Error('State must be of length 84');
     }
   },
 
-  getRegA(state: CpuState): number {
+  getRegA(state: Readonly<CpuState>): number {
     return state[0]! & 0b1111;
   },
   setRegA(state: CpuState, value: number): void {
     state[0] = value & 0b1111;
   },
 
-  getRegB(state: CpuState): number {
+  getRegB(state: Readonly<CpuState>): number {
     return state[1]! & 0b1111;
   },
   setRegB(state: CpuState, value: number): void {
     state[1] = value & 0b1111;
   },
 
-  getPc(state: CpuState): number {
+  getPc(state: Readonly<CpuState>): number {
     return state[2]! & 0b1111;
   },
   setPc(state: CpuState, value: number): void {
     state[2] = value & 0b1111;
   },
 
-  getFlagZ(state: CpuState): boolean {
+  getFlagZ(state: Readonly<CpuState>): boolean {
     return !!(state[3]! & 0b1000);
   },
   setFlagZ(state: CpuState, value: boolean): void {
     state[3] = (state[3]! & 0b0111) | (value ? 0b1000 : 0b0000);
   },
 
-  getFlagO(state: CpuState): boolean {
+  getFlagO(state: Readonly<CpuState>): boolean {
     return !!(state[3]! & 0b0100);
   },
   setFlagO(state: CpuState, value: boolean): void {
     state[3] = (state[3]! & 0b1011) | (value ? 0b0100 : 0b0000);
   },
 
-  getRam(state: CpuState, index: number): number {
+  getRam(state: Readonly<CpuState>, index: number): number {
     return state[4 + (index & 0b1111)]! & 0b1111;
   },
   setRam(state: CpuState, index: number, value: number): void {
     state[4 + (index & 0b1111)] = value & 0b1111;
   },
 
-  getInstructionsOp(state: CpuState, index: number): number {
+  getInstructionsOp(state: Readonly<CpuState>, index: number): number {
     return state[20 + (index & 0b1111)]! & 0b1111;
   },
   setInstructionsOp(state: CpuState, index: number, value: number): void {
     state[20 + (index & 0b1111)] = value & 0b1111;
   },
 
-  getInstructionsAddr(state: CpuState, index: number): number {
+  getInstructionsAddr(state: Readonly<CpuState>, index: number): number {
     return state[36 + (index & 0b1111)]! & 0b1111;
   },
   setInstructionsAddr(state: CpuState, index: number, value: number): void {
     state[36 + (index & 0b1111)] = value & 0b1111;
   },
 
-  getInstructionsData(state: CpuState, index: number): number {
+  getInstructionsData(state: Readonly<CpuState>, index: number): number {
     return state[52 + (index & 0b1111)]! & 0b1111;
   },
   setInstructionsData(state: CpuState, index: number, value: number): void {
     state[52 + (index & 0b1111)] = value & 0b1111;
   },
 
-  getStage(state: CpuState): CpuStage {
+  getStage(state: Readonly<CpuState>): CpuStage {
     return (state[68]! & 0b1111) as CpuStage;
   },
   setStage(state: CpuState, value: CpuStage): void {
     state[68] = value & 0b1111;
   },
 
-  getLastDecodedGates(state: CpuState, stage: CpuStage): number {
+  getLastDecodedGates(state: Readonly<CpuState>, stage: CpuStage): number {
     const index = 69 + stage * 2;
     return (state[index]! << 8) | state[index + 1]!;
   },
@@ -136,42 +136,42 @@ export const CpuAccessor = {
     state[index + 1] = value & 0xff;
   },
 
-  getLatchedRegA(state: CpuState): number {
+  getLatchedRegA(state: Readonly<CpuState>): number {
     return state[79]! & 0b1111;
   },
   setLatchedRegA(state: CpuState, value: number): void {
     state[79] = value & 0b1111;
   },
 
-  getLatchedRegB(state: CpuState): number {
+  getLatchedRegB(state: Readonly<CpuState>): number {
     return state[80]! & 0b1111;
   },
   setLatchedRegB(state: CpuState, value: number): void {
     state[80] = value & 0b1111;
   },
 
-  getLatchedRamOut(state: CpuState): number {
+  getLatchedRamOut(state: Readonly<CpuState>): number {
     return state[81]! & 0b1111;
   },
   setLatchedRamOut(state: CpuState, value: number): void {
     state[81] = value & 0b1111;
   },
 
-  getLatchedAluInA(state: CpuState): number {
+  getLatchedAluInA(state: Readonly<CpuState>): number {
     return state[82]! & 0b1111;
   },
   setLatchedAluInA(state: CpuState, value: number): void {
     state[82] = value & 0b1111;
   },
 
-  getLatchedAluInB(state: CpuState): number {
+  getLatchedAluInB(state: Readonly<CpuState>): number {
     return state[83]! & 0b1111;
   },
   setLatchedAluInB(state: CpuState, value: number): void {
     state[83] = value & 0b1111;
   },
 
-  execAluOp(state: CpuState): number {
+  execAluOp(state: Readonly<CpuState>): number {
     const stage = CpuAccessor.getStage(state);
     const gates = CpuAccessor.getLastDecodedGates(state, stage);
     const aluOp = getAluOp(gates);
@@ -189,7 +189,7 @@ export const CpuAccessor = {
     }
   },
 
-  getDataBus(state: CpuState): number {
+  getDataBus(state: Readonly<CpuState>): number {
     const stage = CpuAccessor.getStage(state);
     const gates = CpuAccessor.getLastDecodedGates(state, stage);
     const pc = CpuAccessor.getPc(state);
@@ -209,7 +209,7 @@ export const CpuAccessor = {
     return value;
   },
 
-  getDebug(state: CpuState) {
+  getDebug(state: Readonly<CpuState>) {
     return {
       regA: CpuAccessor.getRegA(state),
       regB: CpuAccessor.getRegB(state),

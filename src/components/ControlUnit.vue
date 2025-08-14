@@ -59,19 +59,12 @@
 
 <script lang="ts" setup>
 import StepIndicator from './StepIndicator.vue';
-import {
-  CpuStage,
-  cpuStep,
-  runInstruction,
-  CpuAccessor,
-  type CpuState,
-} from '../engine/cpu';
+import { CpuStage, cpuStep, runInstruction, CpuAccessor } from '../engine/cpu';
 import { useCpuStore } from '../stores/cpu';
 import { useDecoderStore } from '../stores/decoder';
+import { computed } from 'vue';
 
-defineProps<{
-  cpu: CpuState;
-}>();
+const cpu = computed(() => useCpuStore().cpu);
 
 function step() {
   useCpuStore().cpu = cpuStep(useDecoderStore().state, useCpuStore().cpu);

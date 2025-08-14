@@ -1,12 +1,7 @@
 <template>
   <g :style="`transform: translate(${x}px, ${y}px)`">
     <rect class="component-bg" width="168" height="96" x="0" y="0" />
-    <word
-      :x="8"
-      :y="56"
-      :model-value="modelValue"
-      @update:model-value="$emit('update:modelValue', $event)"
-    />
+    <word :x="8" :y="56" v-model="modelValue" />
     <text class="component-label" x="8" y="40">{{ name }}</text>
     <text
       class="component-port-label"
@@ -43,10 +38,6 @@ defineProps({
     type: String,
     required: true,
   },
-  modelValue: {
-    type: Number,
-    required: true,
-  },
   commandRead: {
     type: Boolean,
     required: true,
@@ -57,5 +48,5 @@ defineProps({
   },
 });
 
-defineEmits(['update:modelValue']);
+const modelValue = defineModel<number>();
 </script>

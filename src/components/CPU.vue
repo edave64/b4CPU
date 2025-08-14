@@ -35,7 +35,6 @@
         :length="112"
         taperedEnd
       />
-
       <bus
         id="program_out_data"
         :x="432"
@@ -337,21 +336,9 @@
         taperedEnd
       />
 
-      <control-unit
-        ref="controlComp"
-        :cpu="cpu"
-        @keydown="navKey(controlComp, $event)"
-      />
-      <instruction-memory
-        ref="romComp"
-        :cpu="cpu"
-        @keydown="navKey(romComp, $event)"
-      />
-      <data-memory
-        ref="dataComp"
-        :cpu="cpu"
-        @keydown="navKey(dataComp, $event)"
-      />
+      <control-unit ref="controlComp" @keydown="navKey(controlComp, $event)" />
+      <instruction-memory ref="romComp" @keydown="navKey(romComp, $event)" />
+      <data-memory ref="dataComp" @keydown="navKey(dataComp, $event)" />
 
       <register
         name="A"
@@ -359,7 +346,6 @@
         :y="264"
         ref="regAComp"
         v-model="regA"
-        0
         :command-read="!!(gates & Gate.AR)"
         :command-write="!!(gates & Gate.AW)"
         @keydown="navKey(regAComp, $event)"
@@ -378,10 +364,8 @@
       <alu
         ref="aluComp"
         :select="aluOp"
-        :flag-o="CpuAccessor.getFlagO(cpu)"
-        :flag-z="CpuAccessor.getFlagZ(cpu)"
-        @update:flag-o="CpuAccessor.setFlagO(cpu, $event)"
-        @update:flag-z="CpuAccessor.setFlagZ(cpu, $event)"
+        v-model:flag-o="flagO"
+        v-model:flag-z="flagZ"
         @keydown="navKey(aluComp, $event)"
       />
       <bus
@@ -404,8 +388,7 @@
       <jump-manager />
       <program-counter
         ref="pcComp"
-        :model-value="CpuAccessor.getPc(cpu)"
-        @update:model-value="CpuAccessor.setPc(cpu, $event)"
+        v-model="pc"
         :jump="false"
         @keydown="navKey(pcComp, $event)"
       />
@@ -491,7 +474,9 @@ const regA = computed({
     return CpuAccessor.getRegA(cpu.value);
   },
   set(value) {
-    CpuAccessor.setRegA(cpu.value, value);
+    useCpuStore().update((cpu) => {
+      CpuAccessor.setRegA(cpu, value);
+    });
   },
 });
 const regB = computed({
@@ -499,7 +484,9 @@ const regB = computed({
     return CpuAccessor.getRegB(cpu.value);
   },
   set(value) {
-    CpuAccessor.setRegB(cpu.value, value);
+    useCpuStore().update((cpu) => {
+      CpuAccessor.setRegB(cpu, value);
+    });
   },
 });
 const pc = computed({
@@ -507,7 +494,30 @@ const pc = computed({
     return CpuAccessor.getPc(cpu.value);
   },
   set(value) {
-    CpuAccessor.setPc(cpu.value, value);
+    useCpuStore().update((cpu) => {
+      CpuAccessor.setPc(cpu, value);
+    });
+  },
+});
+
+const flagO = computed({
+  get() {
+    return CpuAccessor.getFlagO(cpu.value);
+  },
+  set(value) {
+    useCpuStore().update((cpu) => {
+      CpuAccessor.setFlagO(cpu, value);
+    });
+  },
+});
+const flagZ = computed({
+  get() {
+    return CpuAccessor.getFlagZ(cpu.value);
+  },
+  set(value) {
+    useCpuStore().update((cpu) => {
+      CpuAccessor.setFlagZ(cpu, value);
+    });
   },
 });
 </script>
