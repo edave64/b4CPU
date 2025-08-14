@@ -58,7 +58,7 @@ function save() {
     new Blob(
       [
         JSON.stringify({
-          cpu: state,
+          cpu: Array.from(state),
           decoder: writeDecoder(useDecoderStore().state),
         }),
       ],
@@ -88,6 +88,7 @@ function load() {
     reader.onload = () => {
       const json = JSON.parse(reader.result as string);
       const cpu = new Uint8Array(json.cpu);
+      console.info(cpu);
       useDecoderStore().state = readDecoder(json.decoder);
       useCpuStore().cpu = cpu;
     };
