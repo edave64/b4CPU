@@ -26,6 +26,9 @@
         <q-item clickable v-ripple to="/decoder"> Configure decoder </q-item>
         <!-- <q-item clickable v-ripple to="/excercises"> Excercises </q-item> -->
         <q-item clickable v-ripple to="/about"> About </q-item>
+        <q-item clickable v-ripple href="https://github.com/edave64/b4CPU">
+          Source code
+        </q-item>
       </q-list>
     </q-drawer>
 
