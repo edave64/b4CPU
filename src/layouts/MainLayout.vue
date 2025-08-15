@@ -21,6 +21,7 @@
       <q-list>
         <q-item-label header class="text-grey-8"> Menu </q-item-label>
         <q-item clickable v-ripple to="/"> CPU view </q-item>
+        <q-item clickable v-ripple to="/turorial"> Tutorial </q-item>
         <q-item clickable v-ripple @click="save"> Save </q-item>
         <q-item clickable v-ripple @click="load"> Load </q-item>
         <q-item clickable v-ripple to="/decoder"> Configure decoder </q-item>

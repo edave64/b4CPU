@@ -76,15 +76,22 @@
 <script lang="ts" setup>
 import Word from './WordBits.vue';
 import CounterArrow from './CounterArrow.vue';
-import type { Ref } from 'vue';
+import type { PropType, Ref } from 'vue';
 import { computed, ref } from 'vue';
 import ToggleBtn from './ToggleBtn.vue';
 import { CpuAccessor, updateCpu, type CpuState } from '../engine/cpu';
-import { useDecoderStore } from '../stores/decoder';
+import type { IDecoderState } from '../interfaces/decoder';
 
 const ref_inst: Ref<(typeof Word)[]> = ref([]);
 const ref_addr: Ref<(typeof Word)[]> = ref([]);
 const ref_data: Ref<(typeof Word)[]> = ref([]);
+
+const props = defineProps({
+  decoderState: {
+    type: Object as PropType<IDecoderState>,
+    required: true,
+  },
+});
 
 const cpu = defineModel<CpuState>('cpu', {
   required: true,
@@ -132,7 +139,7 @@ for (let i = 0; i < 16; i++) {
 }
 
 const instructions = computed(() => {
-  return useDecoderStore().state.instructions;
+  return props.decoderState.instructions;
 });
 </script>
 

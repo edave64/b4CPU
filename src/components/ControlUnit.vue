@@ -66,17 +66,25 @@ import {
   CpuAccessor,
   type CpuState,
 } from '../engine/cpu';
-import { useDecoderStore } from '../stores/decoder';
+import type { PropType } from 'vue';
+import type { IDecoderState } from '../interfaces/decoder';
+
+const props = defineProps({
+  decoderState: {
+    type: Object as PropType<IDecoderState>,
+    required: true,
+  },
+});
 
 const cpu = defineModel<CpuState>('cpu', {
   required: true,
 });
 
 function step() {
-  cpu.value = cpuStep(useDecoderStore().state, cpu.value);
+  cpu.value = cpuStep(props.decoderState, cpu.value);
 }
 function cycle() {
-  cpu.value = runInstruction(useDecoderStore().state, cpu.value);
+  cpu.value = runInstruction(props.decoderState, cpu.value);
 }
 
 defineExpose({

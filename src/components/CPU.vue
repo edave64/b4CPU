@@ -426,10 +426,15 @@ import lane from './BusLane.vue';
 import ProgramCounter from './ProgramCounter.vue';
 import Register from './DataRegister.vue';
 import { Gate } from '../engine/cpu';
+import type { IDecoderState } from '../interfaces/decoder';
 
 defineProps({
   excerciseState: {
     type: Object as PropType<IExcerciseState>,
+  },
+
+  decoderState: {
+    type: Object as PropType<IDecoderState>,
     required: true,
   },
 });
