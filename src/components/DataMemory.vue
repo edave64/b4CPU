@@ -32,8 +32,7 @@ import type { Ref } from 'vue';
 import { computed, ref } from 'vue';
 import CounterArrow from './CounterArrow.vue';
 import DirectionArrow from './DirectionArrow.vue';
-import { useCpuStore } from '../stores/cpu';
-import { CpuAccessor, Gate } from '../engine/cpu';
+import { CpuAccessor, type CpuState, Gate, updateCpu } from '../engine/cpu';
 
 const dataComp = ref([] as (typeof WordBits | null)[]);
 
@@ -43,14 +42,18 @@ defineExpose({
   },
 });
 
+const cpu = defineModel<CpuState>('cpu', {
+  required: true,
+});
+
 const ram: Ref<number>[] = [];
 
 for (let i = 0; i < 16; i++) {
   ram.push(
     computed({
-      get: () => CpuAccessor.getRam(useCpuStore().cpu, i),
+      get: () => CpuAccessor.getRam(cpu.value, i),
       set: (v) => {
-        useCpuStore().update((cpu) => {
+        cpu.value = updateCpu(cpu.value, (cpu) => {
           CpuAccessor.setRam(cpu, i, v);
         });
       },
@@ -58,23 +61,17 @@ for (let i = 0; i < 16; i++) {
   );
 }
 
-const stage = computed(() => CpuAccessor.getStage(useCpuStore().cpu));
+const stage = computed(() => CpuAccessor.getStage(cpu.value));
 
 const addr = computed(() => {
-  const pc = CpuAccessor.getPc(useCpuStore().cpu);
-  return CpuAccessor.getInstructionsAddr(useCpuStore().cpu, pc);
+  const pc = CpuAccessor.getPc(cpu.value);
+  return CpuAccessor.getInstructionsAddr(cpu.value, pc);
 });
 
 const ramWrite = computed(
-  () =>
-    !!(
-      CpuAccessor.getLastDecodedGates(useCpuStore().cpu, stage.value) & Gate.RW
-    ),
+  () => !!(CpuAccessor.getLastDecodedGates(cpu.value, stage.value) & Gate.RW),
 );
 const ramRead = computed(
-  () =>
-    !!(
-      CpuAccessor.getLastDecodedGates(useCpuStore().cpu, stage.value) & Gate.RW
-    ),
+  () => !!(CpuAccessor.getLastDecodedGates(cpu.value, stage.value) & Gate.RW),
 );
 </script>

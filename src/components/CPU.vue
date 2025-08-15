@@ -336,9 +336,21 @@
         taperedEnd
       />
 
-      <control-unit ref="controlComp" @keydown="navKey(controlComp, $event)" />
-      <instruction-memory ref="romComp" @keydown="navKey(romComp, $event)" />
-      <data-memory ref="dataComp" @keydown="navKey(dataComp, $event)" />
+      <control-unit
+        ref="controlComp"
+        v-model:cpu="cpu"
+        @keydown="navKey(controlComp, $event)"
+      />
+      <instruction-memory
+        ref="romComp"
+        v-model:cpu="cpu"
+        @keydown="navKey(romComp, $event)"
+      />
+      <data-memory
+        ref="dataComp"
+        v-model:cpu="cpu"
+        @keydown="navKey(dataComp, $event)"
+      />
 
       <register
         name="A"
@@ -398,7 +410,8 @@
 </template>
 
 <script lang="ts" setup>
-import { CpuAccessor, getAluOp } from '../engine/cpu';
+import type { CpuState } from '../engine/cpu';
+import { CpuAccessor, getAluOp, updateCpu } from '../engine/cpu';
 import type { IExcerciseState } from '../interfaces/excercises';
 import type { PropType } from 'vue';
 import { computed, ref } from 'vue';
@@ -412,7 +425,6 @@ import JumpManager from './JumpManager.vue';
 import lane from './BusLane.vue';
 import ProgramCounter from './ProgramCounter.vue';
 import Register from './DataRegister.vue';
-import { useCpuStore } from '../stores/cpu';
 import { Gate } from '../engine/cpu';
 
 defineProps({
@@ -420,6 +432,10 @@ defineProps({
     type: Object as PropType<IExcerciseState>,
     required: true,
   },
+});
+
+const cpu = defineModel<CpuState>('cpu', {
+  required: true,
 });
 
 const romComp = ref(null as typeof InstructionMemory | null);
@@ -450,19 +466,18 @@ function navKey(sender: unknown, e: KeyboardEvent) {
   }
 }
 
-const cpu = computed(() => useCpuStore().cpu);
 const gates = computed(() => {
-  const cpu = useCpuStore().cpu;
-  const stage = CpuAccessor.getStage(cpu);
-  return CpuAccessor.getLastDecodedGates(cpu, stage);
+  const stage = CpuAccessor.getStage(cpu.value);
+  return CpuAccessor.getLastDecodedGates(cpu.value, stage);
 });
 const addressBus = computed(() => {
-  const cpu = useCpuStore().cpu;
-  return CpuAccessor.getInstructionsAddr(cpu, CpuAccessor.getPc(cpu));
+  return CpuAccessor.getInstructionsAddr(
+    cpu.value,
+    CpuAccessor.getPc(cpu.value),
+  );
 });
 const dataBus = computed(() => {
-  const cpu = useCpuStore().cpu;
-  return CpuAccessor.getDataBus(cpu);
+  return CpuAccessor.getDataBus(cpu.value);
 });
 
 const aluOp = computed(() => {
@@ -474,7 +489,7 @@ const regA = computed({
     return CpuAccessor.getRegA(cpu.value);
   },
   set(value) {
-    useCpuStore().update((cpu) => {
+    cpu.value = updateCpu(cpu.value, (cpu) => {
       CpuAccessor.setRegA(cpu, value);
     });
   },
@@ -484,7 +499,7 @@ const regB = computed({
     return CpuAccessor.getRegB(cpu.value);
   },
   set(value) {
-    useCpuStore().update((cpu) => {
+    cpu.value = updateCpu(cpu.value, (cpu) => {
       CpuAccessor.setRegB(cpu, value);
     });
   },
@@ -494,7 +509,7 @@ const pc = computed({
     return CpuAccessor.getPc(cpu.value);
   },
   set(value) {
-    useCpuStore().update((cpu) => {
+    cpu.value = updateCpu(cpu.value, (cpu) => {
       CpuAccessor.setPc(cpu, value);
     });
   },
@@ -505,7 +520,7 @@ const flagO = computed({
     return CpuAccessor.getFlagO(cpu.value);
   },
   set(value) {
-    useCpuStore().update((cpu) => {
+    cpu.value = updateCpu(cpu.value, (cpu) => {
       CpuAccessor.setFlagO(cpu, value);
     });
   },
@@ -515,7 +530,7 @@ const flagZ = computed({
     return CpuAccessor.getFlagZ(cpu.value);
   },
   set(value) {
-    useCpuStore().update((cpu) => {
+    cpu.value = updateCpu(cpu.value, (cpu) => {
       CpuAccessor.setFlagZ(cpu, value);
     });
   },

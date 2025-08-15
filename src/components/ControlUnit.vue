@@ -59,21 +59,24 @@
 
 <script lang="ts" setup>
 import StepIndicator from './StepIndicator.vue';
-import { CpuStage, cpuStep, runInstruction, CpuAccessor } from '../engine/cpu';
-import { useCpuStore } from '../stores/cpu';
+import {
+  CpuStage,
+  cpuStep,
+  runInstruction,
+  CpuAccessor,
+  type CpuState,
+} from '../engine/cpu';
 import { useDecoderStore } from '../stores/decoder';
-import { computed } from 'vue';
 
-const cpu = computed(() => useCpuStore().cpu);
+const cpu = defineModel<CpuState>('cpu', {
+  required: true,
+});
 
 function step() {
-  useCpuStore().cpu = cpuStep(useDecoderStore().state, useCpuStore().cpu);
+  cpu.value = cpuStep(useDecoderStore().state, cpu.value);
 }
 function cycle() {
-  useCpuStore().cpu = runInstruction(
-    useDecoderStore().state,
-    useCpuStore().cpu,
-  );
+  cpu.value = runInstruction(useDecoderStore().state, cpu.value);
 }
 
 defineExpose({

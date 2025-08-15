@@ -345,6 +345,15 @@ export function runInstruction(
   return cpu;
 }
 
+export function updateCpu(
+  cpu: Readonly<CpuState>,
+  mutator: (cpu: CpuState) => void,
+): CpuState {
+  const newState = structuredClone(cpu) as CpuState;
+  mutator(newState);
+  return newState;
+}
+
 function doJump(
   jmpNot: boolean,
   jmpOverflow: boolean,

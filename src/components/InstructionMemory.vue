@@ -79,16 +79,18 @@ import CounterArrow from './CounterArrow.vue';
 import type { Ref } from 'vue';
 import { computed, ref } from 'vue';
 import ToggleBtn from './ToggleBtn.vue';
-import { useCpuStore } from '../stores/cpu';
-import { CpuAccessor } from '../engine/cpu';
+import { CpuAccessor, updateCpu, type CpuState } from '../engine/cpu';
 import { useDecoderStore } from '../stores/decoder';
 
 const ref_inst: Ref<(typeof Word)[]> = ref([]);
 const ref_addr: Ref<(typeof Word)[]> = ref([]);
 const ref_data: Ref<(typeof Word)[]> = ref([]);
 
-const cpu = computed(() => useCpuStore().cpu);
-const pc = computed(() => CpuAccessor.getPc(useCpuStore().cpu));
+const cpu = defineModel<CpuState>('cpu', {
+  required: true,
+});
+
+const pc = computed(() => CpuAccessor.getPc(cpu.value));
 
 const showCode = ref(false);
 
@@ -101,7 +103,7 @@ for (let i = 0; i < 16; i++) {
     computed({
       get: () => CpuAccessor.getInstructionsOp(cpu.value, i),
       set: (v) => {
-        useCpuStore().update((cpu) => {
+        cpu.value = updateCpu(cpu.value, (cpu) => {
           CpuAccessor.setInstructionsOp(cpu, i, v);
         });
       },
@@ -111,7 +113,7 @@ for (let i = 0; i < 16; i++) {
     computed({
       get: () => CpuAccessor.getInstructionsAddr(cpu.value, i),
       set: (v) => {
-        useCpuStore().update((cpu) => {
+        cpu.value = updateCpu(cpu.value, (cpu) => {
           CpuAccessor.setInstructionsAddr(cpu, i, v);
         });
       },
@@ -121,7 +123,7 @@ for (let i = 0; i < 16; i++) {
     computed({
       get: () => CpuAccessor.getInstructionsData(cpu.value, i),
       set: (v) => {
-        useCpuStore().update((cpu) => {
+        cpu.value = updateCpu(cpu.value, (cpu) => {
           CpuAccessor.setInstructionsData(cpu, i, v);
         });
       },

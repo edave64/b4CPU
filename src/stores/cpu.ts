@@ -7,9 +7,7 @@ export const useCpuStore = defineStore('cpu', {
     cpu: makeCpuState() as Readonly<CpuState>,
   }),
   actions: {
-    update(mutator: (cpu: CpuState) => void) {
-      const newState = structuredClone(this.cpu) as CpuState;
-      mutator(newState);
+    update(newState: CpuState) {
       this.cpu = newState;
     },
   },
