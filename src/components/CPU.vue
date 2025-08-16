@@ -339,11 +339,13 @@
       <control-unit
         ref="controlComp"
         v-model:cpu="cpu"
+        :decoder-state="decoderState"
         @keydown="navKey(controlComp, $event)"
       />
       <instruction-memory
         ref="romComp"
         v-model:cpu="cpu"
+        :decoder-state="decoderState"
         @keydown="navKey(romComp, $event)"
       />
       <data-memory
