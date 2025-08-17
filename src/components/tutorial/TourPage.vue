@@ -26,6 +26,7 @@ import type { IDecoderState } from '../../interfaces/decoder';
 import { useShepherd } from 'vue-shepherd';
 import 'shepherd.js/dist/css/shepherd.css';
 import { useTutorial } from '../../stores/tutorial';
+import type { Step } from 'shepherd.js';
 
 const emit = defineEmits(['advance']);
 
@@ -91,7 +92,7 @@ onMounted(() => {
   addStep(
     'pc',
     '#program_counter',
-    'This is the program counter. It keeps track of which instruction is currently being executed. Change the value here to proceed, then press Next.',
+    'This is the program counter. It keeps track of which instruction is currently being executed.<br /><br />Change the value here to proceed, then press Next.',
     {
       canContinue: () => {
         const pc = CpuAccessor.getPc(cpu.value);
@@ -114,7 +115,7 @@ onMounted(() => {
   addStep(
     'ram_1',
     '#rom_addr_0',
-    'I have set the program counter back to 0. Change the address value here to proceed, then press Next.',
+    'I have set the program counter back to 0.<br /><br />Change the address value here to proceed, then press Next.',
     {
       canContinue: () => {
         const addr = CpuAccessor.getInstructionsAddr(
@@ -198,7 +199,7 @@ onMounted(() => {
   addStep(
     'decoder_2',
     '#control_unit_step_btn',
-    'This button advances the CPU to the next stage. Click it and observe the stage arrows change.',
+    'This button advances the CPU to the next stage.<br /><br />Click it and observe the stage arrows change.',
     {
       canContinue: () => {
         const stage = CpuAccessor.getStage(cpu.value);
@@ -217,7 +218,7 @@ onMounted(() => {
   addStep(
     'decoder_3',
     '#control_unit_cycle_btn',
-    'This button advances the CPU to the next instruction. It executes all stages up until the next Fetch stage. Click it and observe the program counter change.',
+    'This button advances the CPU to the next instruction. It executes all stages up until the next Fetch stage.<br /><br />Click it and observe the program counter change.',
     {
       canContinue: () => {
         const pc = CpuAccessor.getPc(cpu.value);
@@ -230,6 +231,8 @@ onMounted(() => {
       },
     },
   );
+
+  // Last step of the tour moves to the next chapter of the tutorial
   tour.addStep({
     when: {
       show() {
@@ -295,7 +298,10 @@ function addStep(
         ? [{ action: () => tour.back(), text: 'Back' }]
         : []),
       {
-        action: () => tour.next(),
+        action: () => {
+          if (!allowContinue) return;
+          return tour.next();
+        },
         disabled: () => !allowContinue,
         text: 'Next',
         classes: 'tutorial-next-button',
