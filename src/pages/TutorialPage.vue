@@ -25,26 +25,39 @@
         - These flags can be used to perform conditional jumps, depending on if they are set or not
         -->
     <q-toolbar class="text-white">
-      <q-btn
+      <q-btn-dropdown
         flat
         round
         dense
         icon="toc"
         class="q-mr-sm"
         title="Table of Contents"
-      />
+      >
+        <q-list>
+          <q-item
+            v-for="(title, name) in pageTitles"
+            :key="name"
+            clickable
+            @click="tutorial.chapter = name"
+          >
+            <q-item-section>
+              <q-item-label>{{ title }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-btn-dropdown>
       <q-separator dark vertical inset />
       <q-btn stretch flat label="Back" @click="backPage" />
 
       <q-space />
 
-      {{ pageTitles[page] }}
+      {{ pageTitles[tutorial.chapter] }}
 
       <q-space />
 
       <q-btn stretch flat label="Next" @click="nextPage" />
     </q-toolbar>
-    <q-tab-panels v-model="page">
+    <q-tab-panels v-model="tutorial.chapter">
       <q-tab-panel name="start">
         <h4>Welcome to the b4CPU tutorial.</h4>
         <p>
@@ -81,31 +94,37 @@
 
 <script setup lang="ts">
 import { QPage } from 'quasar';
-import type { Ref } from 'vue';
-import { ref } from 'vue';
 import TourPage from 'src/components/tutorial/TourPage.vue';
+import type { Chapter } from '../stores/tutorial';
+import { AllChapters, useTutorial } from '../stores/tutorial';
 
-const allPages = ['start', 'cpu_basics', 'end'] as const;
-type Page = (typeof allPages)[number];
-const page: Ref<Page> = ref('start');
-const pageTitles: Record<Page, string> = {
+const tutorial = useTutorial();
+
+const pageTitles: Record<Chapter, string> = {
   start: 'Introduction',
-  cpu_basics: 'CPU Basics',
+  cpu_basics: 'Tour of the CPU',
   end: 'End',
 };
 
 function nextPage() {
-  let idx = allPages.indexOf(page.value);
+  let idx = AllChapters.indexOf(tutorial.chapter);
   if (idx === -1) {
     idx = 0;
   }
-  if (idx >= allPages.length - 1) return;
-  page.value = allPages[idx + 1]!;
+  if (idx >= AllChapters.length - 1) return;
+  tutorial.chapter = AllChapters[idx + 1]!;
 }
 
 function backPage() {
-  const idx = allPages.indexOf(page.value);
+  const idx = AllChapters.indexOf(tutorial.chapter);
   if (idx <= 0) return;
-  page.value = allPages[idx - 1]!;
+  tutorial.chapter = AllChapters[idx - 1]!;
 }
 </script>
+
+<style lang="scss">
+// Prevent shepherd from blocking the toolbar
+.q-toolbar {
+  z-index: 1;
+}
+</style>

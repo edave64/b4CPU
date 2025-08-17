@@ -1,6 +1,11 @@
 <template>
   <div id="tour-page">
-    <Cpu ref="cpuEl" v-model:cpu="cpu" :decoder-state="decoderState" />
+    <Cpu
+      ref="cpuEl"
+      id="cpu_el"
+      v-model:cpu="cpu"
+      :decoder-state="decoderState"
+    />
   </div>
 </template>
 
@@ -315,3 +320,8 @@ function addStep(
   }
 }
 </script>
+<style lang="scss">
+#tour-page {
+  isolation: isolate;
+}
+</style>
