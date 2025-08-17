@@ -26,7 +26,6 @@ import type { IDecoderState } from '../../interfaces/decoder';
 import { useShepherd } from 'vue-shepherd';
 import 'shepherd.js/dist/css/shepherd.css';
 import { useTutorial } from '../../stores/tutorial';
-import type { Step } from 'shepherd.js';
 
 const emit = defineEmits(['advance']);
 
