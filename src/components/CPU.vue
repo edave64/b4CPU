@@ -355,6 +355,7 @@
       />
 
       <register
+        id="reg_a"
         name="A"
         :x="984"
         :y="264"
@@ -365,6 +366,7 @@
         @keydown="navKey(regAComp, $event)"
       />
       <register
+        id="reg_b"
         name="B"
         :x="1192"
         :y="264"
@@ -376,6 +378,7 @@
       />
 
       <alu
+        id="alu"
         ref="aluComp"
         :select="aluOp"
         v-model:flag-o="flagO"
@@ -402,6 +405,7 @@
       <jump-manager />
       <program-counter
         ref="pcComp"
+        id="program_counter"
         v-model="pc"
         :jump="false"
         @keydown="navKey(pcComp, $event)"

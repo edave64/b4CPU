@@ -3,8 +3,13 @@
     <rect class="component-bg" width="536" height="720" x="0" y="0" />
     <text class="component-label" x="30" y="40">ROM</text>
 
-    <counter-arrow :x="8" :y="56 + 40 * (pc % 4) + 168 * Math.floor(pc / 4)" />
+    <counter-arrow
+      id="pc_counter_arrow"
+      :x="8"
+      :y="56 + 40 * (pc % 4) + 168 * Math.floor(pc / 4)"
+    />
     <ToggleBtn
+      id="opcode_toggle"
       :x="370"
       :y="8"
       :width="150"
@@ -37,6 +42,7 @@
         <word
           :x="32"
           :y="48 + 40 * i + 168 * cluster"
+          :id="`rom_inst_${i + cluster * 4}`"
           ref="ref_inst"
           :model-value="ops[i + cluster * 4]!.value"
           @update:model-value="ops[i + cluster * 4]!.value = $event"
@@ -50,6 +56,7 @@
           :x="200"
           :y="48 + 40 * i + 168 * cluster"
           ref="ref_addr"
+          :id="`rom_addr_${i + cluster * 4}`"
           :model-value="addr[i + cluster * 4]!.value"
           @update:model-value="addr[i + cluster * 4]!.value = $event"
           @keydown.right.stop="ref_data[i + cluster * 4]!.doFocus(3)"
@@ -61,6 +68,7 @@
           :x="368"
           :y="48 + 40 * i + 168 * cluster"
           ref="ref_data"
+          :id="`rom_data_${i + cluster * 4}`"
           :model-value="data[i + cluster * 4]!.value"
           @update:model-value="data[i + cluster * 4]!.value = $event"
           @keydown.right.stop="ref_inst[(i + cluster * 4 + 1) % 16]!.doFocus(3)"

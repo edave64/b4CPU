@@ -1,6 +1,10 @@
 <template>
   <q-page class="row items-center justify-evenly">
-    <Cpu :excerciseState="demoExcercise" v-model:cpu="cpu" />
+    <Cpu
+      :excerciseState="demoExcercise"
+      v-model:cpu="cpu"
+      :decoder-state="decoderState"
+    />
   </q-page>
 </template>
 
@@ -13,8 +17,10 @@ import excercise from '../config/demoExcercise.json';
 import type { IExcerciseState } from '../interfaces/excercises';
 import { useCpuStore } from '../stores/cpu';
 import type { CpuState } from '../engine/cpu';
+import { useDecoderStore } from '../stores/decoder';
 
 const cpuStore = useCpuStore();
+const decoderState = computed(() => useDecoderStore().state);
 
 const cpu = computed({
   get(): Readonly<CpuState> {

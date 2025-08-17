@@ -33,6 +33,7 @@
       :active="CpuAccessor.getStage(cpu) === CpuStage.Write"
     />
     <g
+      id="control_unit_step_btn"
       class="btn"
       @click="step()"
       style="transform: translate(1400px, 40px)"
@@ -42,6 +43,7 @@
       <path d="m 15,13 v 5 l 17,10 -17,10 v 5 l 27,-15 z" />
     </g>
     <g
+      id="control_unit_cycle_btn"
       class="btn"
       @click="cycle()"
       style="transform: translate(1464px, 40px)"

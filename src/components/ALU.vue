@@ -5,6 +5,7 @@
       d="m 0,0 h 376 v 104 l -88,88 h -200 l -88,-88 z"
     />
     <g
+      id="flag_z"
       :class="{ 'alu-btn': true, active: flagZ }"
       @click="emit('update:flagZ', !flagZ)"
     >
@@ -12,6 +13,7 @@
       <text x="24" y="40"> Z </text>
     </g>
     <g
+      id="flag_o"
       :class="{ 'alu-btn': true, active: flagO }"
       @click="emit('update:flagO', !flagO)"
     >
