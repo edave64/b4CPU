@@ -26,6 +26,7 @@ import type { IDecoderState } from '../../interfaces/decoder';
 import { useShepherd } from 'vue-shepherd';
 import 'shepherd.js/dist/css/shepherd.css';
 import { useTutorial } from '../../stores/tutorial';
+import type { Step } from 'shepherd.js';
 
 const emit = defineEmits(['advance']);
 
@@ -48,11 +49,37 @@ const cpu = computed({
 
 const tour = useShepherd({
   useModalOverlay: true,
+  keyboardNavigation: false,
 });
 
+function onKeyDown(e: KeyboardEvent) {
+  if (e.key === 'ArrowRight') {
+    if (
+      tour.currentStep &&
+      (tour.currentStep as IStepExtended).canContinue?.() === false
+    ) {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    tour.next();
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    e.stopPropagation();
+    tour.back();
+  }
+}
+
 onMounted(() => {
-  tour.options.modalContainer = document.querySelector('#tour-page')!;
-  tour.options.stepsContainer = document.querySelector('#tour-page')!;
+  const tourPage = document.querySelector('#tour-page') as HTMLElement;
+  tourPage.addEventListener('keydown', onKeyDown);
+
+  onUnmounted(() => {
+    tourPage.removeEventListener('keydown', onKeyDown);
+  });
+
+  tour.options.modalContainer = tourPage;
+  tour.options.stepsContainer = tourPage;
   addStep(
     'main',
     '',
@@ -309,6 +336,7 @@ function addStep(
   });
 
   if (canContinue) {
+    (step as IStepExtended).canContinue = canContinue;
     allowContinue = canContinue();
     watch(
       () => cpu.value,
@@ -323,6 +351,10 @@ function addStep(
       },
     );
   }
+}
+
+interface IStepExtended extends Step {
+  canContinue?: () => boolean;
 }
 </script>
 <style lang="scss">
