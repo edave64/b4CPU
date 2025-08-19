@@ -65,6 +65,13 @@
           to understand how a CPU works, without getting into overwhelming
           details.
         </p>
+        <p>
+          Before you start, make sure you have a basic understanding of
+          <a href="https://en.wikipedia.org/wiki/Binary_number"
+            >binary numbers</a
+          >. It's important to be able to follow the data flowing through the
+          CPU. But don't worry, you only need to count up to 15.
+        </p>
         <p
           style="border: 1px solid var(--q-warning)"
           class="rounded-borders q-pa-xs"
