@@ -8,14 +8,6 @@
       :x="8"
       :y="56 + 40 * (pc % 4) + 168 * Math.floor(pc / 4)"
     />
-    <ToggleBtn
-      id="opcode_toggle"
-      :x="370"
-      :y="8"
-      :width="150"
-      :label="showCode ? 'Ins' : 'Binary'"
-      v-model="showCode"
-    />
     <g v-for="cluster in [0, 1, 2, 3]" :key="cluster">
       <g v-for="i in [0, 1, 2, 3]" :key="cluster + '_' + i">
         <foreignObject
@@ -23,35 +15,27 @@
           :y="48 + 40 * i + 168 * cluster"
           :width="152"
           :height="32"
-          v-if="showCode"
         >
           <select
             style="height: 100%; width: 100%"
             :value="ops[i + cluster * 4]!.value"
+            :style="getStyle(ops[i + cluster * 4]!.value)"
             @input="
               ops[i + cluster * 4]!.value = +(
                 $event.target as HTMLSelectElement
               ).value
             "
           >
-            <option v-for="(op, i) in instructions" :key="op.name" :value="i">
+            <option
+              v-for="(op, i) in instructions"
+              :key="op.name"
+              :value="i"
+              :style="getStyle(i)"
+            >
               {{ op.name }}
             </option>
           </select>
         </foreignObject>
-        <word
-          :x="32"
-          :y="48 + 40 * i + 168 * cluster"
-          :id="`rom_inst_${i + cluster * 4}`"
-          ref="ref_inst"
-          :model-value="ops[i + cluster * 4]!.value"
-          @update:model-value="ops[i + cluster * 4]!.value = $event"
-          @keydown.right.stop="ref_addr[i + cluster * 4]!.doFocus(3)"
-          @keydown.left.stop="ref_data[(i + cluster * 4 + 15) % 16]!.doFocus()"
-          @up="ref_inst[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
-          @down="ref_inst[(i + cluster * 4 + 1) % 16]!.doFocus($event)"
-          v-else
-        />
         <word
           :x="200"
           :y="48 + 40 * i + 168 * cluster"
@@ -86,7 +70,6 @@ import Word from './WordBits.vue';
 import CounterArrow from './CounterArrow.vue';
 import type { PropType, Ref } from 'vue';
 import { computed, ref } from 'vue';
-import ToggleBtn from './ToggleBtn.vue';
 import { CpuAccessor, updateCpu, type CpuState } from '../engine/cpu';
 import type { IDecoderState } from '../interfaces/decoder';
 
@@ -106,8 +89,6 @@ const cpu = defineModel<CpuState>('cpu', {
 });
 
 const pc = computed(() => CpuAccessor.getPc(cpu.value));
-
-const showCode = ref(false);
 
 const ops: Ref<number>[] = [];
 const addr: Ref<number>[] = [];
@@ -144,6 +125,24 @@ for (let i = 0; i < 16; i++) {
       },
     }),
   );
+}
+
+function getStyle(value: number) {
+  const colors = Array.from(value.toString(2).padStart(4, '0')).map((x) =>
+    x === '1' ? 'var(--active-color)' : 'var(--inactive-color)',
+  );
+  const background = `linear-gradient(to right, ${colors.reduce(
+    (acc, x, i, ary) => {
+      if (i === 0) return `${x} 0, ${x}`;
+      const percentage = Math.round((i / ary.length) * 100);
+      return `${acc} ${percentage}%, ${x} ${percentage}%, ${x}`;
+    },
+    '',
+  )} 100%)`;
+
+  return {
+    background,
+  };
 }
 
 const instructions = computed(() => {
