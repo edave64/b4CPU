@@ -20,6 +20,7 @@
             style="height: 100%; width: 100%"
             :value="ops[i + cluster * 4]!.value"
             :style="getStyle(ops[i + cluster * 4]!.value)"
+            :id="`rom_inst_${i + cluster * 4}`"
             @input="
               ops[i + cluster * 4]!.value = +(
                 $event.target as HTMLSelectElement
