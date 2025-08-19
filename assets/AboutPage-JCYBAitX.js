@@ -1,1 +1,0 @@
-import{Q as t}from"./QPage-DAdkIOrw.js";import{d as o,N as s,O as r,U as n,R as e,Q as l}from"./index-DUKBsuaK.js";import"./render-BJ40gYlH.js";const d=o({__name:"AboutPage",setup(p){return(u,a)=>(l(),s(n(t),{padding:""},{default:r(()=>a[0]||(a[0]=[e("div",null,[e("h2",null,"About"),e("p",null,"B4CPU is a simple CPU simulator.")],-1)])),_:1,__:[0]}))}});export{d as default};
