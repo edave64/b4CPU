@@ -433,6 +433,7 @@ import ProgramCounter from './ProgramCounter.vue';
 import Register from './DataRegister.vue';
 import { Gate } from '../engine/cpu';
 import type { IDecoderState } from '../interfaces/decoder';
+import { accessorComputed } from './cpuAdapters';
 
 defineProps({
   excerciseState: {
@@ -495,57 +496,11 @@ const aluOp = computed(() => {
   return getAluOp(gates.value);
 });
 
-const regA = computed({
-  get() {
-    return CpuAccessor.getRegA(cpu.value);
-  },
-  set(value) {
-    cpu.value = updateCpu(cpu.value, (cpu) => {
-      CpuAccessor.setRegA(cpu, value);
-    });
-  },
-});
-const regB = computed({
-  get() {
-    return CpuAccessor.getRegB(cpu.value);
-  },
-  set(value) {
-    cpu.value = updateCpu(cpu.value, (cpu) => {
-      CpuAccessor.setRegB(cpu, value);
-    });
-  },
-});
-const pc = computed({
-  get() {
-    return CpuAccessor.getPc(cpu.value);
-  },
-  set(value) {
-    cpu.value = updateCpu(cpu.value, (cpu) => {
-      CpuAccessor.setPc(cpu, value);
-    });
-  },
-});
-
-const flagO = computed({
-  get() {
-    return CpuAccessor.getFlagO(cpu.value);
-  },
-  set(value) {
-    cpu.value = updateCpu(cpu.value, (cpu) => {
-      CpuAccessor.setFlagO(cpu, value);
-    });
-  },
-});
-const flagZ = computed({
-  get() {
-    return CpuAccessor.getFlagZ(cpu.value);
-  },
-  set(value) {
-    cpu.value = updateCpu(cpu.value, (cpu) => {
-      CpuAccessor.setFlagZ(cpu, value);
-    });
-  },
-});
+const regA = accessorComputed('RegA', cpu);
+const regB = accessorComputed('RegB', cpu);
+const pc = accessorComputed('Pc', cpu);
+const flagO = accessorComputed('FlagO', cpu);
+const flagZ = accessorComputed('FlagZ', cpu);
 </script>
 
 <style lang="scss" scoped>

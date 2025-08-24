@@ -71,8 +71,9 @@ import Word from './WordBits.vue';
 import CounterArrow from './CounterArrow.vue';
 import type { PropType, Ref } from 'vue';
 import { computed, ref } from 'vue';
-import { CpuAccessor, updateCpu, type CpuState } from '../engine/cpu';
+import { CpuAccessor, type CpuState } from '../engine/cpu';
 import type { IDecoderState } from '../interfaces/decoder';
+import { accessorComputed } from './cpuAdapters';
 
 const ref_inst: Ref<(typeof Word)[]> = ref([]);
 const ref_addr: Ref<(typeof Word)[]> = ref([]);
@@ -96,36 +97,9 @@ const addr: Ref<number>[] = [];
 const data: Ref<number>[] = [];
 
 for (let i = 0; i < 16; i++) {
-  ops.push(
-    computed({
-      get: () => CpuAccessor.getInstructionsOp(cpu.value, i),
-      set: (v) => {
-        cpu.value = updateCpu(cpu.value, (cpu) => {
-          CpuAccessor.setInstructionsOp(cpu, i, v);
-        });
-      },
-    }),
-  );
-  addr.push(
-    computed({
-      get: () => CpuAccessor.getInstructionsAddr(cpu.value, i),
-      set: (v) => {
-        cpu.value = updateCpu(cpu.value, (cpu) => {
-          CpuAccessor.setInstructionsAddr(cpu, i, v);
-        });
-      },
-    }),
-  );
-  data.push(
-    computed({
-      get: () => CpuAccessor.getInstructionsData(cpu.value, i),
-      set: (v) => {
-        cpu.value = updateCpu(cpu.value, (cpu) => {
-          CpuAccessor.setInstructionsData(cpu, i, v);
-        });
-      },
-    }),
-  );
+  ops.push(accessorComputed('InstructionsOp', cpu, i));
+  addr.push(accessorComputed('InstructionsAddr', cpu, i));
+  data.push(accessorComputed('InstructionsData', cpu, i));
 }
 
 function getStyle(value: number) {

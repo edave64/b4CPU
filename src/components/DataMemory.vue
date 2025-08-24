@@ -32,7 +32,8 @@ import type { Ref } from 'vue';
 import { computed, ref } from 'vue';
 import CounterArrow from './CounterArrow.vue';
 import DirectionArrow from './DirectionArrow.vue';
-import { CpuAccessor, type CpuState, Gate, updateCpu } from '../engine/cpu';
+import { CpuAccessor, type CpuState, Gate } from '../engine/cpu';
+import { accessorComputed } from './cpuAdapters';
 
 const dataComp = ref([] as (typeof WordBits | null)[]);
 
@@ -49,16 +50,7 @@ const cpu = defineModel<CpuState>('cpu', {
 const ram: Ref<number>[] = [];
 
 for (let i = 0; i < 16; i++) {
-  ram.push(
-    computed({
-      get: () => CpuAccessor.getRam(cpu.value, i),
-      set: (v) => {
-        cpu.value = updateCpu(cpu.value, (cpu) => {
-          CpuAccessor.setRam(cpu, i, v);
-        });
-      },
-    }),
-  );
+  ram.push(accessorComputed('Ram', cpu, i));
 }
 
 const stage = computed(() => CpuAccessor.getStage(cpu.value));
