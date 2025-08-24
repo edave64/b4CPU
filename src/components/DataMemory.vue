@@ -14,6 +14,8 @@
           ref="dataComp"
           :model-value="ram[i + cluster * 4]!.value"
           @update:model-value="ram[i + cluster * 4]!.value = $event"
+          :mask="ramMask[i + cluster * 4]!.value"
+          @update:mask="ramMask[i + cluster * 4]!.value = $event"
           @up="dataComp[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
           @down="dataComp[(i + cluster * 4 + 1) % 16]!.doFocus($event)"
           @keydown.right.stop="dataComp[(i + cluster * 4 + 1) % 16]!.doFocus(3)"
@@ -47,10 +49,16 @@ const cpu = defineModel<CpuState>('cpu', {
   required: true,
 });
 
+const mask = defineModel<CpuState>('mask', {
+  required: true,
+});
+
 const ram: Ref<number>[] = [];
+const ramMask: Ref<number>[] = [];
 
 for (let i = 0; i < 16; i++) {
   ram.push(accessorComputed('Ram', cpu, i));
+  ramMask.push(accessorComputed('Ram', mask, i));
 }
 
 const stage = computed(() => CpuAccessor.getStage(cpu.value));

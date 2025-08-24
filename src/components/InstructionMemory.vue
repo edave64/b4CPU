@@ -44,6 +44,8 @@
           :id="`rom_addr_${i + cluster * 4}`"
           :model-value="addr[i + cluster * 4]!.value"
           @update:model-value="addr[i + cluster * 4]!.value = $event"
+          :mask="addrMasks[i + cluster * 4]!.value"
+          @update:mask="addrMasks[i + cluster * 4]!.value = $event"
           @keydown.right.stop="ref_data[i + cluster * 4]!.doFocus(3)"
           @keydown.left.stop="ref_inst[i + cluster * 4]!.doFocus()"
           @up="ref_addr[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
@@ -56,6 +58,8 @@
           :id="`rom_data_${i + cluster * 4}`"
           :model-value="data[i + cluster * 4]!.value"
           @update:model-value="data[i + cluster * 4]!.value = $event"
+          :mask="dataMasks[i + cluster * 4]!.value"
+          @update:mask="dataMasks[i + cluster * 4]!.value = $event"
           @keydown.right.stop="ref_inst[(i + cluster * 4 + 1) % 16]!.doFocus(3)"
           @keydown.left.stop="ref_addr[i + cluster * 4]!.doFocus()"
           @up="ref_data[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
@@ -90,16 +94,26 @@ const cpu = defineModel<CpuState>('cpu', {
   required: true,
 });
 
+const mask = defineModel<CpuState>('mask', {
+  required: true,
+});
+
 const pc = computed(() => CpuAccessor.getPc(cpu.value));
 
 const ops: Ref<number>[] = [];
+const opMasks: Ref<number>[] = [];
 const addr: Ref<number>[] = [];
+const addrMasks: Ref<number>[] = [];
 const data: Ref<number>[] = [];
+const dataMasks: Ref<number>[] = [];
 
 for (let i = 0; i < 16; i++) {
   ops.push(accessorComputed('InstructionsOp', cpu, i));
+  opMasks.push(accessorComputed('InstructionsOp', mask, i));
   addr.push(accessorComputed('InstructionsAddr', cpu, i));
+  addrMasks.push(accessorComputed('InstructionsAddr', mask, i));
   data.push(accessorComputed('InstructionsData', cpu, i));
+  dataMasks.push(accessorComputed('InstructionsData', mask, i));
 }
 
 function getStyle(value: number) {

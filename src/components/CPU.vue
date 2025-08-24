@@ -345,12 +345,14 @@
       <instruction-memory
         ref="romComp"
         v-model:cpu="cpu"
+        v-model:mask="mask"
         :decoder-state="decoderState"
         @keydown="navKey(romComp, $event)"
       />
       <data-memory
         ref="dataComp"
         v-model:cpu="cpu"
+        v-model:mask="mask"
         @keydown="navKey(dataComp, $event)"
       />
 
@@ -417,7 +419,7 @@
 
 <script lang="ts" setup>
 import type { CpuState } from '../engine/cpu';
-import { CpuAccessor, getAluOp, updateCpu } from '../engine/cpu';
+import { CpuAccessor, getAluOp, makeCpuState } from '../engine/cpu';
 import type { IExcerciseState } from '../interfaces/excercises';
 import type { PropType } from 'vue';
 import { computed, ref } from 'vue';
@@ -444,10 +446,19 @@ defineProps({
     type: Object as PropType<IDecoderState>,
     required: true,
   },
+
+  allowMaskEditing: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const cpu = defineModel<CpuState>('cpu', {
   required: true,
+});
+
+const mask = defineModel<CpuState>('mask', {
+  default: makeCpuState().fill(255),
 });
 
 const romComp = ref(null as typeof InstructionMemory | null);

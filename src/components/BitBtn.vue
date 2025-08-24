@@ -1,9 +1,10 @@
 <template>
   <g
-    :class="{ active: modelValue }"
+    :class="{ active: modelValue, blocked: !mask }"
     :style="{ transform: 'translate(' + x + 'px, ' + y + 'px)' }"
-    @click="emit('update:modelValue', !modelValue)"
-    @keypress="emit('update:modelValue', !modelValue)"
+    @click.right.stop.prevent="mask = !mask"
+    @click="toggleValue()"
+    @keypress="toggleValue()"
     tabindex="0"
     ref="focusTarget"
   >
@@ -20,7 +21,14 @@ import { ref } from 'vue';
 defineProps({
   x: Number,
   y: Number,
-  modelValue: Boolean,
+});
+
+const modelValue = defineModel<boolean>({
+  required: true,
+});
+
+const mask = defineModel<boolean>('mask', {
+  default: false,
 });
 
 const focusTarget = ref(null as HTMLElement | null);
@@ -34,7 +42,10 @@ defineExpose({
   },
 });
 
-const emit = defineEmits(['update:modelValue']);
+function toggleValue() {
+  if (!mask.value) return;
+  modelValue.value = !modelValue.value;
+}
 </script>
 
 <style lang="scss" scoped>
@@ -44,6 +55,11 @@ text {
   font-family: monospace;
   text-anchor: middle;
   dominant-baseline: central;
+}
+
+.blocked {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 g {
