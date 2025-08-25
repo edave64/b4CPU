@@ -4,22 +4,22 @@
       class="component-bg"
       d="m 0,0 h 376 v 104 l -88,88 h -200 l -88,-88 z"
     />
-    <g
+    <bit-btn
       id="flag_z"
-      :class="{ 'alu-btn': true, active: flagZ }"
-      @click="emit('update:flagZ', !flagZ)"
-    >
-      <rect width="32" height="32" x="8" y="24" fill="#000" />
-      <text x="24" y="40"> Z </text>
-    </g>
-    <g
+      v-model="flagZ"
+      v-model:mask="flagZMask"
+      :x="8"
+      :y="24"
+      text="Z"
+    />
+    <bit-btn
       id="flag_o"
-      :class="{ 'alu-btn': true, active: flagO }"
-      @click="emit('update:flagO', !flagO)"
-    >
-      <rect width="32" height="32" x="8" y="64" />
-      <text x="24" y="80"> O </text>
-    </g>
+      v-model="flagO"
+      v-model:mask="flagOMask"
+      :x="8"
+      :y="64"
+      text="O"
+    />
     <text class="component-label" x="151" y="41"> ALU </text>
     <g :class="{ 'alu-btn': true, active: and }">
       <rect width="64" height="32" x="88" y="64" />
@@ -38,6 +38,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
+import BitBtn from './BitBtn.vue';
 
 // const SelectNop = 0;
 const SelectAnd = 1;
@@ -46,11 +47,21 @@ const SelectSub = 3;
 
 const props = defineProps({
   select: { type: Number, required: true },
-  flagZ: { type: Boolean, required: true },
-  flagO: { type: Boolean, required: true },
 });
 
-const emit = defineEmits(['update:flagZ', 'update:flagO']);
+const flagZ = defineModel<boolean>('flagZ', {
+  required: true,
+});
+const flagO = defineModel<boolean>('flagO', {
+  required: true,
+});
+
+const flagZMask = defineModel<boolean>('flagZMask', {
+  required: true,
+});
+const flagOMask = defineModel<boolean>('flagOMask', {
+  required: true,
+});
 
 const and = computed(() => props.select === SelectAnd);
 const add = computed(() => props.select === SelectAdd);

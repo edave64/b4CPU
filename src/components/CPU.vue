@@ -363,6 +363,7 @@
         :y="264"
         ref="regAComp"
         v-model="regA"
+        v-model:mask="regAMask"
         :command-read="!!(gates & Gate.AR)"
         :command-write="!!(gates & Gate.AW)"
         @keydown="navKey(regAComp, $event)"
@@ -374,6 +375,7 @@
         :y="264"
         ref="regBComp"
         v-model="regB"
+        v-model:mask="regBMask"
         :command-read="!!(gates & Gate.BR)"
         :command-write="!!(gates & Gate.BW)"
         @keydown="navKey(regBComp, $event)"
@@ -385,6 +387,8 @@
         :select="aluOp"
         v-model:flag-o="flagO"
         v-model:flag-z="flagZ"
+        v-model:flag-o-mask="flagOMask"
+        v-model:flag-z-mask="flagZMask"
         @keydown="navKey(aluComp, $event)"
       />
       <bus
@@ -409,6 +413,7 @@
         ref="pcComp"
         id="program_counter"
         v-model="pc"
+        v-model:mask="pcMask"
         :jump="false"
         @keydown="navKey(pcComp, $event)"
       />
@@ -512,6 +517,12 @@ const regB = accessorComputed('RegB', cpu);
 const pc = accessorComputed('Pc', cpu);
 const flagO = accessorComputed('FlagO', cpu);
 const flagZ = accessorComputed('FlagZ', cpu);
+
+const regAMask = accessorComputed('RegA', mask);
+const regBMask = accessorComputed('RegB', mask);
+const pcMask = accessorComputed('Pc', mask);
+const flagOMask = accessorComputed('FlagO', mask);
+const flagZMask = accessorComputed('FlagZ', mask);
 </script>
 
 <style lang="scss" scoped>

@@ -2,7 +2,7 @@
   <g
     :class="{ active: modelValue, blocked: !mask }"
     :style="{ transform: 'translate(' + x + 'px, ' + y + 'px)' }"
-    @click.right.stop.prevent="mask = !mask"
+    @click.right.stop.prevent="toggleMask()"
     @click="toggleValue()"
     @keypress="toggleValue()"
     tabindex="0"
@@ -10,7 +10,7 @@
   >
     <rect width="32" height="32" />
     <text x="16" y="16" height="32" width="32">
-      {{ modelValue ? '1' : '0' }}
+      {{ text ?? (modelValue ? '1' : '0') }}
     </text>
   </g>
 </template>
@@ -21,15 +21,14 @@ import { ref } from 'vue';
 defineProps({
   x: Number,
   y: Number,
+  text: String,
 });
 
 const modelValue = defineModel<boolean>({
   required: true,
 });
 
-const mask = defineModel<boolean>('mask', {
-  default: false,
-});
+const mask = defineModel<boolean>('mask');
 
 const focusTarget = ref(null as HTMLElement | null);
 
@@ -45,6 +44,11 @@ defineExpose({
 function toggleValue() {
   if (!mask.value) return;
   modelValue.value = !modelValue.value;
+}
+
+function toggleMask() {
+  if (mask.value === undefined) return;
+  mask.value = !mask.value;
 }
 </script>
 
