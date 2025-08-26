@@ -345,14 +345,14 @@
       <instruction-memory
         ref="romComp"
         v-model:cpu="cpu"
-        v-model:mask="mask"
+        v-model:mask="maskProtected"
         :decoder-state="decoderState"
         @keydown="navKey(romComp, $event)"
       />
       <data-memory
         ref="dataComp"
         v-model:cpu="cpu"
-        v-model:mask="mask"
+        v-model:mask="maskProtected"
         @keydown="navKey(dataComp, $event)"
       />
 
@@ -442,7 +442,7 @@ import { Gate } from '../engine/cpu';
 import type { IDecoderState } from '../interfaces/decoder';
 import { accessorComputed } from './cpuAdapters';
 
-defineProps({
+const props = defineProps({
   excerciseState: {
     type: Object as PropType<IExcerciseState>,
   },
@@ -464,6 +464,16 @@ const cpu = defineModel<CpuState>('cpu', {
 
 const mask = defineModel<CpuState>('mask', {
   default: makeCpuState().fill(255),
+});
+
+const maskProtected = computed({
+  get() {
+    return mask.value;
+  },
+  set(newMask: CpuState) {
+    if (!props.allowMaskEditing) return;
+    mask.value = newMask;
+  },
 });
 
 const romComp = ref(null as typeof InstructionMemory | null);
@@ -518,11 +528,11 @@ const pc = accessorComputed('Pc', cpu);
 const flagO = accessorComputed('FlagO', cpu);
 const flagZ = accessorComputed('FlagZ', cpu);
 
-const regAMask = accessorComputed('RegA', mask);
-const regBMask = accessorComputed('RegB', mask);
-const pcMask = accessorComputed('Pc', mask);
-const flagOMask = accessorComputed('FlagO', mask);
-const flagZMask = accessorComputed('FlagZ', mask);
+const regAMask = accessorComputed('RegA', maskProtected);
+const regBMask = accessorComputed('RegB', maskProtected);
+const pcMask = accessorComputed('Pc', maskProtected);
+const flagOMask = accessorComputed('FlagO', maskProtected);
+const flagZMask = accessorComputed('FlagZ', maskProtected);
 </script>
 
 <style lang="scss" scoped>
