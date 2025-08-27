@@ -52,13 +52,48 @@
       <rect width="56" height="56" x="0" y="0" />
       <path d="m 16,43 0,-31 L 43,28 Z" />
     </g>
-    <g class="btn" style="transform: translate(1528px, 40px)" tabindex="0">
+    <!--<g class="btn" style="transform: translate(1528px, 40px)" tabindex="0">
       <rect width="56" height="56" x="0" y="0" />
       <path d="M 6,13 V 43 L 24,33 V 43 L 50,28 23,13 V 23 Z" />
+    </g>-->
+    <g
+      class="btn"
+      style="transform: translate(1592px, 40px)"
+      tabindex="0"
+      @click="showDecoderConfig = !showDecoderConfig"
+      v-if="allowDecoderConfig"
+    >
+      <title>Configure Decoder</title>
+      <rect
+        width="56"
+        height="56"
+        x="0"
+        y="0"
+        title="Configure Decoder"
+        :style="{
+          fill: showDecoderConfig
+            ? 'var(--active-color)'
+            : 'var(--inactive-color)',
+        }"
+      />
+      <text
+        font-family="Material Icons"
+        width="56"
+        height="56"
+        fill="#000"
+        font-size="56"
+        y="56"
+        style="user-select: none; pointer-events: none"
+        :style="{
+          fill: showDecoderConfig
+            ? 'var(--active-text-color)'
+            : 'var(--inactive-text-color)',
+        }"
+        >settings</text
+      >
     </g>
   </g>
 </template>
-
 <script lang="ts" setup>
 import StepIndicator from './StepIndicator.vue';
 import {
@@ -76,10 +111,17 @@ const props = defineProps({
     type: Object as PropType<IDecoderState>,
     required: true,
   },
+  allowDecoderConfig: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const cpu = defineModel<CpuState>('cpu', {
   required: true,
+});
+const showDecoderConfig = defineModel<boolean>('showDecoderConfig', {
+  default: false,
 });
 
 function step() {
