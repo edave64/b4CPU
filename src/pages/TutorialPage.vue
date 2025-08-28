@@ -101,7 +101,7 @@
 
 <script setup lang="ts">
 import { QPage } from 'quasar';
-import TourPage from 'src/components/tutorial/TourPage.vue';
+import TourPage from './tutorialPages/TourPage.vue';
 import type { Chapter } from '../stores/tutorial';
 import { AllChapters, useTutorial } from '../stores/tutorial';
 

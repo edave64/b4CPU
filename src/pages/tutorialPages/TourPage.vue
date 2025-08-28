@@ -10,12 +10,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, useTemplateRef, onUnmounted, watch } from 'vue';
+import { computed, onMounted, onUnmounted, watch, markRaw } from 'vue';
 import Cpu from 'components/CPU.vue';
-import { useCpuStore } from '../../stores/cpu';
 import {
   CpuAccessor,
   CpuStage,
+  makeCpuState,
   updateCpu,
   type CpuState,
 } from '../../engine/cpu';
@@ -34,16 +34,23 @@ const decoderState: IDecoderState = readDecoder(
   initialDecoderState as IDecoderJson,
 );
 
-const cpuStore = useCpuStore();
-const cpuEl = useTemplateRef('cpuEl');
 const tutorial = useTutorial();
+
+if (!tutorial.chapterState[tutorial.chapter]) {
+  tutorial.chapterState[tutorial.chapter] = {
+    cpu: markRaw(makeCpuState()),
+    step: '',
+  } as ChapterState;
+}
+
+const pageState = tutorial.chapterState[tutorial.chapter] as ChapterState;
 
 const cpu = computed({
   get(): Readonly<CpuState> {
-    return cpuStore.cpu;
+    return pageState.cpu;
   },
   set(newCpu: CpuState) {
-    cpuStore.update(newCpu);
+    pageState.cpu = markRaw(newCpu);
   },
 });
 
@@ -268,7 +275,7 @@ onMounted(() => {
   });
 
   (async () => {
-    const s = tutorial.step;
+    const s = pageState.step;
     await tour.start();
 
     if (s) {
@@ -313,7 +320,7 @@ function addStep(
       : { classes: 'tutorial-step' }),
     when: {
       show() {
-        tutorial.step = this.id;
+        pageState.step = this.id;
         onStart?.();
       },
     },
@@ -356,6 +363,11 @@ function addStep(
 interface IStepExtended extends Step {
   canContinue?: () => boolean;
 }
+
+type ChapterState = {
+  cpu: CpuState;
+  step: string;
+};
 </script>
 <style lang="scss">
 #tour-page {
