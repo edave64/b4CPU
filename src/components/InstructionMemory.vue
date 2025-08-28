@@ -17,10 +17,11 @@
           :height="32"
         >
           <select
-            style="height: 100%; width: 100%"
+            style="height: 100%; width: 100%; position: fixed"
             :value="ops[i + cluster * 4]!.value"
             :style="getStyle(ops[i + cluster * 4]!.value)"
             :id="`rom_inst_${i + cluster * 4}`"
+            :disabled="opMasks[i + cluster * 4]!.value === 0"
             @input="
               ops[i + cluster * 4]!.value = +(
                 $event.target as HTMLSelectElement
@@ -28,10 +29,13 @@
             "
           >
             <option
-              v-for="(op, i) in instructions"
+              v-for="[op, opcode] in limitedInstructions(
+                ops[i + cluster * 4]!.value,
+                opMasks[i + cluster * 4]!.value,
+              )"
               :key="op.name"
-              :value="i"
-              :style="getStyle(i)"
+              :value="opcode"
+              :style="getStyle(opcode)"
             >
               {{ op.name }}
             </option>
@@ -76,7 +80,7 @@ import CounterArrow from './CounterArrow.vue';
 import type { PropType, Ref } from 'vue';
 import { computed, ref } from 'vue';
 import { CpuAccessor, type CpuState } from '../engine/cpu';
-import type { IDecoderState } from '../interfaces/decoder';
+import type { IDecoderState, IInstruction } from '../interfaces/decoder';
 import { accessorComputed } from './cpuAdapters';
 
 const ref_inst: Ref<(typeof Word)[]> = ref([]);
@@ -134,9 +138,19 @@ function getStyle(value: number) {
   };
 }
 
-const instructions = computed(() => {
-  return props.decoderState.instructions;
-});
+function limitedInstructions(
+  op: number,
+  mask: number,
+): [IInstruction, number][] {
+  if (mask === 15)
+    return props.decoderState.instructions
+      .map((x, i) => [x, i])
+      .filter((x) => x[0] !== undefined) as [IInstruction, number][];
+  const maskedOp = op & ~mask;
+  return props.decoderState.instructions
+    .map((x, i) => [x, i] as [IInstruction, number])
+    .filter((x) => x[0] !== undefined && (x[1] & ~mask) === maskedOp);
+}
 </script>
 
 <style lang="scss" scoped>
