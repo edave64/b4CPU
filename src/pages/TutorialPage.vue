@@ -64,6 +64,9 @@
       <q-tab-panel name="cpu_basics">
         <TourPage @advance="nextPage" />
       </q-tab-panel>
+      <q-tab-panel name="ld_instructions">
+        <ConstantLoadInstructionsPage @advance="nextPage" />
+      </q-tab-panel>
       <q-tab-panel name="end">
         <div>To be continued...</div>
       </q-tab-panel>
@@ -77,12 +80,14 @@ import TourPage from './tutorialPages/TourPage.vue';
 import type { Chapter } from '../stores/tutorial';
 import { AllChapters, useTutorial } from '../stores/tutorial';
 import StartPage from './tutorialPages/StartPage.vue';
+import ConstantLoadInstructionsPage from './tutorialPages/ConstantLoadInstructionsPage.vue';
 
 const tutorial = useTutorial();
 
 const pageTitles: Record<Chapter, string> = {
   start: 'Introduction',
   cpu_basics: 'Tour of the CPU',
+  ld_instructions: 'Constant load instructions',
   end: 'End',
 };
 

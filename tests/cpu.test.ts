@@ -474,7 +474,7 @@ function parseInstructions(cpu: CpuState, instructions: string): void {
 
     if (line.trim() === '' || parts.length === 0) continue;
     const i = parseInt(parts[0] ?? '0', 10);
-    const op = sharedConfig.instructions.findIndex((x) => x.name === parts[1]);
+    const op = sharedConfig.instructions.findIndex((x) => x?.name === parts[1]);
     const addr = parseInt(parts[2] ?? '0', 10);
     const data = parseInt(parts[3] ?? '0', 2);
     CpuAccessor.setInstructionsOp(cpu, i, op);

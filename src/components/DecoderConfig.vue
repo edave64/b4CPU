@@ -118,18 +118,6 @@ function setTimingMask(stage: CpuStage, gate: Gate, value: boolean) {
 
 function copyDecoderState(): IDecoderState {
   const oldDecoderState = decoderState.value;
-  return {
-    timingMasks: {
-      [CpuStage.Fetch]: oldDecoderState.timingMasks[CpuStage.Fetch],
-      [CpuStage.Decode]: oldDecoderState.timingMasks[CpuStage.Decode],
-      [CpuStage.Read]: oldDecoderState.timingMasks[CpuStage.Read],
-      [CpuStage.Execute]: oldDecoderState.timingMasks[CpuStage.Execute],
-      [CpuStage.Write]: oldDecoderState.timingMasks[CpuStage.Write],
-    },
-    instructions: oldDecoderState.instructions.map((x) => ({
-      name: x.name,
-      gates: x.gates,
-    })),
-  };
+  return structuredClone(oldDecoderState);
 }
 </script>

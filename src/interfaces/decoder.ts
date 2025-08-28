@@ -21,6 +21,6 @@ export interface IInstruction {
 }
 
 export interface IDecoderState {
-  instructions: IInstruction[];
+  instructions: Array<IInstruction | undefined>;
   timingMasks: Record<CpuStage, number>;
 }
