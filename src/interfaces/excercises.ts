@@ -1,32 +1,37 @@
-export interface IWord {
-  value: number;
-  blocked: boolean;
-}
-
-export interface IMemoryState {
-  0: IWord;
-  1: IWord;
-  2: IWord;
-  3: IWord;
-  4: IWord;
-  5: IWord;
-  6: IWord;
-  7: IWord;
-  8: IWord;
-  9: IWord;
-  10: IWord;
-  11: IWord;
-  12: IWord;
-  13: IWord;
-  14: IWord;
-  15: IWord;
-}
+import type { CpuState } from '../engine/cpu';
+import type { IDecoderState } from './decoder';
 
 export interface IExcerciseState {
-  dataMemoryState: IMemoryState;
-  instructionMemoryState: {
-    instructions: IMemoryState;
-    addresses: IMemoryState;
-    data: IMemoryState;
-  };
+  initial: CpuState;
+  mask: CpuState;
+  decoder: IDecoderState;
+  initialAssignments?: Record<Target, InitialAssignments>;
+  goal: Goal;
 }
+
+type Number =
+  | 0
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 7
+  | 8
+  | 9
+  | 10
+  | 11
+  | 12
+  | 13
+  | 14
+  | 15;
+type Target = 'a' | 'b' | `ram${Number}`;
+type InitialAssignments = `random[${number}]`;
+
+type Goal = {
+  join: 'and' | 'or' | 'xor' | 'gt' | 'lt' | 'eq';
+  goalA: Goal | Target | InitialAssignments;
+  goalB: Goal | Target | InitialAssignments;
+  not?: boolean;
+};
