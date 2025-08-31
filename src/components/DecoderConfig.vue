@@ -13,7 +13,7 @@
           <td>
             <input
               type="text"
-              :value="decoderState.instructions[i - 1]!.name"
+              :value="decoderState.instructions[i - 1]?.name ?? ''"
               @input="
                 setInstructionName(
                   i - 1,
@@ -26,7 +26,9 @@
           <td v-for="gate in gates" :key="gate">
             <input
               type="checkbox"
-              :checked="!!(decoderState.instructions[i - 1]!.gates & gate)"
+              :checked="
+                !!((decoderState.instructions[i - 1]?.gates ?? 0) & gate)
+              "
               @input="
                 setInstructionGate(
                   i - 1,
@@ -92,16 +94,38 @@ const stages = {
 
 function setInstructionName(op: number, name: string) {
   const newDecoderState = copyDecoderState();
-  newDecoderState.instructions[op]!.name = name;
+  if (!newDecoderState.instructions[op]) {
+    newDecoderState.instructions[op] = {
+      name: '',
+      gates: 0,
+    };
+  }
+  if (name === '' && !newDecoderState.instructions[op]?.gates) {
+    newDecoderState.instructions[op] = undefined;
+  } else {
+    newDecoderState.instructions[op].name = name;
+  }
   decoderState.value = markRaw(newDecoderState);
 }
 
 function setInstructionGate(op: number, gate: Gate, value: boolean) {
   const newDecoderState = copyDecoderState();
+  if (!newDecoderState.instructions[op]) {
+    newDecoderState.instructions[op] = {
+      name: '',
+      gates: 0,
+    };
+  }
   if (value) {
-    newDecoderState.instructions[op]!.gates |= gate;
+    newDecoderState.instructions[op].gates |= gate;
   } else {
-    newDecoderState.instructions[op]!.gates &= ~gate;
+    newDecoderState.instructions[op].gates &= ~gate;
+  }
+  if (
+    !newDecoderState.instructions[op].name &&
+    !newDecoderState.instructions[op].gates
+  ) {
+    newDecoderState.instructions[op] = undefined;
   }
   decoderState.value = markRaw(newDecoderState);
 }
@@ -118,6 +142,11 @@ function setTimingMask(stage: CpuStage, gate: Gate, value: boolean) {
 
 function copyDecoderState(): IDecoderState {
   const oldDecoderState = decoderState.value;
-  return structuredClone(oldDecoderState);
+  return {
+    instructions: oldDecoderState.instructions.map((x) => (x ? { ...x } : x)),
+    timingMasks: {
+      ...oldDecoderState.timingMasks,
+    },
+  };
 }
 </script>

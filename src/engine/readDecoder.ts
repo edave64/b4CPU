@@ -58,7 +58,7 @@ function readGates(acc: number, gate: string): number {
 }
 
 export interface IDecoderJson {
-  instructions: Array<{ name: string; gates: string[] } | undefined>;
+  instructions: Array<{ name: string; gates: string[] } | undefined | null>;
   timingMasks: {
     fetch: string[];
     decode: string[];

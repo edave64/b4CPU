@@ -433,8 +433,6 @@
 <script lang="ts" setup>
 import type { CpuState } from '../engine/cpu';
 import { CpuAccessor, getAluOp, makeCpuState } from '../engine/cpu';
-import type { IExcerciseState } from '../interfaces/excercises';
-import type { PropType } from 'vue';
 import { computed, ref } from 'vue';
 import alu from './ALU.vue';
 import bus from './BusLanes.vue';
@@ -452,10 +450,6 @@ import type { IDecoderState } from '../interfaces/decoder';
 import { accessorComputed } from './cpuAdapters';
 
 const props = defineProps({
-  excerciseState: {
-    type: Object as PropType<IExcerciseState>,
-  },
-
   allowMaskEditing: {
     type: Boolean,
     default: false,

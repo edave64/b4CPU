@@ -16,16 +16,19 @@
       @click="emit('advance')"
     />
   </p>
-  <CPU v-model:cpu="pageState.cpu" :decoder-state="decoderState" :mask="mask" />
+  <TaskCpu :task="task" @finished="pageState.beaten = true" />
 </template>
 <script setup lang="ts">
-import { CpuAccessor, type CpuState, makeCpuState } from '../../engine/cpu';
-import CPU from '../../components/CPU.vue';
-import type { IDecoderState } from '../../interfaces/decoder';
-import { readDecoder } from '../../engine/readDecoder';
-import { markRaw, watch } from 'vue';
+import { computed, markRaw, watch } from 'vue';
 import { useTutorial } from '../../stores/tutorial';
 import confetti from 'canvas-confetti';
+import taskJson from './ConstantLoadInstructionsTask.json';
+import {
+  type IExcerciseJSON,
+  type IExcerciseState,
+  initTask,
+} from '../../interfaces/excercises';
+import TaskCpu from '../../components/TaskCpu.vue';
 
 const emit = defineEmits(['advance']);
 
@@ -33,58 +36,25 @@ const tutorial = useTutorial();
 
 if (!tutorial.chapterState[tutorial.chapter]) {
   tutorial.chapterState[tutorial.chapter] = {
-    cpu: markRaw(makeCpuState()),
+    task: initTask(taskJson as IExcerciseJSON),
     beaten: false,
   } as ChapterState;
 }
 
 const pageState = tutorial.chapterState[tutorial.chapter] as ChapterState;
-
-const decoderState: IDecoderState = readDecoder({
-  instructions: [
-    {
-      name: 'NOP',
-      gates: [],
-    },
-    {
-      name: 'LDA',
-      gates: ['AW'],
-    },
-    {
-      name: 'LDB',
-      gates: ['BW'],
-    },
-    undefined!,
-    {
-      name: 'JMP',
-      gates: ['JN'],
-    },
-  ],
-  timingMasks: {
-    fetch: [],
-    decode: [],
-    read: [],
-    exec: [],
-    write: ['AW', 'BW'],
+const task = computed({
+  get() {
+    return pageState.task;
+  },
+  set(newTask: IExcerciseState) {
+    pageState.task = markRaw(newTask);
   },
 });
-const mask = makeCpuState();
-for (let i = 0; i < 2; i++) {
-  CpuAccessor.setInstructionsOp(mask, i, 0b0011);
-  CpuAccessor.setInstructionsData(mask, i, 15);
-}
-
-CpuAccessor.setInstructionsOp(pageState.cpu, 2, 0b0100);
 
 watch(
-  () => pageState.cpu,
-  (cpu) => {
-    if (
-      CpuAccessor.getRegA(cpu) !== 0 &&
-      CpuAccessor.getRegB(cpu) !== 0 &&
-      !pageState.beaten
-    ) {
-      pageState.beaten = true;
+  () => pageState.beaten,
+  (beaten) => {
+    if (beaten) {
       confetti({
         particleCount: 200,
         spread: 1000,
@@ -94,7 +64,7 @@ watch(
 );
 
 interface ChapterState {
-  cpu: CpuState;
+  task: IExcerciseState;
   beaten: boolean;
 }
 </script>

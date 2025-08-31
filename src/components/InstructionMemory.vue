@@ -19,9 +19,18 @@
           <select
             style="height: 100%; width: 100%"
             :value="ops[i + cluster * 4]!.value"
-            :style="getStyle(ops[i + cluster * 4]!.value)"
+            :style="
+              getStyle(
+                ops[i + cluster * 4]!.value,
+                opMasks[i + cluster * 4]!.value,
+              )
+            "
             :id="`rom_inst_${i + cluster * 4}`"
             :disabled="opMasks[i + cluster * 4]!.value === 0"
+            @click.right.prevent="
+              opMasks[i + cluster * 4]!.value =
+                (opMasks[i + cluster * 4]!.value + 1) % 16
+            "
             @input="
               ops[i + cluster * 4]!.value = +(
                 $event.target as HTMLSelectElement
@@ -35,7 +44,7 @@
               )"
               :key="op.name"
               :value="opcode"
-              :style="getStyle(opcode)"
+              :style="getStyle(opcode, opMasks[i + cluster * 4]!.value)"
             >
               {{ op.name }}
             </option>
@@ -120,9 +129,16 @@ for (let i = 0; i < 16; i++) {
   dataMasks.push(accessorComputed('InstructionsData', mask, i));
 }
 
-function getStyle(value: number) {
-  const colors = Array.from(value.toString(2).padStart(4, '0')).map((x) =>
-    x === '1' ? 'var(--active-color)' : 'var(--inactive-color)',
+function getStyle(value: number, mask: number) {
+  const maskValue = mask.toString(2).padStart(4, '0');
+  const colors = Array.from(value.toString(2).padStart(4, '0')).map((x, i) =>
+    x === '1'
+      ? maskValue[i] === '1'
+        ? 'var(--active-color)'
+        : 'var(--active-color-disabled)'
+      : maskValue[i] === '1'
+        ? 'var(--inactive-color)'
+        : 'var(--inactive-color-disabled)',
   );
   const background = `linear-gradient(to right, ${colors.reduce(
     (acc, x, i, ary) => {
