@@ -2,12 +2,7 @@
   <g id="pc" style="transform: translate(704px, 632px)">
     <rect class="component-bg" width="168" height="136" x="0" y="0" />
     <text class="component-label" x="8" y="40"> PC </text>
-    <word
-      :x="8"
-      :y="56"
-      :model-value="modelValue"
-      @update:model-value="$emit('update:modelValue', $event)"
-    />
+    <word :x="8" :y="56" v-model="modelValue" v-model:mask="mask" />
     <direction-arrow dir="up" :value="!jump" :x="24" :y="98" />
     <direction-arrow dir="up" :value="jump" :x="120" :y="98" />
   </g>
@@ -22,11 +17,8 @@ defineProps({
     type: Boolean,
     required: true,
   },
-  modelValue: {
-    type: Number,
-    required: true,
-  },
 });
 
-defineEmits(['update:modelValue']);
+const modelValue = defineModel<number>();
+const mask = defineModel<number>('mask');
 </script>

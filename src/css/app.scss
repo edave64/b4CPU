@@ -6,6 +6,8 @@
   --object-text-color: #000;
   --inactive-color: #000;
   --active-color: #c00;
+  --inactive-color-disabled: #555;
+  --active-color-disabled: #c55;
   --object-text-active-color: var(--active-color);
   --inactive-text-color: #fff;
   --active-text-color: #fff;
@@ -51,5 +53,22 @@ body {
 
   &.active {
     fill: var(--object-text-active-color);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  textarea {
+    background-color: var(--background);
+    color: var(--object-text-color);
+  }
+
+  select {
+    background-color: var(--background);
+    color: var(--object-text-color);
+  }
+
+  input {
+    background-color: var(--background);
+    color: var(--object-text-color);
   }
 }

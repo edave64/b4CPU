@@ -7,6 +7,7 @@
   >
     <bit
       v-model="bit3"
+      v-model:mask="mask3"
       :x="0"
       :y="0"
       :style="blocked ? 'cursor: not-allowed' : ''"
@@ -17,6 +18,7 @@
     />
     <bit
       v-model="bit2"
+      v-model:mask="mask2"
       :x="40"
       :y="0"
       ref="comp_bit2"
@@ -28,6 +30,7 @@
     />
     <bit
       v-model="bit1"
+      v-model:mask="mask1"
       :x="80"
       :y="0"
       ref="comp_bit1"
@@ -39,6 +42,7 @@
     />
     <bit
       v-model="bit0"
+      v-model:mask="mask0"
       :x="120"
       :y="0"
       ref="comp_bit0"
@@ -57,23 +61,28 @@ import Bit from './BitBtn.vue';
 const props = defineProps({
   x: Number,
   y: Number,
-  modelValue: {
-    type: Number,
-    required: true,
-  },
   blocked: {
     type: Boolean,
     default: false,
   },
 });
-const emit = defineEmits(['update:modelValue', 'up', 'down']);
-function makeBit(mask: number) {
+defineEmits(['up', 'down']);
+
+const value = defineModel<number>({
+  required: true,
+});
+
+const mask = defineModel<number>('mask', {
+  default: 0,
+});
+
+function makeBit(mask: number, target = value) {
   return computed({
     get(): boolean {
-      return !!(props.modelValue & mask);
+      return !!(target.value & mask);
     },
     set() {
-      if (!props.blocked) emit('update:modelValue', props.modelValue ^ mask);
+      if (!props.blocked) target.value ^= mask;
     },
   });
 }
@@ -88,6 +97,10 @@ const bit0 = makeBit(0b0001);
 const bit1 = makeBit(0b0010);
 const bit2 = makeBit(0b0100);
 const bit3 = makeBit(0b1000);
+const mask0 = makeBit(0b0001, mask);
+const mask1 = makeBit(0b0010, mask);
+const mask2 = makeBit(0b0100, mask);
+const mask3 = makeBit(0b1000, mask);
 
 const comp_bit3 = ref(null as typeof Bit | null);
 const comp_bit2 = ref(null as typeof Bit | null);

@@ -19,8 +19,18 @@
           <select
             style="height: 100%; width: 100%"
             :value="ops[i + cluster * 4]!.value"
-            :style="getStyle(ops[i + cluster * 4]!.value)"
+            :style="
+              getStyle(
+                ops[i + cluster * 4]!.value,
+                opMasks[i + cluster * 4]!.value,
+              )
+            "
             :id="`rom_inst_${i + cluster * 4}`"
+            :disabled="opMasks[i + cluster * 4]!.value === 0"
+            @click.right.prevent="
+              opMasks[i + cluster * 4]!.value =
+                (opMasks[i + cluster * 4]!.value + 1) % 16
+            "
             @input="
               ops[i + cluster * 4]!.value = +(
                 $event.target as HTMLSelectElement
@@ -28,10 +38,13 @@
             "
           >
             <option
-              v-for="(op, i) in instructions"
+              v-for="[op, opcode] in limitedInstructions(
+                ops[i + cluster * 4]!.value,
+                opMasks[i + cluster * 4]!.value,
+              )"
               :key="op.name"
-              :value="i"
-              :style="getStyle(i)"
+              :value="opcode"
+              :style="getStyle(opcode, opMasks[i + cluster * 4]!.value)"
             >
               {{ op.name }}
             </option>
@@ -44,6 +57,8 @@
           :id="`rom_addr_${i + cluster * 4}`"
           :model-value="addr[i + cluster * 4]!.value"
           @update:model-value="addr[i + cluster * 4]!.value = $event"
+          :mask="addrMasks[i + cluster * 4]!.value"
+          @update:mask="addrMasks[i + cluster * 4]!.value = $event"
           @keydown.right.stop="ref_data[i + cluster * 4]!.doFocus(3)"
           @keydown.left.stop="ref_inst[i + cluster * 4]!.doFocus()"
           @up="ref_addr[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
@@ -56,6 +71,8 @@
           :id="`rom_data_${i + cluster * 4}`"
           :model-value="data[i + cluster * 4]!.value"
           @update:model-value="data[i + cluster * 4]!.value = $event"
+          :mask="dataMasks[i + cluster * 4]!.value"
+          @update:mask="dataMasks[i + cluster * 4]!.value = $event"
           @keydown.right.stop="ref_inst[(i + cluster * 4 + 1) % 16]!.doFocus(3)"
           @keydown.left.stop="ref_addr[i + cluster * 4]!.doFocus()"
           @up="ref_data[(i + cluster * 4 + 15) % 16]!.doFocus($event)"
@@ -71,8 +88,9 @@ import Word from './WordBits.vue';
 import CounterArrow from './CounterArrow.vue';
 import type { PropType, Ref } from 'vue';
 import { computed, ref } from 'vue';
-import { CpuAccessor, updateCpu, type CpuState } from '../engine/cpu';
-import type { IDecoderState } from '../interfaces/decoder';
+import { CpuAccessor, type CpuState } from '../engine/cpu';
+import type { IDecoderState, IInstruction } from '../interfaces/decoder';
+import { accessorComputed } from './cpuAdapters';
 
 const ref_inst: Ref<(typeof Word)[]> = ref([]);
 const ref_addr: Ref<(typeof Word)[]> = ref([]);
@@ -89,48 +107,38 @@ const cpu = defineModel<CpuState>('cpu', {
   required: true,
 });
 
+const mask = defineModel<CpuState>('mask', {
+  required: true,
+});
+
 const pc = computed(() => CpuAccessor.getPc(cpu.value));
 
 const ops: Ref<number>[] = [];
+const opMasks: Ref<number>[] = [];
 const addr: Ref<number>[] = [];
+const addrMasks: Ref<number>[] = [];
 const data: Ref<number>[] = [];
+const dataMasks: Ref<number>[] = [];
 
 for (let i = 0; i < 16; i++) {
-  ops.push(
-    computed({
-      get: () => CpuAccessor.getInstructionsOp(cpu.value, i),
-      set: (v) => {
-        cpu.value = updateCpu(cpu.value, (cpu) => {
-          CpuAccessor.setInstructionsOp(cpu, i, v);
-        });
-      },
-    }),
-  );
-  addr.push(
-    computed({
-      get: () => CpuAccessor.getInstructionsAddr(cpu.value, i),
-      set: (v) => {
-        cpu.value = updateCpu(cpu.value, (cpu) => {
-          CpuAccessor.setInstructionsAddr(cpu, i, v);
-        });
-      },
-    }),
-  );
-  data.push(
-    computed({
-      get: () => CpuAccessor.getInstructionsData(cpu.value, i),
-      set: (v) => {
-        cpu.value = updateCpu(cpu.value, (cpu) => {
-          CpuAccessor.setInstructionsData(cpu, i, v);
-        });
-      },
-    }),
-  );
+  ops.push(accessorComputed('InstructionsOp', cpu, i));
+  opMasks.push(accessorComputed('InstructionsOp', mask, i));
+  addr.push(accessorComputed('InstructionsAddr', cpu, i));
+  addrMasks.push(accessorComputed('InstructionsAddr', mask, i));
+  data.push(accessorComputed('InstructionsData', cpu, i));
+  dataMasks.push(accessorComputed('InstructionsData', mask, i));
 }
 
-function getStyle(value: number) {
-  const colors = Array.from(value.toString(2).padStart(4, '0')).map((x) =>
-    x === '1' ? 'var(--active-color)' : 'var(--inactive-color)',
+function getStyle(value: number, mask: number) {
+  const maskValue = mask.toString(2).padStart(4, '0');
+  const colors = Array.from(value.toString(2).padStart(4, '0')).map((x, i) =>
+    x === '1'
+      ? maskValue[i] === '1'
+        ? 'var(--active-color)'
+        : 'var(--active-color-disabled)'
+      : maskValue[i] === '1'
+        ? 'var(--inactive-color)'
+        : 'var(--inactive-color-disabled)',
   );
   const background = `linear-gradient(to right, ${colors.reduce(
     (acc, x, i, ary) => {
@@ -146,9 +154,19 @@ function getStyle(value: number) {
   };
 }
 
-const instructions = computed(() => {
-  return props.decoderState.instructions;
-});
+function limitedInstructions(
+  op: number,
+  mask: number,
+): [IInstruction, number][] {
+  if (mask === 15)
+    return props.decoderState.instructions
+      .map((x, i) => [x, i])
+      .filter((x) => x[0] !== undefined) as [IInstruction, number][];
+  const maskedOp = op & ~mask;
+  return props.decoderState.instructions
+    .map((x, i) => [x, i] as [IInstruction, number])
+    .filter((x) => x[0] !== undefined && (x[1] & ~mask) === maskedOp);
+}
 </script>
 
 <style lang="scss" scoped>
@@ -158,5 +176,9 @@ select {
   font-size: 24px;
   font-family: 'Courier New', Courier, monospace;
   font-weight: bolder;
+}
+
+select:disabled {
+  position: fixed;
 }
 </style>

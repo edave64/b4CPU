@@ -5,35 +5,35 @@
       "gates": []
     },
     {
-      "name": "LD A",
+      "name": "LDA",
       "gates": ["AW"]
     },
     {
-      "name": "LR A",
+      "name": "LRA",
       "gates": ["AW", "RR"]
     },
     {
-      "name": "LD B",
+      "name": "LDB",
       "gates": ["BW"]
     },
     {
-      "name": "LR B",
+      "name": "LRB",
       "gates": ["BW", "RR"]
     },
     {
-      "name": "LD B, A",
+      "name": "LDB,A",
       "gates": ["AR", "BW"]
     },
     {
-      "name": "LD A, B",
+      "name": "LDA,B",
       "gates": ["AW", "BR"]
     },
     {
-      "name": "ST A",
+      "name": "STA",
       "gates": ["AR", "RW"]
     },
     {
-      "name": "ST B",
+      "name": "STB",
       "gates": ["BR", "RW"]
     },
     {

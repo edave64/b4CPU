@@ -1,7 +1,7 @@
 <template>
   <g :style="`transform: translate(${x}px, ${y}px)`">
     <rect class="component-bg" width="168" height="96" x="0" y="0" />
-    <word :x="8" :y="56" v-model="modelValue" />
+    <word :x="8" :y="56" v-model="modelValue" v-model:mask="mask" />
     <text class="component-label" x="8" y="40">{{ name }}</text>
     <text
       class="component-port-label"
@@ -49,4 +49,5 @@ defineProps({
 });
 
 const modelValue = defineModel<number>();
+const mask = defineModel<number>('mask');
 </script>

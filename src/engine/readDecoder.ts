@@ -4,10 +4,14 @@ import { CpuStage } from './cpu';
 
 export function readDecoder(decoderJson: IDecoderJson): IDecoderState {
   return {
-    instructions: decoderJson.instructions.map((i) => ({
-      name: i.name,
-      gates: i.gates.reduce(readGates, 0),
-    })),
+    instructions: decoderJson.instructions.map((i) =>
+      i
+        ? {
+            name: i.name,
+            gates: i.gates.reduce(readGates, 0),
+          }
+        : undefined,
+    ),
     timingMasks: {
       [CpuStage.Fetch]: decoderJson.timingMasks.fetch.reduce(readGates, 0),
       [CpuStage.Decode]: decoderJson.timingMasks.decode.reduce(readGates, 0),
@@ -20,10 +24,14 @@ export function readDecoder(decoderJson: IDecoderJson): IDecoderState {
 
 export function writeDecoder(decoderState: IDecoderState): IDecoderJson {
   return {
-    instructions: decoderState.instructions.map((i) => ({
-      name: i.name,
-      gates: gateSetToStrAry(i.gates),
-    })),
+    instructions: decoderState.instructions.map((i) =>
+      i
+        ? {
+            name: i.name,
+            gates: gateSetToStrAry(i.gates),
+          }
+        : undefined,
+    ),
     timingMasks: {
       fetch: gateSetToStrAry(decoderState.timingMasks[CpuStage.Fetch]),
       decode: gateSetToStrAry(decoderState.timingMasks[CpuStage.Decode]),
@@ -50,7 +58,7 @@ function readGates(acc: number, gate: string): number {
 }
 
 export interface IDecoderJson {
-  instructions: Array<{ name: string; gates: string[] }>;
+  instructions: Array<{ name: string; gates: string[] } | undefined | null>;
   timingMasks: {
     fetch: string[];
     decode: string[];

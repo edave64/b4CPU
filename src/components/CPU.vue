@@ -8,418 +8,431 @@
     width="100%"
   >
     <g>
-      <text x="4" y="1008" id="databus_label">Data</text>
-      <bus
-        id="main_data_bus"
-        :x="0"
-        :y="1016"
-        :value="dataBus"
-        dir="horizontal"
-        :length="1920"
-      />
-      <text x="8" y="904" id="addressbus_label">Address</text>
-      <bus
-        id="main_address_bus"
-        :x="0"
-        :y="912"
-        :value="addressBus"
-        dir="horizontal"
-        :length="1920"
-      />
-      <bus
-        id="program_out_address"
-        :x="264"
-        :y="856"
-        :value="addressBus"
-        dir="vertical"
-        :length="112"
-        taperedEnd
-      />
-      <bus
-        id="program_out_data"
-        :x="432"
-        :y="856"
-        :value="dataBus"
-        dir="vertical"
-        :length="216"
-        taperedEnd
-      />
+      <template v-if="!showDecoderConfig">
+        <text x="4" y="1008" id="databus_label">Data</text>
+        <bus
+          id="main_data_bus"
+          :x="0"
+          :y="1016"
+          :value="dataBus"
+          dir="horizontal"
+          :length="1920"
+        />
+        <text x="8" y="904" id="addressbus_label">Address</text>
+        <bus
+          id="main_address_bus"
+          :x="0"
+          :y="912"
+          :value="addressBus"
+          dir="horizontal"
+          :length="1920"
+        />
+        <bus
+          id="program_out_address"
+          :x="264"
+          :y="856"
+          :value="addressBus"
+          dir="vertical"
+          :length="112"
+          taperedEnd
+        />
+        <bus
+          id="program_out_data"
+          :x="432"
+          :y="856"
+          :value="dataBus"
+          dir="vertical"
+          :length="216"
+          taperedEnd
+        />
 
-      <bus
-        id="pc_in_address"
-        :x="808"
-        :y="768"
-        :value="addressBus"
-        dir="vertical"
-        :length="200"
-        taperedEnd
-      />
+        <bus
+          id="pc_in_address"
+          :x="808"
+          :y="768"
+          :value="addressBus"
+          dir="vertical"
+          :length="200"
+          taperedEnd
+        />
 
-      <bus
-        id="incrementor_bus"
-        :x="576"
-        :y="776"
-        :value="pc + 1"
-        dir="horizontal"
-        :length="192"
-        taperedStart
-        taperedEnd
-      />
-      <bus
-        id="incrementor_out"
-        :x="576"
-        :y="768"
-        :value="pc + 1"
-        dir="vertical"
-        :length="64"
-        taperedEnd
-      />
-      <bus
-        id="pc_incrementor_in"
-        :x="712"
-        :y="768"
-        :value="pc + 1"
-        dir="vertical"
-        :length="64"
-        taperedEnd
-      />
-      <bus
-        id="pc_bus"
-        :x="552"
-        :y="640"
-        :value="pc"
-        dir="horizontal"
-        :length="152"
-      />
+        <bus
+          id="incrementor_bus"
+          :x="576"
+          :y="776"
+          :value="pc + 1"
+          dir="horizontal"
+          :length="192"
+          taperedStart
+          taperedEnd
+        />
+        <bus
+          id="incrementor_out"
+          :x="576"
+          :y="768"
+          :value="pc + 1"
+          dir="vertical"
+          :length="64"
+          taperedEnd
+        />
+        <bus
+          id="pc_incrementor_in"
+          :x="712"
+          :y="768"
+          :value="pc + 1"
+          dir="vertical"
+          :length="64"
+          taperedEnd
+        />
+        <bus
+          id="pc_bus"
+          :x="552"
+          :y="640"
+          :value="pc"
+          dir="horizontal"
+          :length="152"
+        />
 
-      <bus
-        id="incrementor_in"
-        :x="576"
-        :y="640"
-        :value="pc"
-        dir="vertical"
-        :length="80"
-        taperedStart
-      />
+        <bus
+          id="incrementor_in"
+          :x="576"
+          :y="640"
+          :value="pc"
+          dir="vertical"
+          :length="80"
+          taperedStart
+        />
 
-      <bus
-        id="alu_out"
-        :x="1144"
-        :y="592"
-        :value="dataBus"
-        dir="vertical"
-        :length="480"
-        taperedEnd
-      />
+        <bus
+          id="alu_out"
+          :x="1144"
+          :y="592"
+          :value="dataBus"
+          dir="vertical"
+          :length="480"
+          taperedEnd
+        />
 
-      <bus
-        id="databus_registers_ext"
-        :x="1568"
-        :y="200"
-        :value="dataBus"
-        dir="vertical"
-        :length="872"
-        taperedStart
-        taperedEnd
-      />
-      <bus
-        id="databus_registers"
-        :x="1040"
-        :y="200"
-        :value="dataBus"
-        dir="horizontal"
-        :length="582"
-        taperedStart
-        taperedEnd
-      />
-      <bus
-        id="register_A_in"
-        :x="1040"
-        :y="200"
-        :value="dataBus"
-        dir="vertical"
-        :length="64"
-        taperedStart
-      />
-      <bus
-        id="register_B_in"
-        :x="1248"
-        :y="200"
-        :value="dataBus"
-        dir="vertical"
-        :length="64"
-        taperedStart
-      />
-      <lane
-        dir="horizontal"
-        :length="16"
-        :value="CpuAccessor.getFlagZ(cpu)"
-        :x="968"
-        :y="448"
-      />
-      <lane
-        dir="horizontal"
-        :length="16"
-        :value="CpuAccessor.getFlagO(cpu)"
-        :x="968"
-        :y="464"
-      />
-      <lane :length="264" :x="936" :y="488" dir="vertical" :value="false" />
-      <lane :length="72" :x="872" :y="744" dir="horizontal" :value="false" />
+        <bus
+          id="databus_registers_ext"
+          :x="1568"
+          :y="200"
+          :value="dataBus"
+          dir="vertical"
+          :length="872"
+          taperedStart
+          taperedEnd
+        />
+        <bus
+          id="databus_registers"
+          :x="1040"
+          :y="200"
+          :value="dataBus"
+          dir="horizontal"
+          :length="582"
+          taperedStart
+          taperedEnd
+        />
+        <bus
+          id="register_A_in"
+          :x="1040"
+          :y="200"
+          :value="dataBus"
+          dir="vertical"
+          :length="64"
+          taperedStart
+        />
+        <bus
+          id="register_B_in"
+          :x="1248"
+          :y="200"
+          :value="dataBus"
+          dir="vertical"
+          :length="64"
+          taperedStart
+        />
+        <lane
+          dir="horizontal"
+          :length="16"
+          :value="CpuAccessor.getFlagZ(cpu)"
+          :x="968"
+          :y="448"
+        />
+        <lane
+          dir="horizontal"
+          :length="16"
+          :value="CpuAccessor.getFlagO(cpu)"
+          :x="968"
+          :y="464"
+        />
+        <lane :length="264" :x="936" :y="488" dir="vertical" :value="false" />
+        <lane :length="72" :x="872" :y="744" dir="horizontal" :value="false" />
 
-      <lane
-        :length="328"
-        :x="920"
-        :y="104"
-        dir="vertical"
-        :value="!!(gates & Gate.JN)"
-      />
-      <lane
-        :length="328"
-        :x="936"
-        :y="104"
-        dir="vertical"
-        :value="!!(gates & Gate.JZ)"
-      />
-      <lane
-        :length="328"
-        :x="952"
-        :y="104"
-        dir="vertical"
-        :value="!!(gates & Gate.JO)"
-      />
+        <lane
+          :length="328"
+          :x="920"
+          :y="104"
+          dir="vertical"
+          :value="!!(gates & Gate.JN)"
+        />
+        <lane
+          :length="328"
+          :x="936"
+          :y="104"
+          dir="vertical"
+          :value="!!(gates & Gate.JZ)"
+        />
+        <lane
+          :length="328"
+          :x="952"
+          :y="104"
+          dir="vertical"
+          :value="!!(gates & Gate.JO)"
+        />
 
-      <lane
-        dir="horizontal"
-        :value="!!(gates & Gate.AW)"
-        :length="16"
-        :x="1152"
-        :y="272"
-      />
-      <lane
-        dir="vertical"
-        :value="!!(gates & Gate.AW)"
-        :length="176"
-        :x="1160"
-        :y="104"
-      />
+        <lane
+          dir="horizontal"
+          :value="!!(gates & Gate.AW)"
+          :length="16"
+          :x="1152"
+          :y="272"
+        />
+        <lane
+          dir="vertical"
+          :value="!!(gates & Gate.AW)"
+          :length="176"
+          :x="1160"
+          :y="104"
+        />
 
-      <lane
-        dir="horizontal"
-        :value="!!(gates & Gate.AR)"
-        :length="32"
-        :x="1152"
-        :y="288"
-      />
-      <lane
-        dir="vertical"
-        :value="!!(gates & Gate.AR)"
-        :length="192"
-        :x="1176"
-        :y="104"
-      />
+        <lane
+          dir="horizontal"
+          :value="!!(gates & Gate.AR)"
+          :length="32"
+          :x="1152"
+          :y="288"
+        />
+        <lane
+          dir="vertical"
+          :value="!!(gates & Gate.AR)"
+          :length="192"
+          :x="1176"
+          :y="104"
+        />
 
-      <lane
-        dir="horizontal"
-        :value="!!(gates & Gate.BW)"
-        :length="16"
-        :x="1360"
-        :y="272"
-      />
-      <lane
-        dir="vertical"
-        :value="!!(gates & Gate.BW)"
-        :length="176"
-        :x="1368"
-        :y="104"
-      />
+        <lane
+          dir="horizontal"
+          :value="!!(gates & Gate.BW)"
+          :length="16"
+          :x="1360"
+          :y="272"
+        />
+        <lane
+          dir="vertical"
+          :value="!!(gates & Gate.BW)"
+          :length="176"
+          :x="1368"
+          :y="104"
+        />
 
-      <lane
-        dir="horizontal"
-        :value="!!(gates & Gate.BR)"
-        :length="32"
-        :x="1360"
-        :y="288"
-      />
-      <lane
-        dir="vertical"
-        :value="!!(gates & Gate.BR)"
-        :length="192"
-        :x="1384"
-        :y="104"
-      />
+        <lane
+          dir="horizontal"
+          :value="!!(gates & Gate.BR)"
+          :length="32"
+          :x="1360"
+          :y="288"
+        />
+        <lane
+          dir="vertical"
+          :value="!!(gates & Gate.BR)"
+          :length="192"
+          :x="1384"
+          :y="104"
+        />
 
-      <lane
-        dir="horizontal"
-        :value="!!(gates & Gate.RW)"
-        :length="32"
-        :x="1672"
-        :y="856"
-      />
-      <lane
-        dir="vertical"
-        :value="!!(gates & Gate.RW)"
-        :length="760"
-        :x="1672"
-        :y="104"
-      />
+        <lane
+          dir="horizontal"
+          :value="!!(gates & Gate.RW)"
+          :length="32"
+          :x="1672"
+          :y="856"
+        />
+        <lane
+          dir="vertical"
+          :value="!!(gates & Gate.RW)"
+          :length="760"
+          :x="1672"
+          :y="104"
+        />
 
-      <lane
-        dir="horizontal"
-        :value="!!(gates & Gate.RR)"
-        :length="48"
-        :x="1656"
-        :y="872"
-      />
-      <lane
-        dir="vertical"
-        :value="!!(gates & Gate.RR)"
-        :length="776"
-        :x="1656"
-        :y="104"
-      />
+        <lane
+          dir="horizontal"
+          :value="!!(gates & Gate.RR)"
+          :length="48"
+          :x="1656"
+          :y="872"
+        />
+        <lane
+          dir="vertical"
+          :value="!!(gates & Gate.RR)"
+          :length="776"
+          :x="1656"
+          :y="104"
+        />
 
-      <bus
-        dir="vertical"
-        :length="32"
-        :value="CpuAccessor.getInstructionsOp(cpu, pc)"
-        :x="96"
-        :y="104"
-      />
+        <bus
+          dir="vertical"
+          :length="32"
+          :value="CpuAccessor.getInstructionsOp(cpu, pc)"
+          :x="96"
+          :y="104"
+        />
 
-      <lane
-        dir="horizontal"
-        :value="!!(aluOp & 0b01)"
-        :length="56"
-        :x="1360"
-        :y="416"
-      />
-      <lane
-        dir="vertical"
-        :value="!!(aluOp & 0b01)"
-        :length="320"
-        :x="1408"
-        :y="104"
-      />
-      <lane
-        dir="horizontal"
-        :value="!!(aluOp & 0b10)"
-        :length="72"
-        :x="1360"
-        :y="432"
-      />
-      <lane
-        dir="vertical"
-        :value="!!(aluOp & 0b10)"
-        :length="336"
-        :x="1424"
-        :y="104"
-      />
+        <lane
+          dir="horizontal"
+          :value="!!(aluOp & 0b01)"
+          :length="56"
+          :x="1360"
+          :y="416"
+        />
+        <lane
+          dir="vertical"
+          :value="!!(aluOp & 0b01)"
+          :length="320"
+          :x="1408"
+          :y="104"
+        />
+        <lane
+          dir="horizontal"
+          :value="!!(aluOp & 0b10)"
+          :length="72"
+          :x="1360"
+          :y="432"
+        />
+        <lane
+          dir="vertical"
+          :value="!!(aluOp & 0b10)"
+          :length="336"
+          :x="1424"
+          :y="104"
+        />
 
-      <bus
-        id="ram_in_address"
-        :x="1840"
-        :y="856"
-        :value="addressBus"
-        dir="vertical"
-        :length="112"
-        taperedEnd
-      />
+        <bus
+          id="ram_in_address"
+          :x="1840"
+          :y="856"
+          :value="addressBus"
+          dir="vertical"
+          :length="112"
+          taperedEnd
+        />
 
-      <bus
-        id="databus_ram"
-        :x="1744"
-        :y="896"
-        :value="dataBus"
-        dir="vertical"
-        :length="176"
-        taperedEnd
-      />
+        <bus
+          id="databus_ram"
+          :x="1744"
+          :y="896"
+          :value="dataBus"
+          dir="vertical"
+          :length="176"
+          taperedEnd
+        />
+        <instruction-memory
+          ref="romComp"
+          v-model:cpu="cpu"
+          v-model:mask="maskProtected"
+          :decoder-state="decoderState"
+          @keydown="navKey(romComp, $event)"
+        />
+        <data-memory
+          ref="dataComp"
+          v-model:cpu="cpu"
+          v-model:mask="maskProtected"
+          @keydown="navKey(dataComp, $event)"
+        />
 
+        <register
+          id="reg_a"
+          name="A"
+          :x="984"
+          :y="264"
+          ref="regAComp"
+          v-model="regA"
+          v-model:mask="regAMask"
+          :command-read="!!(gates & Gate.AR)"
+          :command-write="!!(gates & Gate.AW)"
+          @keydown="navKey(regAComp, $event)"
+        />
+        <register
+          id="reg_b"
+          name="B"
+          :x="1192"
+          :y="264"
+          ref="regBComp"
+          v-model="regB"
+          v-model:mask="regBMask"
+          :command-read="!!(gates & Gate.BR)"
+          :command-write="!!(gates & Gate.BW)"
+          @keydown="navKey(regBComp, $event)"
+        />
+
+        <alu
+          id="alu"
+          ref="aluComp"
+          :select="aluOp"
+          v-model:flag-o="flagO"
+          v-model:flag-z="flagZ"
+          v-model:flag-o-mask="flagOMask"
+          v-model:flag-z-mask="flagZMask"
+          @keydown="navKey(aluComp, $event)"
+        />
+        <bus
+          id="alu_in_A"
+          dir="vertical"
+          :length="40"
+          :x="1040"
+          :y="360"
+          :value="regA"
+        />
+        <bus
+          id="alu_in_B"
+          dir="vertical"
+          :length="40"
+          :x="1248"
+          :y="360"
+          :value="regB"
+        />
+
+        <jump-manager />
+        <program-counter
+          ref="pcComp"
+          id="program_counter"
+          v-model="pc"
+          v-model:mask="pcMask"
+          :jump="false"
+          @keydown="navKey(pcComp, $event)"
+        />
+        <incrementor />
+      </template>
+      <template v-else>
+        <foreignObject x="16" y="136" width="1800" height="900">
+          <decoder-config v-model="decoderState" />
+        </foreignObject>
+      </template>
       <control-unit
         ref="controlComp"
-        v-model:cpu="cpu"
+        allow-decoder-config
         :decoder-state="decoderState"
+        v-model:cpu="cpu"
+        v-model:show-decoder-config="showDecoderConfig"
         @keydown="navKey(controlComp, $event)"
       />
-      <instruction-memory
-        ref="romComp"
-        v-model:cpu="cpu"
-        :decoder-state="decoderState"
-        @keydown="navKey(romComp, $event)"
-      />
-      <data-memory
-        ref="dataComp"
-        v-model:cpu="cpu"
-        @keydown="navKey(dataComp, $event)"
-      />
-
-      <register
-        id="reg_a"
-        name="A"
-        :x="984"
-        :y="264"
-        ref="regAComp"
-        v-model="regA"
-        :command-read="!!(gates & Gate.AR)"
-        :command-write="!!(gates & Gate.AW)"
-        @keydown="navKey(regAComp, $event)"
-      />
-      <register
-        id="reg_b"
-        name="B"
-        :x="1192"
-        :y="264"
-        ref="regBComp"
-        v-model="regB"
-        :command-read="!!(gates & Gate.BR)"
-        :command-write="!!(gates & Gate.BW)"
-        @keydown="navKey(regBComp, $event)"
-      />
-
-      <alu
-        id="alu"
-        ref="aluComp"
-        :select="aluOp"
-        v-model:flag-o="flagO"
-        v-model:flag-z="flagZ"
-        @keydown="navKey(aluComp, $event)"
-      />
-      <bus
-        id="alu_in_A"
-        dir="vertical"
-        :length="40"
-        :x="1040"
-        :y="360"
-        :value="regA"
-      />
-      <bus
-        id="alu_in_B"
-        dir="vertical"
-        :length="40"
-        :x="1248"
-        :y="360"
-        :value="regB"
-      />
-
-      <jump-manager />
-      <program-counter
-        ref="pcComp"
-        id="program_counter"
-        v-model="pc"
-        :jump="false"
-        @keydown="navKey(pcComp, $event)"
-      />
-      <incrementor />
     </g>
   </svg>
 </template>
 
 <script lang="ts" setup>
 import type { CpuState } from '../engine/cpu';
-import { CpuAccessor, getAluOp, updateCpu } from '../engine/cpu';
-import type { IExcerciseState } from '../interfaces/excercises';
-import type { PropType } from 'vue';
+import { CpuAccessor, getAluOp, makeCpuState } from '../engine/cpu';
 import { computed, ref } from 'vue';
 import alu from './ALU.vue';
 import bus from './BusLanes.vue';
@@ -431,22 +444,38 @@ import JumpManager from './JumpManager.vue';
 import lane from './BusLane.vue';
 import ProgramCounter from './ProgramCounter.vue';
 import Register from './DataRegister.vue';
+import DecoderConfig from './DecoderConfig.vue';
 import { Gate } from '../engine/cpu';
 import type { IDecoderState } from '../interfaces/decoder';
+import { accessorComputed } from './cpuAdapters';
 
-defineProps({
-  excerciseState: {
-    type: Object as PropType<IExcerciseState>,
-  },
-
-  decoderState: {
-    type: Object as PropType<IDecoderState>,
-    required: true,
+const props = defineProps({
+  allowMaskEditing: {
+    type: Boolean,
+    default: false,
   },
 });
 
 const cpu = defineModel<CpuState>('cpu', {
   required: true,
+});
+
+const mask = defineModel<CpuState>('mask', {
+  default: makeCpuState().fill(255),
+});
+
+const decoderState = defineModel<IDecoderState>('decoderState', {
+  required: true,
+});
+
+const maskProtected = computed({
+  get() {
+    return mask.value;
+  },
+  set(newMask: CpuState) {
+    if (!props.allowMaskEditing) return;
+    mask.value = newMask;
+  },
 });
 
 const romComp = ref(null as typeof InstructionMemory | null);
@@ -456,6 +485,8 @@ const regBComp = ref(null as typeof Register | null);
 const aluComp = ref(null as typeof alu | null);
 const controlComp = ref(null as typeof ControlUnit | null);
 const pcComp = ref(null as typeof ProgramCounter | null);
+const showDecoderConfig = ref(false);
+
 const compOrder = [
   controlComp,
   romComp,
@@ -495,57 +526,17 @@ const aluOp = computed(() => {
   return getAluOp(gates.value);
 });
 
-const regA = computed({
-  get() {
-    return CpuAccessor.getRegA(cpu.value);
-  },
-  set(value) {
-    cpu.value = updateCpu(cpu.value, (cpu) => {
-      CpuAccessor.setRegA(cpu, value);
-    });
-  },
-});
-const regB = computed({
-  get() {
-    return CpuAccessor.getRegB(cpu.value);
-  },
-  set(value) {
-    cpu.value = updateCpu(cpu.value, (cpu) => {
-      CpuAccessor.setRegB(cpu, value);
-    });
-  },
-});
-const pc = computed({
-  get() {
-    return CpuAccessor.getPc(cpu.value);
-  },
-  set(value) {
-    cpu.value = updateCpu(cpu.value, (cpu) => {
-      CpuAccessor.setPc(cpu, value);
-    });
-  },
-});
+const regA = accessorComputed('RegA', cpu);
+const regB = accessorComputed('RegB', cpu);
+const pc = accessorComputed('Pc', cpu);
+const flagO = accessorComputed('FlagO', cpu);
+const flagZ = accessorComputed('FlagZ', cpu);
 
-const flagO = computed({
-  get() {
-    return CpuAccessor.getFlagO(cpu.value);
-  },
-  set(value) {
-    cpu.value = updateCpu(cpu.value, (cpu) => {
-      CpuAccessor.setFlagO(cpu, value);
-    });
-  },
-});
-const flagZ = computed({
-  get() {
-    return CpuAccessor.getFlagZ(cpu.value);
-  },
-  set(value) {
-    cpu.value = updateCpu(cpu.value, (cpu) => {
-      CpuAccessor.setFlagZ(cpu, value);
-    });
-  },
-});
+const regAMask = accessorComputed('RegA', maskProtected);
+const regBMask = accessorComputed('RegB', maskProtected);
+const pcMask = accessorComputed('Pc', maskProtected);
+const flagOMask = accessorComputed('FlagO', maskProtected);
+const flagZMask = accessorComputed('FlagZ', maskProtected);
 </script>
 
 <style lang="scss" scoped>

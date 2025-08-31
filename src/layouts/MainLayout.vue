@@ -21,6 +21,7 @@
       <q-list>
         <q-item-label header class="text-grey-8"> Menu </q-item-label>
         <q-item clickable v-ripple to="/"> CPU view </q-item>
+        <q-item clickable v-ripple to="/task"> Create Task </q-item>
         <q-item clickable v-ripple to="/tutorial"> Tutorial </q-item>
         <q-item clickable v-ripple @click="save"> Save </q-item>
         <q-item clickable v-ripple @click="load"> Load </q-item>
@@ -44,6 +45,7 @@ import { useDecoderStore } from '../stores/decoder';
 import { readDecoder, writeDecoder } from '../engine/readDecoder';
 import { useCpuStore } from '../stores/cpu';
 import { ref } from 'vue';
+import { saveJson, tryLoadJson } from '../utils/file';
 
 const leftDrawerOpen = ref(false);
 
@@ -52,49 +54,21 @@ function toggleLeftDrawer() {
 }
 
 function save() {
-  const state = useCpuStore().cpu;
-
-  const a = document.createElement('a');
-  const url = URL.createObjectURL(
-    new Blob(
-      [
-        JSON.stringify({
-          cpu: Array.from(state),
-          decoder: writeDecoder(useDecoderStore().state),
-        }),
-      ],
-      { type: 'application/json' },
-    ),
+  saveJson(
+    {
+      cpu: Array.from(useCpuStore().cpu),
+      decoder: writeDecoder(useDecoderStore().state),
+    },
+    'b4cpu',
   );
-  const date = new Date();
-  a.setAttribute(
-    'download',
-    `b4cpu_${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}${date.getHours()}${date.getMinutes()}.json`,
-  );
-  a.setAttribute('href', url);
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 }
 
 function load() {
-  console.log('load');
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.onchange = () => {
-    const file = input.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const json = JSON.parse(reader.result as string);
-      const cpu = new Uint8Array(json.cpu);
-      console.info(cpu);
-      useDecoderStore().state = readDecoder(json.decoder);
-      useCpuStore().cpu = cpu;
-    };
-    reader.readAsText(file);
-  };
-  input.click();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  tryLoadJson<any>((json) => {
+    const cpu = new Uint8Array(json.cpu);
+    useCpuStore().cpu = cpu;
+    useDecoderStore().state = readDecoder(json.decoder);
+  });
 }
 </script>
